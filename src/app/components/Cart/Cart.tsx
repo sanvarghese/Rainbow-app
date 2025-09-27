@@ -72,7 +72,7 @@ const Cart = () => {
     <div className="cart-page">
       <div className="container-fluid cart-shop pb-5">
         <div className="row">
-          <div className="col-12 col-sm-8 col-md-10 col-lg-10 cartone">
+          <div className="col-12 col-sm-12 col-md-8 col-lg-8 cartone">
             <h4 className="shoppingcarthead">Your Shopping Cart</h4>
 
             {cartItems.map((item) => (

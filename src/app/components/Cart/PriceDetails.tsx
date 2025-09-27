@@ -34,7 +34,7 @@ const PriceDetails: React.FC<Props> = ({ cartItems }) => {
   };
 
   return (
-    <div className="col-12 col-sm-4 col-md-2 col-lg-2 summerycol">
+    <div className="col-12 col-sm-12 col-md-4 col-lg-4 summerycol">
       <div className="summary-wrapper">
         <div className="card p-4 summary-card">
           <h5 className="mb-3 text-muted">Price details</h5>
