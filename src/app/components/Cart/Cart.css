@@ -1,0 +1,1435 @@
+.cart-page {
+  background-color: rgba(224, 224, 222, 0.534);
+}
+.cart-shop {
+  width: 90%;
+  overflow: hidden;
+}
+.cartone {
+  margin-top: 20px;
+}
+.shoppingcarthead {
+  color: green;
+  margin-top: 20px;
+  margin-bottom: 40px;
+  font-weight: bold;
+}
+.cartcard {
+  background-color: white;
+  border: 1px solid rgb(255, 253, 253);
+  width: unset;
+  /* width: 1155px; */
+  height: 208px;
+  margin-bottom: 20px;
+}
+
+.cartimg {
+  width: 99px;
+  height: 144px;
+  margin: 30px;
+}
+
+.carttitle {
+  font-size: 16px;
+  font-weight: 700px;
+  color: black;
+}
+.stars_in_cart {
+  color: green;
+}
+.subheadingcart {
+  color: #787878;
+}
+.btncart {
+  background-color: #e7e3e3;
+  margin: 10px;
+  color: green;
+}
+.saveforlater {
+  font-size: 12px;
+  font-weight: bold;
+  width: 80px;
+  height: 8px;
+  position: relative;
+  top: 4px;
+}
+.cartbody {
+  margin: 30px;
+}
+.cartfinalamount {
+  color: green;
+  margin-top: 8%;
+  font-weight: bold;
+  text-align: start;
+}
+.countbtn {
+  background-color: #e7e3e3;
+  width: 100px;
+  border: none;
+  border-radius: 10px;
+}
+.btninc {
+  border: none;
+}
+.remove {
+  font-size: 13px;
+  color: #787878;
+  position: relative;
+  bottom: 3px;
+}
+.remove-btn {
+  background-color: #ffffff;
+  border: 1px solid #f8f6f6;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 100px;
+  height: 30px;
+  font-weight: bold;
+  padding: 0 10px;
+  line-height: 1;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
+}
+.remove-btn:hover {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+.summary-card {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #e7e2e2;
+  font-size: 16px;
+  border-bottom: none;
+  border-radius: 5px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  position: relative;
+  left: 40px;
+}
+.checkoutbtn {
+  width: 300px;
+  margin-left: 30px;
+  margin-bottom: 80px;
+  background-color: #ff6a00;
+  color: #e7e3e3;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 5px;
+}
+
+.totalamount {
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f5f3f3;
+}
+
+.summary-wrapper {
+  position: relative;
+  padding-bottom: 60px;
+}
+
+.cartpricebottom {
+  width: 100%;
+  position: relative;
+  bottom: 0;
+  left: 151px;
+}
+.summerycol {
+  width: 400px;
+  margin-top: 105px;
+  position: static;
+}
+
+@media (max-width: 320px) {
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 300px;
+    height: 400px;
+    position: relative;
+    right: 5px;
+  }
+  .cartimg {
+    max-width: 50px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 110px;
+  }
+  .cartbody {
+    position: relative;
+    top: 100px;
+    right: 70px;
+  }
+  .carttitle {
+    font-size: 12px;
+    font-weight: bold;
+    color: black;
+  }
+  .stars_in_cart {
+    color: green;
+    font-size: 12px;
+  }
+  .subheadingcart {
+    color: #787878;
+    font-size: 10px;
+  }
+  .countbtn {
+    background-color: #e7e3e3;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  .btncart {
+    background-color: #e7e3e3;
+    margin: 10px;
+    color: green;
+    position: relative;
+    bottom: 15px;
+  }
+  .saveforlater {
+    font-size: 12px;
+    font-weight: bold;
+    width: 80px;
+    height: 8px;
+    position: relative;
+    top: 4px;
+  }
+  .shoppingcarthead {
+    color: green;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .remove {
+    font-size: 9px;
+    color: #787878;
+    position: relative;
+    bottom: 3px;
+  }
+  .remove-btn {
+    background-color: #ffffff;
+    border: 1px solid #f8f6f6;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 60px;
+    height: 30px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+  }
+  .summerycol {
+    width: 100%;
+    border-radius: 5px;
+    position: relative;
+    right: 150px;
+    top: 10px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 150px;
+    font-size: 12px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    right: 0px;
+    top: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 300px;
+    position: relative;
+    display: none;
+  }
+  .youwillsave {
+    font-size: 13px;
+  }
+}
+/* 375 screen----------------------------------------------------------------- */
+
+@media (min-width: 321px) and (max-width: 375px) {
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 300px;
+    height: 400px;
+    position: relative;
+    right: 5px;
+    left: 10px;
+  }
+  .cartimg {
+    max-width: 50px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 110px;
+  }
+  .cartbody {
+    position: relative;
+    top: 100px;
+    right: 70px;
+  }
+  .carttitle {
+    font-size: 12px;
+    font-weight: bold;
+    color: black;
+  }
+  .stars_in_cart {
+    color: green;
+    font-size: 12px;
+  }
+  .subheadingcart {
+    color: #787878;
+    font-size: 10px;
+  }
+  .countbtn {
+    background-color: #e7e3e3;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  .btncart {
+    background-color: #e7e3e3;
+    margin: 10px;
+    color: green;
+    position: relative;
+    bottom: 15px;
+  }
+  .saveforlater {
+    font-size: 12px;
+    font-weight: bold;
+    width: 80px;
+    height: 8px;
+    position: relative;
+    top: 4px;
+  }
+  .shoppingcarthead {
+    color: green;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .remove {
+    font-size: 9px;
+    color: #787878;
+    position: relative;
+    bottom: 3px;
+  }
+  .remove-btn {
+    background-color: #ffffff;
+    border: 1px solid #f8f6f6;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 60px;
+    height: 30px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    right: 60px;
+  }
+  .summerycol {
+    width: 100%;
+    border-radius: 5px;
+    position: relative;
+    right: 155px;
+    top: 30px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 150px;
+    font-size: 12px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    left: 30px;
+    top: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 300px;
+    position: relative;
+    display: none;
+  }
+  .youwillsave {
+    font-size: 14px;
+  }
+}
+/* 425 screen----------------------------------------------------------------- */
+
+@media (min-width: 376px) and (max-width: 430px) {
+  .shoppingcarthead {
+    margin-left: 40px;
+  }
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 300px;
+    height: 400px;
+    position: relative;
+    right: 5px;
+    left: 40px;
+  }
+  .cartimg {
+    max-width: 50px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 110px;
+  }
+  .cartbody {
+    position: relative;
+    top: 100px;
+    right: 70px;
+  }
+  .carttitle {
+    font-size: 12px;
+    font-weight: bold;
+    color: black;
+  }
+  .stars_in_cart {
+    color: green;
+    font-size: 12px;
+  }
+  .subheadingcart {
+    color: #787878;
+    font-size: 10px;
+  }
+  .countbtn {
+    background-color: #e7e3e3;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  .btncart {
+    background-color: #e7e3e3;
+    margin: 10px;
+    color: green;
+    position: relative;
+    bottom: 15px;
+  }
+  .saveforlater {
+    font-size: 12px;
+    font-weight: bold;
+    width: 80px;
+    height: 8px;
+    position: relative;
+    top: 4px;
+  }
+  .shoppingcarthead {
+    color: green;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .remove {
+    font-size: 9px;
+    color: #787878;
+    position: relative;
+    bottom: 3px;
+  }
+  .remove-btn {
+    background-color: #ffffff;
+    border: 1px solid #f8f6f6;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 60px;
+    height: 30px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    right: 20px;
+  }
+  .summerycol {
+    width: 300px;
+    border-radius: 5px;
+    position: relative;
+    right: 110px;
+    top: 30px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 100%;
+    font-size: 12px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    right: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    display: none;
+  }
+  .youwillsave {
+    font-size: 13px;
+  }
+}
+
+/* 540 screen----------------------------------------------------------------- */
+
+@media (width: 540px) {
+  .shoppingcarthead {
+    margin-left: 40px;
+  }
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 400px;
+    height: 300px;
+    position: relative;
+    right: 5px;
+    left: 40px;
+    margin-bottom: 20px;
+  }
+  .cartimg {
+    max-width: 50px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 110px;
+  }
+  .cartbody {
+    position: relative;
+    top: 100px;
+    right: 70px;
+  }
+  .carttitle {
+    font-size: 12px;
+    font-weight: bold;
+    color: black;
+  }
+  .stars_in_cart {
+    color: green;
+    font-size: 12px;
+  }
+  .subheadingcart {
+    color: #787878;
+    font-size: 10px;
+  }
+  .countbtn {
+    background-color: #e7e3e3;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  .btncart {
+    background-color: #e7e3e3;
+    margin: 10px;
+    color: green;
+    position: relative;
+    bottom: 15px;
+  }
+  .saveforlater {
+    font-size: 12px;
+    font-weight: bold;
+    width: 80px;
+    height: 8px;
+    position: relative;
+    top: 4px;
+  }
+  .shoppingcarthead {
+    color: green;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .remove {
+    font-size: 9px;
+    color: #787878;
+    position: relative;
+    bottom: 3px;
+  }
+  .remove-btn {
+    background-color: #ffffff;
+    border: 1px solid #f8f6f6;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 60px;
+    height: 30px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    right: 250px;
+    top: 150px;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    right: 20px;
+  }
+  .summerycol {
+    width: 100%;
+    border-radius: 5px;
+    position: relative;
+    right: 150px;
+    top: 30px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 250px;
+    font-size: 12px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    left: 50px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 300px;
+    position: relative;
+    display: none;
+  }
+  .youwillsave {
+    font-size: 15px;
+  }
+}
+/* 768 screen----------------------------------------------------------------- */
+
+@media (min-width: 541px) and (max-width: 768px) {
+  .shoppingcarthead {
+    margin-left: 45px;
+  }
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 570px;
+    height: 200px;
+    position: relative;
+    right: 5px;
+    left: 60px;
+  }
+  .cartimg {
+    max-width: 60px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 0px;
+    top: 30px;
+  }
+  .cartbody {
+    position: relative;
+    top: 10px;
+    right: 30px;
+  }
+  .carttitle {
+    font-size: 12px;
+    font-weight: bold;
+    color: black;
+  }
+  .stars_in_cart {
+    color: green;
+    font-size: 12px;
+  }
+  .subheadingcart {
+    color: #787878;
+    font-size: 10px;
+  }
+  .countbtn {
+    background-color: #e7e3e3;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  .btncart {
+    background-color: #e7e3e3;
+    margin: 10px;
+    color: green;
+    position: relative;
+    bottom: 15px;
+  }
+  .saveforlater {
+    font-size: 12px;
+    font-weight: bold;
+    width: 80px;
+    height: 8px;
+    position: relative;
+    top: 4px;
+  }
+  .shoppingcarthead {
+    color: green;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .remove {
+    font-size: 9px;
+    color: #787878;
+    position: relative;
+    bottom: 3px;
+  }
+  .remove-btn {
+    background-color: #ffffff;
+    border: 1px solid #f8f6f6;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 60px;
+    height: 30px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    right: 300px;
+    top: 40px;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    right: 18px;
+  }
+  .summerycol {
+    width: 100%;
+    height: 414px;
+    border-radius: 5px;
+    position: relative;
+    right: 150px;
+    top: 20px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 500px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    left: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 300px;
+    position: relative;
+    display: none;
+  }
+  .youwillsave {
+    font-size: 13px;
+  }
+}
+
+/* 820 screen----------------------------------------------------------------- */
+
+@media (width: 820px) {
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 630px;
+    height: 200px;
+    position: relative;
+    right: 5px;
+    left: 60px;
+  }
+  .cartimg {
+    max-width: 60px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 0px;
+    top: 30px;
+  }
+  .cartbody {
+    position: relative;
+    right: 30px;
+    bottom: 20px;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    right: 300px;
+    top: 40px;
+  }
+
+  .summerycol {
+    height: auto;
+    position: relative;
+    top: 20px;
+    right: 150px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 500px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    left: 60px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 712px;
+    position: relative;
+    bottom: 20px;
+  }
+}
+/* 853 screen---------------------------------------------------------------- */
+@media (width: 853px) {
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 700px;
+    height: 200px;
+    position: relative;
+    left: 35px;
+  }
+  .cartimg {
+    max-width: 60px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 0px;
+    top: 30px;
+  }
+  .cartbody {
+    position: relative;
+    right: 30px;
+    bottom: 20px;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    right: 400px;
+    top: 40px;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    right: 18px;
+  }
+  .summerycol {
+    width: 100%;
+    height: 414px;
+    border-radius: 5px;
+    position: relative;
+    right: 150px;
+    top: 20px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 500px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    left: 65px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 300px;
+    position: relative;
+    display: none;
+  }
+  .youwillsave {
+    font-size: 23px;
+  }
+}
+
+/* 912 screen--------------------------------------------------------- */
+@media (width: 912px) {
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 800px;
+    height: 200px;
+    position: relative;
+    right: 5px;
+    left: 10px;
+  }
+  .cartimg {
+    max-width: 60px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 0px;
+    top: 30px;
+  }
+  .cartbody {
+    position: relative;
+    right: 30px;
+    bottom: 20px;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    right: 500px;
+    top: 40px;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    right: 18px;
+  }
+  .summerycol {
+    width: 100%;
+    height: 414px;
+    border-radius: 5px;
+    position: relative;
+    right: 150px;
+    top: 20px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 500px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    left: 100px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 300px;
+    position: relative;
+    display: none;
+  }
+  .youwillsave {
+    font-size: 23px;
+  }
+}
+
+/* 1024 screen----------------------------------------------------------------- */
+
+@media (min-width: 913px) and (max-width: 1024px) {
+  .shoppingcarthead {
+    margin-left: 45px;
+  }
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 800px;
+    height: 200px;
+    position: relative;
+    right: 5px;
+    left: 60px;
+  }
+  .cartimg {
+    max-width: 60px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 0px;
+    top: 30px;
+  }
+  .cartbody {
+    position: relative;
+    right: 30px;
+  }
+  .carttitle {
+    font-size: 12px;
+    font-weight: bold;
+    color: black;
+  }
+  .stars_in_cart {
+    color: green;
+    font-size: 12px;
+  }
+  .subheadingcart {
+    color: #787878;
+    font-size: 10px;
+  }
+  .countbtn {
+    background-color: #e7e3e3;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  .btncart {
+    background-color: #e7e3e3;
+    margin: 10px;
+    color: green;
+    position: relative;
+    bottom: 15px;
+  }
+  .saveforlater {
+    font-size: 12px;
+    font-weight: bold;
+    width: 80px;
+    height: 8px;
+    position: relative;
+    top: 4px;
+  }
+  .shoppingcarthead {
+    color: green;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .remove {
+    font-size: 9px;
+    color: #787878;
+    position: relative;
+    bottom: 3px;
+  }
+  .remove-btn {
+    background-color: #ffffff;
+    border: 1px solid #f8f6f6;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 60px;
+    height: 30px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    right: 300px;
+    top: 40px;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 15px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    right: 18px;
+  }
+  .summerycol {
+    width: 90%;
+    border-radius: 5px;
+    position: relative;
+    right: 105px;
+    top: 20px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 500px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    left: 110px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 300px;
+    position: relative;
+    display: none;
+  }
+  .youwillsave {
+    font-size: 20px;
+  }
+}
+
+/* 1280 screen------------------------------------------------  */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    right: 18px;
+  }
+  .summerycol {
+    width: 100%;
+    border-radius: 5px;
+    position: relative;
+    right: 150px;
+    top: 20px;
+    margin-top: 0;
+  }
+  .checkoutbtn {
+    width: 500px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    left: 250px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 300px;
+    position: relative;
+    display: none;
+  }
+  .youwillsave {
+    font-size: 20px;
+  }
+}
+
+/* 1440 screen--------------------------------------------------------------- */
+@media (min-width: 1281px) and (max-width: 1440px) {
+  .shoppingcarthead {
+    margin-left: 45px;
+  }
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    max-width: 800px;
+    height: 200px;
+    position: relative;
+    right: 5px;
+    left: 60px;
+  }
+  .cartimg {
+    max-width: 60px;
+    height: 80px;
+    margin: 30px;
+    position: relative;
+    left: 0px;
+    top: 30px;
+  }
+  .cartbody {
+    position: relative;
+    right: 30px;
+  }
+  .carttitle {
+    font-size: 12px;
+    font-weight: bold;
+    color: black;
+  }
+  .stars_in_cart {
+    color: green;
+    font-size: 12px;
+  }
+  .subheadingcart {
+    color: #787878;
+    font-size: 10px;
+  }
+  .countbtn {
+    background-color: #e7e3e3;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  .btncart {
+    background-color: #e7e3e3;
+    margin: 10px;
+    color: green;
+    position: relative;
+    bottom: 15px;
+  }
+  .saveforlater {
+    font-size: 12px;
+    font-weight: bold;
+    width: 80px;
+    height: 8px;
+    position: relative;
+    top: 4px;
+  }
+  .shoppingcarthead {
+    color: green;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .remove {
+    font-size: 9px;
+    color: #787878;
+    position: relative;
+    bottom: 3px;
+  }
+  .remove-btn {
+    background-color: #ffffff;
+    border: 1px solid #f8f6f6;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 60px;
+    height: 30px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    right: 300px;
+    top: 40px;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 16px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    left: 100px;
+  }
+  .summerycol {
+    width: 300px;
+    height: auto;
+    border-radius: 5px;
+    position: relative;
+    margin-top: 80px;
+  }
+  .checkoutbtn {
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    width: 220px;
+    right: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 100%;
+    position: absolute;
+    bottom: 20px;
+    left: 100px;
+  }
+  .youwillsave {
+    font-size: 13px;
+  }
+}
+
+/* 2560 screen------------------------------------------------------------------- */
+
+@media (width: 2560px) {
+  .shoppingcarthead {
+    margin-left: 45px;
+  }
+  .cartcard {
+    background-color: white;
+    border: 1px solid rgb(255, 253, 253);
+    width: 100%;
+    height: 250px;
+    position: relative;
+    right: 5px;
+    left: 60px;
+  }
+  .cartimg {
+    max-width: 100px;
+    height: 150px;
+    margin: 30px;
+    position: relative;
+    left: 0px;
+    top: 30px;
+  }
+  .cartbody {
+    position: relative;
+    right: 10px;
+    top: 20px;
+  }
+  .carttitle {
+    font-size: 32px;
+    font-weight: bold;
+    color: black;
+  }
+  .stars_in_cart {
+    color: green;
+    font-size: 22px;
+  }
+  .subheadingcart {
+    color: #787878;
+    font-size: 20px;
+  }
+  .countbtn {
+    background-color: #e7e3e3;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  .btncart {
+    background-color: #e7e3e3;
+    margin: 10px;
+    color: green;
+    position: relative;
+    bottom: 15px;
+  }
+  .saveforlater {
+    font-size: 12px;
+    font-weight: bold;
+    width: 80px;
+    height: 8px;
+    position: relative;
+    top: 4px;
+  }
+  .shoppingcarthead {
+    color: green;
+    margin-top: 30px;
+    margin-bottom: 40px;
+    font-weight: bold;
+    font-size: 48px;
+  }
+  .remove {
+    font-size: 20px;
+    color: #787878;
+    position: relative;
+    bottom: 3px;
+  }
+  .remove-btn {
+    background-color: #ffffff;
+    border: 1px solid #f8f6f6;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 150px;
+    height: 40px;
+    font-weight: bold;
+    padding: 0 10px;
+    line-height: 1;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+  }
+  .cartfinalamount {
+    color: green;
+    margin-top: 8%;
+    font-weight: bold;
+    font-size: 30px;
+    text-align: center;
+    position: relative;
+    right: 600px;
+    top: 40px;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e2;
+    font-size: 26px;
+    border-radius: 0px;
+    border-bottom: none;
+    position: relative;
+    left: 70px;
+    top: 40px;
+  }
+  .summerycol {
+    width: 500px;
+    height: auto;
+    border-radius: 5px;
+    position: relative;
+    left: 200px;
+  }
+  .checkoutbtn {
+    width: 400px;
+    background-color: #ff6a00;
+    color: #e7e3e3;
+    position: relative;
+    right: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+  .cartpricebottom {
+    width: 100%;
+    position: absolute;
+    left: 15%;
+    top: 450px;
+  }
+  .youwillsave {
+    font-size: 23px;
+  }
+}

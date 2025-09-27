@@ -1,0 +1,53 @@
+.product-details-container {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 48px;
+    max-width: 97%;
+    margin: 0 auto;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .tabs button {
+    padding: 6px 12px;
+    border: 1px solid #aaa;
+    background-color: #eee;
+    cursor: pointer;
+    font-weight: 500;
+    border-radius: 4px;
+  }
+  
+  .tabs button.active {
+    background-color: #ddd;
+    border-bottom: 2px solid green;
+  }
+  
+  .tab-content h4 {
+    margin-top: 20px;
+    font-weight: bold;
+  }
+  
+  .tab-content p {
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+  
+  .tab-content ul {
+    margin-top: 10px;
+    padding-left: 20px;
+  }
+  
+  .tab-content ul li {
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  
+  .specs li {
+    list-style-type: disc;
+  }
+  

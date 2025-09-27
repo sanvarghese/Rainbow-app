@@ -1,0 +1,141 @@
+.header-wrapper {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.nav-bar .navbar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.nav-bar .navbar {
+  display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    background-color: #ffffff;
+    padding: 0;
+    position: relative;
+    z-index: 1000;
+}
+
+.nav-bar .nav-list {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-bar .nav-item {
+  padding: 6px 20px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #00000071;
+  border-right: 1px solid #00000052;
+}
+
+.nav-bar .nav-item.no-border {
+  border-right: none;
+}
+
+.nav-bar .nav-link {
+  text-decoration: none;
+  color: #000000ab;
+}
+
+.nav-bar .nav-link:hover {
+  color: #28a745;
+  transition: color 0.2s ease;
+}
+
+.nav-bar .nav-link.active {
+  color: #28a745;
+  font-weight: 600;
+  border-bottom: 2px solid #28a745;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .nav-bar .nav-list {
+    position: absolute;
+    top: -9px;
+    right: 8px;
+    width: 184px;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: #ffff;
+    max-height: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: max-height 0.3s ease-in-out, padding 0.3s;
+    padding: 0 15px;
+  }
+
+  .header-wrapper {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0); 
+  }
+  
+
+  .nav-bar .nav-list.active {
+    max-height: 500px;
+    padding: 10px 15px;
+  }
+
+
+  .nav-bar .nav-item {
+    width: 100%;
+    text-align: left;
+    padding: 0;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #00000000;
+  }
+
+  .nav-bar .nav-item.no-border {
+    border-bottom: none;
+  }
+
+  .nav-bar .nav-link {
+    width: 100%;
+    display: block;
+    color: #000000ab;
+  }
+
+  .nav-bar .nav-link:hover {
+    color: #28a745;
+  }
+
+  .nav-bar .nav-link.active {
+    color: #28a745;
+    font-weight: 600;
+  }
+
+  /* Show custom toggle */
+  .custom-toggle {
+    display: block;
+  }
+
+  .nav-bar .navbar{
+    height: 0;
+  }
+}
+
+/* Custom toggle position and style */
+.custom-toggle {
+  position: absolute;
+  top: 48px;
+  right: 14px;
+  font-size: 21px;
+  z-index: 1100;
+  cursor: pointer;
+}
+
+/* Only show the toggle on small screens */
+@media (min-width: 769px) {
+  .custom-toggle {
+    display: none;
+  }
+}

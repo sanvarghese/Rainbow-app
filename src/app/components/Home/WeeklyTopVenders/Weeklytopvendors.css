@@ -1,0 +1,132 @@
+.weeklytopvendors {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.card img {
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+}
+
+.card {
+    border-radius: 8px;
+    border: 10px;
+    border-color: linear-gradient(180deg, #FFF3E4 0%, #FFFFFF 100%);
+
+
+}
+
+.btn-success {
+    background-color: #28a745;
+    border: none;
+    width: 80%;
+
+}
+
+.weekiyheading {
+    color: #007F27;
+    font-size: 42px;
+    font-weight: 700;
+}
+
+
+
+
+
+.vendor-card-wrapper {
+    position: relative;
+    padding: 10px;
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 0;
+}
+
+
+.gradient-1 {
+    background: linear-gradient(180deg, #FFF3E4 0%, #FFFFFF 100%);
+}
+.gradient-2 {
+    background: linear-gradient(180deg, #E1FFE1 0%, #FFFFFF 100%);
+}
+.gradient-3 {
+    background: linear-gradient(180deg, #FFE3E1 0%, #FFFFFF 100%);
+}
+.gradient-4 {
+    background: linear-gradient(180deg, #FFFFD2 0%, #FFFFFF 100%);
+}
+.gradient-5 {
+    background: linear-gradient(180deg, #DEE5FF 0%, #FFFFFF 100%);
+}
+.gradient-6 {
+    background: linear-gradient(180deg, #FDE1F5 0%, #FFFFFF 100%);
+}
+
+
+.vendor-card-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 0%;
+    transition: height 0.4s ease;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 12px;
+    opacity: 0.5;
+}
+
+
+.vendor-card-wrapper:hover::before {
+    height: 100%;
+}
+
+
+.gradient-1::before {
+    background: linear-gradient(180deg, #FFD6A0 0%, #FFBB75 100%);
+}
+.gradient-2::before {
+    background: linear-gradient(180deg, #BFFFC0 0%, #7FFF80 100%);
+}
+.gradient-3::before {
+    background: linear-gradient(180deg, #FFC6C2 0%, #FF9A94 100%);
+}
+.gradient-4::before {
+    background: linear-gradient(180deg, #FFFFA8 0%, #FFF35C 100%);
+}
+.gradient-5::before {
+    background: linear-gradient(180deg, #C9D6FF 0%, #9AB3FF 100%);
+}
+.gradient-6::before {
+    background: linear-gradient(180deg, #FFD1F0 0%, #FF9DE3 100%);
+}
+
+
+.vendor-card-wrapper > .card {
+    position: relative;
+    z-index: 2;
+    background-color: white;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .weekiyheading {
+      font-size: 28px;
+      text-align: center;
+    }
+  }
+  
+  
+  @media (max-width: 320px) {
+    .weekiyheading {
+      font-size: 22px;
+      text-align: center;
+      line-height: 1.2;
+    }
+  }
+  
+
+
+

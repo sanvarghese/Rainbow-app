@@ -1,0 +1,60 @@
+.weekend-offers-banner{
+
+}
+
+.weekend-offers-banner {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.weekend-offers-banner .offer-wrapper {
+  width: 93%;
+  margin: 0 auto;
+}
+#week {
+  width: 100%; 
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #F5FBE3;
+ 
+}
+
+.offer-wrapper {
+  width: 90%;
+  margin: 0 auto; 
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  padding: 20px 0;
+}
+
+.offer-title {
+  color: #1a7c3f;
+  font-weight: bold;
+  font-size: 32px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+}
+
+.slider-container {
+  padding: 10px;
+}
+
+.slide {
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slide img {
+  width: 100%;
+  height: auto;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  content: '';
+}

@@ -1,0 +1,584 @@
+#banner-container {
+
+  width: 93%;
+}
+
+
+.carousel-item {
+  position: relative;
+}
+
+.carousel-item .carousel-caption {
+  position: absolute;
+  top: 50%;
+  left: 35%;
+  transform: translate(-50%, -50%);
+  text-align: start;
+  color: white;
+  z-index: 1;
+}
+
+.carousel-item .carousel-caption h1 {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.ordernow {
+  position: absolute;
+  top: 42%;
+  left: 9%;
+
+  transform: translateX(-50%);
+  padding: 5px 20px;
+  background-color: #00A432;
+  border: none;
+  color: white;
+  font-size: 21px;
+  cursor: pointer;
+  font-weight: 700;
+  border-radius: 5px;
+
+}
+
+.ordernow:hover {
+  background-color: #228B22;
+}
+
+.clicked {
+  position: absolute;
+  top: 42%;
+  left: 9%;
+  transform: translateX(-50%);
+  padding: 5px 20px;
+  background-color: red;
+  border: none;
+  color: white;
+  font-size: 21px;
+  cursor: pointer;
+  font-weight: 700;
+  border-radius: 5px;
+
+}
+
+
+.scrolldown {
+  position: absolute;
+  top: 84%;
+  left: 47.3%;
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  background-color: #007F27;
+  color: white;
+  border: none;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  text-align: center;
+}
+
+.scrolldown:hover {
+  background-color: darkgreen;
+}
+
+/* swiper-button-prev */
+
+.swiper-button-prev {
+  position: absolute;
+  top: 40%;
+  left: 32%;
+  background-color: #ffffff7d;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  opacity: 05;
+}
+
+.swiper-button-next {
+  position: absolute;
+  top: 40%;
+  right: 32%;
+  background-color: #ffffff7d;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  opacity: 05;
+}
+
+/* .swiper-button-prev, .swiper-button-next {
+  width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transform-origin: center;
+        fill: currentColor;
+        pointer-events: none;
+} */
+
+.swiper-button-prev, .swiper-button-next {
+    svg {
+        width: unset;
+        height: unset;
+        object-fit: contain;
+        transform-origin: center;
+        fill: black;
+        pointer-events: none;
+    }
+}
+
+/* .carousel-control-prev span {
+
+  position: absolute;
+  top: 40%;
+  left: 20%;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  opacity: 05;
+} */
+
+
+.carousel-control-next span {
+  position: absolute;
+  top: 40%;
+  right: 20%;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  opacity: 05;
+}
+
+
+@media screen and (max-width:1600px) {
+
+  .carousel-item .carousel-caption {
+    top: 50%;
+  }
+
+  .carousel-item .carousel-caption h1 {
+    font-size: 36px;
+    margin: 0%;
+  }
+
+  .ordernow {
+    top: 53%;
+    left: 11%;
+    transform: translateX(-50%);
+    padding: 5px 15px;
+    font-size: 20px;
+  }
+
+  .clicked {
+    top: 53%;
+    left: 12%;
+    transform: translateX(-50%);
+    padding: 5px 15px;
+    font-size: 20px;
+  }
+
+  .scrolldown {
+
+    top: 78%;
+    left: 46.1%;
+
+  }
+
+  .carousel-control-prev span {
+    top: 40%;
+    left: 30%;
+    width: 45px;
+    height: 45px;
+  }
+
+  .carousel-control-next span {
+    top: 40%;
+    right: 30%;
+    width: 45px;
+    height: 45px;
+  }
+
+
+
+}
+
+
+@media screen and (max-width:1200px) {
+
+  .carousel-item .carousel-caption {
+    top: 45%;
+  }
+
+  .carousel-item .carousel-caption h1 {
+    font-size: 30px;
+    margin: 0%;
+  }
+
+  .ordernow {
+    top: 60%;
+    left: 14.5%;
+    transform: translateX(-50%);
+    padding: 2px 15px;
+    font-size: 20px;
+
+  }
+
+  .clicked {
+    top: 60%;
+    left: 14.5%;
+    transform: translateX(-50%);
+    padding: 2px 15px;
+    font-size: 20px;
+  }
+
+  .scrolldown {
+
+    width: 70px;
+    height: 70px;
+    font-size: 14px;
+    top: 78%;
+    left: 46.2%;
+  }
+
+  .carousel-control-prev span {
+    top: 35%;
+    left: 19%;
+    width: 50px;
+    height: 50px;
+  }
+
+  .carousel-control-next span {
+    top: 35%;
+    right: 19%;
+    width: 50px;
+    height: 50px;
+  }
+
+}
+
+
+
+
+@media screen and (max-width:860px) {
+
+
+  #banner-container {
+
+    width: 100% !important;
+    padding: 0;
+  }
+
+
+  .carousel-item .carousel-caption {
+    top: 40%;
+  }
+
+  .carousel-item .carousel-caption h1 {
+    font-size: 25px;
+    margin: 0%;
+  }
+
+  .ordernow {
+    top: 65%;
+    left: 15%;
+    transform: translateX(-50%);
+    padding: 4px 9px;
+    font-size: 16px;
+
+  }
+
+  .scrolldown {
+
+    width: 45px;
+    height: 45px;
+    font-size: 14px;
+    top: 80%;
+    left: 46.8%;
+
+  }
+
+  .carousel-control-prev span {
+    top: 35%;
+    left: 19%;
+    width: 40px;
+    height: 40px;
+  }
+
+  .carousel-control-next span {
+    top: 35%;
+    right: 19%;
+    width: 40px;
+    height: 40px;
+  }
+
+}
+
+
+@media screen and (max-width:440px) {
+
+  .carousel-item .carousel-caption {
+    top: 33%;
+  }
+
+  .carousel-item .carousel-caption h1 {
+    font-size: 15px;
+    margin: 0%;
+  }
+
+  .ordernow {
+    top: 85%;
+    left: 16%;
+    transform: translateX(-50%);
+    padding: 1px 5px;
+    font-size: 10px;
+    width: 60px;
+    height: 20px;
+
+
+  }
+
+  .scrolldown {
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
+    top: 80%;
+    left: 46.5%;
+  }
+
+  .carousel-control-prev span {
+    top: 39%;
+    left: 52%;
+    width: 20px;
+    height: 20px;
+  }
+
+  .carousel-control-next span {
+    top: 39%;
+    right: 52%;
+    width: 20px;
+    height: 20px;
+  }
+
+}
+
+
+@media screen and (max-width:390px) {
+
+  .carousel-item .carousel-caption {
+    top: 33%;
+  }
+
+  .carousel-item .carousel-caption h1 {
+    font-size: 14px;
+    margin: 0%;
+  }
+
+  .ordernow {
+    top: 92%;
+    left: 19%;
+    transform: translateX(-50%);
+    padding: 2px 5px;
+    font-size: 10px;
+
+
+
+  }
+
+  .scrolldown {
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
+    top: 78%;
+    left: 46%;
+  }
+}
+
+
+
+@media screen and (max-width:360px) {
+
+  .carousel-item .carousel-caption {
+    top: 30%;
+  }
+
+  .carousel-item .carousel-caption h1 {
+    font-size: 10px;
+    margin: 0%;
+  }
+
+  .ordernow {
+    top: 80%;
+    left: 20%;
+    transform: translateX(-50%);
+    padding: 2px 5px;
+    font-size: 8px;
+
+  }
+
+  .scrolldown {
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
+    top: 73%;
+    left: 45.5%;
+  }
+
+}
+
+
+@media screen and (max-width:321px) {
+
+
+  .carousel-item .carousel-caption {
+    top: 30%;
+  }
+
+  .carousel-item .carousel-caption h1 {
+    font-size: 10px;
+    margin: 0%;
+  }
+
+  .ordernow {
+    top: 93%;
+    left: 18%;
+    transform: translateX(-50%);
+    padding: 2px 5px;
+    font-size: 8px;
+
+  }
+
+  .scrolldown {
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
+    top: 73%;
+    left: 45.5%;
+  }
+
+}
+
+
+
+
+
+.carousel-control-next,
+.carousel-control-prev {
+  width: 6%;
+}
+
+
+
+/* .carousel-caption h1 {
+  
+  font-weight: 900;
+}
+
+.carousel-item img {
+
+  object-fit: cover;
+}
+
+.carousel-caption {
+  position: absolute;
+  top: 40%;
+  left:15% ;
+  text-align: start;
+  
+}
+
+.ordernow { 
+  position: absolute;
+  top: 42%;
+  left: 9%;
+
+  transform: translateX(-50%);
+  padding: 5px 20px;
+  background-color: #00A432;
+  border: none;
+  color: white;
+  font-size: 21px;
+  cursor: pointer;
+  font-weight: 700;
+  border-radius: 5px;
+  
+}
+
+.scrolldown {
+  position: absolute;
+  top: 84%;
+  left: 47.3%;
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  background-color: #007F27;
+  color: white;
+  border: none;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  text-align: center;
+}
+
+.scrolldown:hover {
+  background-color: darkgreen;
+}
+
+.carousel-control-prev span{
+
+  position: absolute;
+  top: 40%;
+  left: 20%;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  opacity: 05;
+}
+
+
+.carousel-control-next span{
+  position: absolute;
+  top: 40%;
+  right: 20%;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  opacity: 05;
+}
+
+
+
+
+@media screen and (max-width:768px) {
+
+  .carousel-caption {
+      top: 25%;
+      margin-left: 5px;
+      text-align: center;
+  }} */

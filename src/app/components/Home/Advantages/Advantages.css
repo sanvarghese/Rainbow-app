@@ -1,0 +1,87 @@
+.adv-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.adv-container .adv-container-inner {
+    width: 93%;
+    margin: 0 auto;
+}
+
+.adv-container .adv-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 1rem;
+}
+
+.adv-container .adv-col {
+    display: flex;
+    justify-content: center;
+}
+
+.adv-container .adv-card {
+    background-color: #E3FBE9;
+    height: 65px;
+    width: 100%;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    padding: 0 10px;
+    text-align: center;
+}
+
+/* Image */
+.adv-container .adv-img {
+    max-height: 100%;
+    max-width: 100%;
+    margin-right: 8px;
+    transition: filter 0.3s ease;
+}
+
+/* Text */
+.adv-container .adv-text {
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Color Variants */
+.adv-container .adv-card-two {
+    background-color: #FCF2E7;
+}
+
+.adv-container .adv-card-three {
+    background-color: #E9E3FB;
+}
+
+.adv-container .adv-card-four {
+    background-color: rgba(158, 251, 158, 0.235);
+}
+
+/* Hover */
+.adv-container .adv-card:hover {
+    background-color: green !important;
+    color: white;
+}
+
+.adv-container .adv-card:hover .adv-img {
+    filter: brightness(0) invert(1);
+}
+
+@media (max-width: 576px) {
+    .adv-container .adv-card {
+        height: auto;
+        padding: 10px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .adv-container .adv-img {
+        margin: 0 0 8px 0;
+    }
+}

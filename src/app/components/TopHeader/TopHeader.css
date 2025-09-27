@@ -1,0 +1,63 @@
+.top-header .container-fluid{
+  margin-top: 0;
+  width: 90%;
+  padding: 0;
+
+}
+
+
+.top-header-bg {
+  background-color: #007f27;
+
+}
+
+@media (max-width: 425px) {
+  .row-first {
+    display: none;
+  }
+  .row-second {
+    font-size: 8px;
+    place-items: center;
+  }
+}
+
+@media (min-width: 924px) and (max-width: 1222px) {
+  .row-first {
+    font-size: 10px;
+  }
+
+  .row-second {
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 824px) and (max-width: 924px) {
+  .row-first {
+    font-size: 8px;
+  }
+
+  .row-second {
+    font-size: 8px;
+  }
+}
+
+@media (min-width: 425px) and (max-width: 767px) {
+  .row-first {
+    display: none;
+  }
+
+  .row-second {
+    font-size: 8px;
+    place-items: center;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 824px) {
+  .row-first {
+    font-size: 6px;
+  }
+
+  .row-second {
+    font-size: 6px;
+  }
+}

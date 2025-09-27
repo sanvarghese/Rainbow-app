@@ -1,0 +1,224 @@
+.products-section-home {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.products-section-home .container-fluid {
+    width: 93%;
+    margin: 0 auto;
+}
+
+.product-list .fixed-card {
+    width: 400px;
+    height: 293px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-list .card-bg-1 {
+    /* background-image: url('../images/cardbg1.png'); */
+        background-image: url('../../../../assets/images/cardbg1.png');
+    border-radius: 14%;
+    background-color: #F3F6E5;
+    text-align: left;
+    padding: 30px;
+}
+
+.product-list .card-bg-2 {
+    background-image: url('../../../../assets/images/cardbg1.png');
+    border-radius: 14%;
+    background-color: #DBF3DD;
+    text-align: left;
+    padding: 30px;
+}
+
+.product-list .card-bg-3 {
+    background-image: url('../../../../assets/images/cardbg1.png');
+    border-radius: 14%;
+    background-color: #F9EAE3;
+    text-align: left;
+    padding: 30px;
+}
+
+.product-list .card-bg-4 {
+    background-image: url('../../../../assets/images/cardbg1.png');
+    border-radius: 14%;
+    background-color: #ECF3DF;
+    text-align: left;
+    padding: 30px;
+}
+
+.product-list .card-text {
+    font-size: 32px;
+    color: #007F27;
+}
+
+.product-list .order-btn {
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #007F27;
+    color: white;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+
+
+.product-list .card-img {
+    height: 193px;
+    margin-top: -62px;
+    margin-left: 50px;
+}
+
+.product-list .card-img2 {
+    margin-top: -7px;
+    margin-left: 98px;
+}
+
+.product-list .card-img3 {
+    width: 272px;
+    height: 208px;
+    margin-top: -50px;
+    margin-left: 98px;
+}
+
+.product-list .card-img4 {
+    margin-top: -109px;
+    margin-left: 115px
+}
+
+.product-list .order-btn:hover {
+    background-color: #005F1F;
+    color: white;
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+}
+
+
+
+
+
+@media (min-width: 1441px) {
+    .product-list .col-custom-3 {
+        flex: 0 0 auto;
+        width: 25%;
+        overflow: hidden;
+    }
+}
+
+
+@media (min-width: 1024px) and (max-width: 1440px) {
+    .product-list .col-custom-3 {
+        flex: 0 0 auto;
+        width: 50%;
+        overflow: hidden;
+    }
+}
+
+@media (max-width: 500px) {
+    .product-list .fixed-card {
+        width: 315px;
+        height: 269px
+    }
+
+    .product-list .card-img {
+        width: 221px;
+        margin-top: 0px;
+        margin-left: 43px;
+        height: 130px;
+    }
+
+    .product-list .card-text {
+        font-size: 22px
+    }
+
+    .product-list .card-img2 {
+        margin-top: 10px;
+        width: 162px;
+        margin-left: 81px;
+    }
+
+    .product-list .card-img3 {
+        margin-left: 73px;
+        margin-top: 17px;
+        height: 119px;
+        width: 161px;
+    }
+
+    .product-list .card-img4 {
+        margin-top: -30px;
+        margin-left: 85px;
+        width: 160px;
+    }
+}
+
+@media (max-width: 360px) {
+    .product-list .fixed-card {
+        width: 278px;
+        height: 250px;
+    }
+
+    .product-list .card-text {
+        font-size: 16px;
+        margin-top: -14px;
+    }
+
+    .product-list .card-img {
+        margin-left: 0px;
+    }
+
+    .product-list .card-img2 {
+        margin-left: 40px;
+    }
+
+    .product-list .card-img3 {
+        margin-left: 43px;
+    }
+
+    .product-list .card-img4 {
+        margin-left: 61px;
+        width: 148px;
+    }
+}
+
+@media (min-width: 425px) and (max-width: 860px) {
+    .product-list .fixed-card {
+        width: 310px;
+    }
+
+    .product-list .card-img {
+        height: 142px;
+        margin-top: -23px;
+        margin-left: 55px;
+    }
+
+    .product-list .card-img2 {
+        margin-top: 23px;
+        margin-left: 69px;
+        width: 173px;
+    }
+
+    .product-list .card-img3 {
+        width: 204px;
+        height: 174px;
+        margin-top: -37px;
+        margin-left: 50px;
+    }
+
+    .product-list .card-img4 {
+        margin-top: -41px;
+        margin-left: 62px;
+        width: 180px;
+    }
+
+    .product-list .card-text {
+        font-size: 20px;
+        color: #007F27;
+    }
+}

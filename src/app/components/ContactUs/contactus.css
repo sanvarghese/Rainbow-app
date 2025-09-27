@@ -1,0 +1,563 @@
+
+body{
+    background-color: #747d7e1a;
+}
+.contactuscontainer {
+  width: 90%;
+  overflow: hidden;
+}
+
+.contactus_bg {
+  background-size: cover;
+}
+.contactphone {
+  width: 66px;
+  height: 66px;
+  position: relative;
+  bottom: 320px;
+  left: 630px;
+}
+.contactmail {
+  width: 72px;
+  height: 72px;
+  position: relative;
+  bottom: 320px;
+  left: 999px;
+}
+
+/* form----------------------------------------------------------------------- */
+
+.contactform-wrapper {
+    width: 90%;
+    margin: 40px auto;
+    padding: 30px 20px;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+  }
+  
+  .contactformcontactus {
+    color: green;
+    text-align: center;
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+  
+  .contactformsubtitle {
+    text-align: center;
+    color: #555;
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
+  
+  .contactusform {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .error {
+    color: rgb(179, 1, 1);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+
+  
+  }
+  
+  .form-row input {
+    flex: 1;
+    min-width: 200px;
+    height: auto;
+  }
+  
+  .contact-form input,
+  .contact-form textarea {
+    width: 100%;
+    padding: 20px 15px;
+    font-size: 14px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 2px;
+  }
+  
+  .contact-form button {
+    padding: 12px;
+    background-color: #007F27;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .contact-form button:hover {
+    background-color: #006400;
+  }
+  
+  @media (max-width: 600px) {
+    .form-row {
+      flex-direction: column;
+    }
+  }
+  
+
+/* 320------------------------------------------------------------------------------- */
+
+@media (max-width: 320px) {
+  .contactuscontainer {
+    width: 100%;
+    overflow: hidden;
+  }
+  .contactusbg {
+    width: 150%;
+  }
+  .contactphone {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    bottom: 85px;
+    left: 85px;
+  }
+  .contactmail {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    bottom: 85px;
+    left: 190px;
+  }
+}
+/* 375-------------------------------------------------------------------------------- */
+@media ( (min-width:321px) and (max-width: 359px)) {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      bottom: 100px;
+      left: 100px;
+    }
+    .contactmail {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      bottom: 100px;
+      left: 230px;
+    }
+  }
+/* 344------------------------------------------------------------------------------------ */
+  @media ( width: 344px) {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      bottom: 90px;
+      left: 100px;
+    }
+    .contactmail {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      bottom: 90px;
+      left: 200px;
+    }
+  }
+
+/* 360----------------------------------------------------------------------------------- */
+@media ( width: 360px) {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      bottom: 95px;
+      left:100px;
+    }
+    .contactmail {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      bottom: 95px;
+      left: 210px;
+    }
+  }
+
+  
+    @media  ( width: 375px) {
+        .contactuscontainer {
+          width: 100%;
+          overflow: hidden;
+        }
+        .contactusbg {
+          width: 150%;
+        }
+        .contactphone {
+          width: 30px;
+          height: 20px;
+          position: relative;
+          bottom: 100px;
+          left: 110px;
+        }
+        .contactmail {
+            width: 30px;
+            height: 20px;
+          position: relative;
+          bottom: 100px;
+          left: 200px;
+        }
+      }
+ 
+/* 390---------------------------------------------------------------------- */
+  @media  ( width: 390px) {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 30px;
+      height: 20px;
+      position: relative;
+      bottom: 100px;
+      left: 110px;
+    }
+    .contactmail {
+        width: 30px;
+        height: 20px;
+      position: relative;
+      bottom: 100px;
+      left: 220px;
+    }
+  }
+
+  /* 411----------------------------------------------------------------------------------- */
+  @media  ( (min-width:391px) and (max-width: 411px)) {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 30px;
+      height: 25px;
+      position: relative;
+      bottom: 115px;
+      left: 120px;
+    }
+    .contactmail {
+        width: 30px;
+        height: 25px;
+      position: relative;
+      bottom: 115px;
+      left: 250px;
+    }
+  }
+/* 412------------------------------------------------------------------------------------------- */
+@media  (min-width: 412px) and (max-width:414px) {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 30px;
+      height: 25px;
+      position: relative;
+      bottom: 110px;
+      left: 120px;
+    }
+    .contactmail {
+        width: 30px;
+        height: 25px;
+      position: relative;
+      bottom: 110px;
+      left: 230px;
+    }
+  }
+
+/* 425----------------------------------------------------------------------- */
+@media  (min-width: 425px) and (max-width:430px) {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 30px;
+      height: 25px;
+      position: relative;
+      bottom: 110px;
+      left: 120px;
+    }
+    .contactmail {
+        width: 30px;
+        height: 25px;
+      position: relative;
+      bottom: 110px;
+      left: 250px;
+    }
+  }
+/* 540----------------------------------------------------------------------- */
+  @media  (width: 540px) {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 30px;
+      height: 25px;
+      position: relative;
+      bottom: 140px;
+      left: 170px;
+    }
+    .contactmail {
+        width: 30px;
+        height: 25px;
+      position: relative;
+      bottom: 140px;
+      left: 320px;
+    }
+  }
+
+  /* 768------------------------------------------------------------------------------------- */
+  @media ( (min-width:541px) and (max-width: 768px))  {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      bottom: 205px;
+      left: 230px;
+    }
+    .contactmail {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      bottom: 205px;
+      left: 460px;
+    }
+  }
+/* 820------------------------------------------------------------------------ */
+  @media (width: 820px)  {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      bottom: 215px;
+      left: 240px;
+    }
+    .contactmail {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      bottom: 215px;
+      left: 500px;
+    }
+  }
+/* 853------------------------------------------------------------------------------------ */
+ 
+@media (width: 853px)  {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      bottom: 230px;
+      left: 240px;
+    }
+    .contactmail {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      bottom: 230px;
+      left: 530px;
+    }
+  }
+/* 912------------------------------------------------------------------------- */
+  @media (width: 912px)  {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 150%;
+    }
+    .contactphone {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      bottom: 240px;
+      left: 270px;
+    }
+    .contactmail {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      bottom: 240px;
+      left: 550px;
+    }
+  }
+/* 1024----------------------------------------------------------------------------------------- */
+  @media( (min-width:913px) and (max-width: 1024px))  {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 110%;
+    }
+    .contactphone {
+      width: 60px;
+      height: 50px;
+      position: relative;
+      bottom: 200px;
+      left: 350px;
+    }
+    .contactmail {
+      width: 60px;
+      height: 50px;
+      position: relative;
+      bottom: 200px;
+      left: 580px;
+    }
+  }
+
+/* 1280------------------------------------------------------------------------------------ */
+@media(width:1280px)   {
+    .contactuscontainer {
+      width: 100%;
+      overflow: hidden;
+    }
+    .contactusbg {
+      width: 110%;
+    }
+    .contactphone {
+      width: 60px;
+      height: 50px;
+      position: relative;
+      bottom: 250px;
+      left: 450px;
+    }
+    .contactmail {
+      width: 60px;
+      height: 50px;
+      position: relative;
+      bottom: 250px;
+      left: 740px;
+    }
+  }
+
+/* 1440----------------------------------------------------------------------------------- */
+  @media( (min-width:1281px) and (max-width: 1440px))  {
+    .contactuscontainer {
+        width: 100%;
+        overflow: hidden;
+      }
+      .contactusbg {
+        width: 105%;
+      }
+      .contactphone {
+        width: 60px;
+        height: 60px;
+        position: relative;
+        bottom: 270px;
+        left: 500px;
+      }
+      .contactmail {
+        width: 60px;
+        height: 60px;
+        position: relative;
+        bottom: 270px;
+        left: 840px;
+      }
+    
+  }
+
+
+  @media( width: 2560px)  {
+    .contactuscontainer {
+        width: 100%;
+        overflow: hidden;
+      }
+      .contactusbg {
+        width: 90%;
+      }
+      .contactphone {
+        width: 80px;
+        height: 70px;
+        position: relative;
+        bottom: 400px;
+        left: 950px;
+      }
+      .contactmail {
+        width: 80px;
+        height: 70px;
+        position: relative;
+        bottom: 400px;
+        left: 1500px;
+      }
+    
+  }

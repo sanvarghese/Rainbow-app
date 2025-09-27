@@ -1,0 +1,293 @@
+.footersection .container-fluid {
+    width: 90%;
+    display: flex;
+    justify-content: center;
+}
+
+.footersection .footer-row {
+    text-align: center;
+    margin: 30px;
+    margin-top: 20px;
+    padding-top: 50px;
+}
+
+.footersection {
+    background-size: cover;
+    background-color: #007F27;
+    ;
+    background-image: url("../../../assets/images/footerbg.png");
+        /* background-image: url("../../../assets/images/footerbg.png"); */
+
+}
+
+.footersection .footerbrandlogo {
+    max-width: 200px;
+    margin-bottom: 20px;
+    display: block;
+    margin-left: 0;
+}
+
+@media (max-width: 320px) {
+    .footersection .footerbrandlogo {
+        max-width: 250px;
+        margin-bottom: 16px;
+    }
+
+    .footersection {
+        overflow: hidden;
+        background-size: cover;
+        background-color: rgb(32, 235, 32);
+        background-image: url("../../../assets/images/footerbg.png");
+    }
+}
+
+.footersection .col-one {
+    color: white;
+    text-align: start;
+}
+
+.footersection .col-two {
+    color: white;
+    text-align: start;
+
+}
+
+.footersection .col-three {
+    color: white;
+    text-align: start;
+}
+
+.footersection .col-four {
+    color: white;
+    text-align: start;
+}
+
+.footersection .col-five {
+    color: white;
+    text-align: start;
+}
+
+.footersection .CUSTOMER {
+    color: white;
+    text-align: start;
+}
+
+.footersection .COMPANY {
+    color: white;
+    text-align: start;
+    margin-top: 14px;
+}
+
+.footersection .CATEGORIES {
+    color: white;
+    text-align: start;
+    margin-top: 14px;
+}
+
+.footersection .footer-links {
+    margin-top: 14px;
+}
+
+.footersection .footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 20px;
+}
+
+.footersection .col {
+    flex: 1 1 200px;
+    min-width: 180px;
+    text-align: left;
+}
+
+
+.footersection .shoponthego {
+    width: 300px;
+}
+
+.footersection .footerbtn1 img {
+    height: 30px;
+    margin-right: 10px;
+}
+
+.footersection .playstorerow {
+    text-align: left;
+    line-height: 1.2px;
+    color: white;
+}
+
+.footersection .playstore {
+    text-align: start;
+}
+
+.footersection .shoponthego {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+.footersection .footerbtn1 {
+    width: 142.23px;
+    height: 42.03px;
+    border: 1px solid white;
+}
+
+.footerbtn1 .img {
+    width: 24.29px;
+    height: 27.12px;
+}
+
+.getiton {
+    font-size: 10px;
+    margin: 0;
+}
+
+.footersection .store-buttons {
+    margin-top: 20px;
+}
+
+.footersection .footerbtn2 {
+    width: 142.23px;
+    height: 42.03px;
+    border: 1px solid white;
+}
+
+.footersection .store-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.googleplaytext {
+    font-size: 12px;
+    margin: 0px;
+}
+
+.footersection .weareaccepting {
+    margin-top: 50px;
+}
+
+.footersection .footerpaybtn {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.paybtn {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.3s;
+}
+
+.paybtn:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.paybtn img {
+    max-height: 30px;
+    object-fit: contain;
+}
+
+.footersection .connectto {
+    margin-top: 30px;
+
+}
+
+.footersection .socialmedialogo {
+    margin-top: 20px;
+    gap: 30px;
+}
+
+.copyright {
+    width: 100%;
+    height: 40px;
+    background-color: rgb(2, 75, 2);
+}
+
+@media (max-width: 320px) {
+    .footerbtn1 {
+        width: 120px;
+        height: 38px;
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    .weareaccepting {
+        margin-top: 30px;
+    }
+
+    .footerpaybtn {
+        margin-top: 20px;
+
+    }
+
+    .paybtn {
+        padding: 0;
+    }
+
+    .copyrighttext {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 375px) {
+    .copyrighttext {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 425px) {
+    .copyrighttext {
+        font-size: 10px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .col-four {
+        margin-left: 150px;
+    }
+
+    .connectto {
+        margin-top: 0;
+        margin-left: 5px;
+    }
+
+    .socialmedialogo {
+        margin-top: 10px;
+        margin-left: 5px;
+    }
+
+    .footerbrandlogo {
+        margin-bottom: 5px;
+    }
+
+    .weareaccepting {
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+
+    .footerpaybtn {
+        margin-top: 5px;
+    }
+
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+    .paybtn {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: box-shadow 0.3s;
+        width: 80px;
+        height: 30px;
+    }
+}

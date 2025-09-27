@@ -1,0 +1,172 @@
+.top-vendors-home{
+    display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.top-vendors-home .topvendors-fluid{
+    width: 90%;
+  padding: 0;
+  margin: 0 auto;
+}
+
+.topvendors-fluid {
+    width: 89%;
+    background-color: #E9E3FB;
+    margin: 0 auto 20px auto;
+    padding-top: 20px;
+    padding-bottom: 50px;
+    padding-left: 15px;
+    padding-right: 15px;
+   
+}
+
+.shop h2 {
+    font-weight: 700;
+    font-size: 32px;
+}
+
+@media (min-width: 1840px) {
+    .topvendors-fluid h2 {
+      margin-left: 30px;
+    }
+  }
+
+.rotate-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: center;
+    font-family: 'Josefin Sans', sans-serif;
+    color: white;
+    font-size: 18px;
+    padding: 10px 0;
+}
+
+
+.vendor-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+    
+}
+
+.vendor-slider::-webkit-scrollbar {
+    height: 6px;
+}
+
+.vendor-slider::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+}
+
+
+
+.vendor-item img:hover {
+    transform: scale(1.05);
+}
+
+
+.vendor-slider {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 20px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px 15px;
+    width: 100%;
+    white-space: nowrap;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+}
+
+.vendor-item {
+    flex: 0 0 auto;
+}
+
+
+.vendor-item img {
+    width: 267px; 
+    height: 165px;
+    object-fit: contain;
+    transition: transform 0.3s;
+}
+
+
+
+.vendor-slider.dragging {
+    cursor: grabbing;
+}
+
+
+@media (max-width:1600px){
+    .shop h2 {
+       
+       
+        margin-left: 13px;
+    }
+}
+
+
+@media  (max-width:1024px){
+
+    .topvendors-fluid {
+        width: 83%;
+        padding-bottom: 30px;
+    }
+    .vendor-item img {
+        width: 127px;
+        height: auto;
+    }
+    .shop h2 {
+       
+        font-size: 30px;
+        margin-left: 12px;
+    }
+
+}   
+
+
+
+@media (max-width: 860px) {
+    .topvendors-fluid {
+        padding-bottom: 30px;
+    }
+    .vendor-item img {
+        width: 127px;
+        height: auto;
+    }
+
+    .shop h2 {
+       
+        font-size: 30px;
+        margin-left: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+
+
+    .topvendors-fluid {
+        padding-bottom: 20px;
+    }
+    .vendor-item img {
+        width: 120px;
+        height: auto;
+    }
+
+
+    .shop h2 {
+        
+        font-size: 20px;
+        margin-left: 12px;
+    }
+
+}
+ 
+
+

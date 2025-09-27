@@ -1,0 +1,162 @@
+
+
+.order-banner-home {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 10px;
+    margin-top: 50px;
+  }
+  
+  .order-banner-home .order-banner {
+    width: 90%;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+.order-banner .carousel {
+    position: relative;
+    text-align: center;
+}
+
+.order-banner .carousel-content h2 {
+    margin: 0;
+    padding: 0;
+    font-weight: 600;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.order-banner .carousel-content {
+    position: absolute;
+    top: 55%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    color: white;
+
+}
+.order-banner .carousel-button {
+    padding-bottom: 200px;
+    font-size: 13px;
+    background-color: rgba(58, 191, 58, 0.512);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.order-banner .carousel-button:hover {
+    background-color: rgba(4, 20, 4, 0.612);
+}
+
+
+
+@media (max-width: 2560px) {
+    .order-banner .carousel-button {
+        padding: 0 18px; 
+        padding-bottom: 5px;
+        font-size: 25px;
+        margin-left: 10px;
+    }
+
+    .order-banner .carousel-content h2 {
+        font-size: 50px;
+        margin-left: 10px;
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 1440px) {
+     .order-banner .carousel-button {
+        padding: 3px 5px;
+        font-size: 20px;
+        margin-left: 10px;
+    }
+
+    .order-banner .carousel-content h2 {
+        font-size: 2.5rem;
+        margin-left: 10px;
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .order-banner .carousel-button {
+        padding: 3px 5px;
+        font-size: 15px;
+        margin-left: 10px;
+    }
+
+    .order-banner .carousel-content h2 {
+        font-size: 1.5rem;
+        margin-left: 10px;
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+     .order-banner .carousel-button {
+        padding: 3px 5px;
+        font-size: 12px;
+        margin-left: 10px;
+    }
+
+    .order-banner-home {
+        margin-top: 0px;
+    }
+
+    .order-banner-home .order-banner {
+        width: 100%;
+      }
+
+    .order-banner .carousel-content h2 {
+        font-size: 1.2rem;
+        margin-left: 10px;
+    }
+}
+
+@media (max-width: 425px) {
+    
+     .order-banner .carousel-button {
+        padding: 2px 5px;
+        font-size: 9px;
+        margin-bottom: 30px;
+        height: 20px;
+        width: 55px;
+    }
+
+    .order-banner .carousel-content h2 {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 375px) {
+    
+     .order-banner .carousel-button {
+        padding: 2px 5px;
+        font-size: 7px;
+        margin-bottom: 30px;
+        height: 18px;
+        width: 45px;
+    }
+
+    .order-banner .carousel-content h2 {
+        font-size: 0.6rem;
+    }
+}
+
+@media (max-width: 320px) {
+
+    
+    .order-banner .carousel-button {
+        padding: 2px 5px;
+        font-size: 5px;
+        margin-bottom: 20px;
+        height: 15px;
+        width: 40px;
+    }
+
+    .order-banner .carousel-content h2 {
+        font-size: 0.5rem;
+        margin-bottom: 0%;
+    }
+}
