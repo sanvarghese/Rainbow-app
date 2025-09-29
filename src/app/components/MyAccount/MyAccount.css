@@ -1,22 +1,24 @@
   .sidebar {
-      width: 250px;
-      background: white;
+      /* width: 250px; */
+      /* background: white; */
       border-radius: 8px;
       padding: 0;
       height: fit-content;
+      width: 100%;
   }
 
   .account-title {
-      color: #00a651;
+      color: #007F27;
       font-size: 16px;
       font-weight: 600;
-      padding: 20px;
+      padding: 20px 20px 30px 0;
       border-bottom: 1px solid #e9ecef;
   }
 
   .profile-section {
-      padding: 20px;
+      padding: 25px;
       border-bottom: 1px solid #e9ecef;
+      background-color: white;
   }
 
   .profile-item {
@@ -36,11 +38,17 @@
       align-items: center;
       justify-content: center;
       font-size: 16px;
-      color: #666;
+      color: #007F27;
+  }
+
+  .profile-icon span {
+    margin-right: 10px;
   }
 
   .settings-section {
       padding: 20px;
+      background-color: white;
+      margin-top: 23px;
   }
 
   .settings-title {
@@ -54,11 +62,15 @@
   }
 
   .settings-icon {
-      width: 16px;
-      height: 16px;
-      background: #00a651;
+      /* width: 16px;
+      height: 16px; */
+      /* background: #00a651; */
       border-radius: 2px;
+      color:#007F27 ;
+      margin-right: 10px;
   }
+
+  /* .settings-icon span {} */
 
   .settings-item {
       color: #666;
@@ -165,7 +177,7 @@
   }
 
   .save-btn {
-      background: #00a651 !important;
+      background: #007F27 !important;
       color: white !important;
       border: none !important;
       padding: 10px 24px !important;
@@ -183,7 +195,7 @@
   .section-save {
       display: flex;
       justify-content: flex-end;
-      margin-top: 15px;
+      margin-left: 40px;
   }
 
   .gender-label {
@@ -192,3 +204,15 @@
       margin-bottom: 10px;
       font-weight: 500;
   }
+
+  .my-account-page {
+      background-color: rgba(224, 224, 222, 0.534);
+  }
+
+
+  /* .section-save {
+    display: flex
+;
+    justify-content: flex-end;
+    margin-left: 40px;
+  } */

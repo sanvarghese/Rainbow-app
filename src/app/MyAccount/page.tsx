@@ -3,9 +3,7 @@ import MyAccount from '../components/MyAccount/MyAccount'
 
 const page = () => {
   return (
-    // <div>
-    //   my account
-    // </div>
+
     <MyAccount/>
   )
 }
