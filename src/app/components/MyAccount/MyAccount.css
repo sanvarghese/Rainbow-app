@@ -19,6 +19,7 @@
       padding: 25px;
       border-bottom: 1px solid #e9ecef;
       background-color: white;
+      border-radius: 6px;
   }
 
   .profile-item {
@@ -49,6 +50,8 @@
       padding: 20px;
       background-color: white;
       margin-top: 23px;
+      border-radius: 6px;
+      height: 100vh;
   }
 
   .settings-title {
@@ -73,9 +76,15 @@
   /* .settings-icon span {} */
 
   .settings-item {
-      color: #666;
+      color: #999999;
       font-size: 13px;
-      margin-left: 24px;
+      margin-top: 14px;
+      color: #007F27;
+  }
+
+  .act-setting{
+    color: #999999;
+    font-size: 16px;
   }
 
   .main-content {
@@ -103,7 +112,7 @@
   }
 
   .edit-link {
-      color: #00a651;
+      color: #007f27;
       font-size: 14px;
       text-decoration: none;
       font-weight: 500;
@@ -208,7 +217,14 @@
   .my-account-page {
       background-color: rgba(224, 224, 222, 0.534);
   }
+.css-1q72ply-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root.Mui-checked {
+    color: #007f27!important;
+}
 
+.account-title{
+    padding-left: 12px;
+    padding-right: 12px;
+}
 
   /* .section-save {
     display: flex
