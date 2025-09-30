@@ -1,0 +1,256 @@
+.checkOut-page-section {
+    background-color:#F2F4F5;
+}
+
+.checkout-form {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    border-radius: 30px;
+}
+
+.checkout-title {
+    color: #007F27;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.delivery-section {
+    margin-bottom: 30px;
+}
+
+.delivery-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.delivery-title {
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.add-address-link {
+    color: #007F27;
+    font-size: 13px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.add-address-link::before {
+    content: '●';
+    color: #007F27;
+    font-size: 8px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-group.full-width {
+    flex: none;
+    width: 100%;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    background: #f8f9fa;
+    color: #999;
+}
+
+.form-input::placeholder {
+    color: #999;
+}
+
+.form-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    background: #f8f9fa;
+    color: #999;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+}
+
+.address-type-section {
+    margin-top: 20px;
+}
+
+.address-type-title {
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.radio-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.radio-input {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.radio-input.checked {
+    border-color: #007F27;
+}
+
+.radio-input.checked::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #007F27;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.radio-content {
+    flex: 1;
+}
+
+.radio-label {
+    color: #333;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 2px;
+}
+
+.radio-description {
+    color: #666;
+    font-size: 12px;
+}
+
+.save-deliver-btn {
+    background: #007F27;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.save-deliver-btn:hover {
+    background: #007F27;
+}
+
+.price-sidebar {
+    width: 300px;
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    height: fit-content;
+}
+
+.price-title {
+    color: #999999;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.price-label {
+    color: #000000;
+    font-size: 16px;
+}
+
+.price-value {
+    color: #000000;
+    font-size: 16px;
+    /* font-weight: 500; */
+}
+
+.price-value.discount {
+    color: #007F27;
+}
+
+.price-value.free {
+    color: #007F27;
+}
+
+.total-row {
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+    margin-top: 15px;
+}
+
+.total-label {
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.total-value {
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.savings-text {
+    color: #007F27;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.total-payable {
+    background-color: #F4F4F4;
+    padding: 12px 19px;
+    margin-top: 28px;
+    margin-bottom: 15px;
+}
+
+
+.form-check-input:checked {
+    background-color: #2e7d32;
+    border-color: #2e7d32;
+}
