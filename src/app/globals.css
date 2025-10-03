@@ -25,3 +25,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+.css-113d811-MuiFormLabel-root-MuiInputLabel-root.Mui-focused {
+  /* border-color: #007f26cc!important; */
+  color: #007f26cc !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #007f26cc !important;
+}
