@@ -10,7 +10,6 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { Instagram } from "@mui/icons-material";
 
 const MerchantRegisterForm: React.FC = () => {
 
@@ -20,18 +19,7 @@ const MerchantRegisterForm: React.FC = () => {
         phoneNumber: "",
         password: "",
         confirmPassword: "",
-        // companyLogo: null as File | null,
-        // badges: null as File | null,
-        // banner: null as File | null,
     });
-
-
-
-    // const [preview, setPreview] = useState({
-    //     companyLogo: "",
-    //     badges: "",
-    //     banner: "",
-    // });
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -40,28 +28,11 @@ const MerchantRegisterForm: React.FC = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // const handleFileChange = (
-    //     e: React.ChangeEvent<HTMLInputElement>,
-    //     field: "companyLogo" | "badges" | "banner"
-    // ) => {
-    //     const file = e.target.files?.[0];
-    //     if (file) {
-    //         setFormData((prev) => ({ ...prev, [field]: file }));
-
-    //         const reader = new FileReader();
-    //         reader.onloadend = () => {
-    //             setPreview((prev) => ({ ...prev, [field]: reader.result as string }));
-    //         };
-    //         reader.readAsDataURL(file);
-    //     }
-    // };
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log("Form submitted:", formData);
     };
 
-    // const MerchantRegisterForm = () => {
     return (
         <div className="create-company-section min-vh-100 bg-light">
             {/* 🔹 Banner Section */}

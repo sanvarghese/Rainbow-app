@@ -10,7 +10,6 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { Instagram } from "@mui/icons-material";
 
 const CreateCompanyForm: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -264,5 +263,4 @@ const CreateCompanyForm: React.FC = () => {
         </div>
     );
 };
-
 export default CreateCompanyForm;
