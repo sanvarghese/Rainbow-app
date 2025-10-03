@@ -1,0 +1,13 @@
+.login-section .submit-btn {
+    background-color: #007F27;
+    border-radius: 8px;
+}
+
+.login-section .login-link {
+    color: #007F27;
+}
+
+.login-section .title {
+    color: #007F27;
+    font-weight: 600;
+}
