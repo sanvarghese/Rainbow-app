@@ -16,9 +16,8 @@ import {
     RadioGroup,
     FormControlLabel
 } from "@mui/material";
-
 import { SelectChangeEvent } from "@mui/material";
-
+import '../BecomeSeller/BecomeSeller.css'
 
 const CreateProduct = () => {
     const [formData, setFormData] = useState({
@@ -30,7 +29,7 @@ const CreateProduct = () => {
         quantity: "",
         category: "",
         subCategory: "",
-        foodType: "", // veg / non-veg
+        foodType: "",
     });
 
     const [preview, setPreview] = useState({
@@ -73,7 +72,7 @@ const CreateProduct = () => {
     };
 
     return (
-        <div className="create-company-section min-vh-100 bg-light">
+        <div className="create-product-section min-vh-100 bg-light">
             {/* 🔹 Banner Section */}
             <Box
                 sx={{

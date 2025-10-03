@@ -3,11 +3,25 @@
     color: #007F27;
     text-transform: capitalize;
     border-radius: 8px;
-
 }
 
 .create-company-section .create-btn {
     background-color: #007F27;
+    text-transform: capitalize;
+    border-radius: 8px;
+}
+
+.create-product-section .create-btn {
+    border: 2px solid #007F27;
+    color: #ffffff;
+    text-transform: capitalize;
+    border-radius: 8px;
+    background-color: #007F27;
+}
+
+.create-product-section .cancel-btn {
+    border: 2px solid #007F27;
+    color: #007F27;
     text-transform: capitalize;
     border-radius: 8px;
 }

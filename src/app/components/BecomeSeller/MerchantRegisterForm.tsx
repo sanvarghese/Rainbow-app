@@ -43,8 +43,8 @@ const MerchantRegisterForm: React.FC = () => {
                     py: 6,
                     my: 6,
                     textAlign: "center",
-                }}
-            >
+                }}>
+                    
                 <Container>
                     <Typography variant="h3" fontWeight="bold">
                         Create Your Account
