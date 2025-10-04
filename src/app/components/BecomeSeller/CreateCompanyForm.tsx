@@ -171,6 +171,7 @@ const CreateCompanyForm: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     required
+                                    
                                 />
                             </div>
 
@@ -184,6 +185,7 @@ const CreateCompanyForm: React.FC = () => {
                                     rows={3}
                                     value={formData.description}
                                     onChange={handleInputChange}
+                                    type='text'
                                 />
                             </div>
 
@@ -196,6 +198,7 @@ const CreateCompanyForm: React.FC = () => {
                                     value={formData.address}
                                     onChange={handleInputChange}
                                     required
+                                    type='text'
                                 />
                             </div>
 
@@ -208,6 +211,7 @@ const CreateCompanyForm: React.FC = () => {
                                     value={formData.phoneNumber}
                                     onChange={handleInputChange}
                                     required
+                                    type='number'
                                 />
                             </div>
 
@@ -219,6 +223,7 @@ const CreateCompanyForm: React.FC = () => {
                                     name="gstNumber"
                                     value={formData.gstNumber}
                                     onChange={handleInputChange}
+                                    type='text'
                                 />
                             </div>
 
@@ -231,6 +236,7 @@ const CreateCompanyForm: React.FC = () => {
                                     value={formData.facebookLink}
                                     onChange={handleInputChange}
                                     placeholder="https://www.facebook.com/"
+                                    type='text'
                                 />
                             </div>
 

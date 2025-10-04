@@ -146,6 +146,7 @@ const CreateProduct = () => {
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     required
+                                    type='text'
                                 />
                             </div>
 
@@ -158,6 +159,7 @@ const CreateProduct = () => {
                                     value={formData.descriptionShort}
                                     onChange={handleInputChange}
                                     required
+                                    type='text'
                                 />
                             </div>
 
@@ -171,6 +173,7 @@ const CreateProduct = () => {
                                     rows={3}
                                     value={formData.descriptionLong}
                                     onChange={handleInputChange}
+                                    type='text'
                                 />
                             </div>
 
@@ -183,6 +186,7 @@ const CreateProduct = () => {
                                     value={formData.quantity}
                                     onChange={handleInputChange}
                                     required
+                                    type='number'
                                 />
                             </div>
 
@@ -210,8 +214,7 @@ const CreateProduct = () => {
                                     <Select
                                         name="subCategory"
                                         value={formData.subCategory}
-                                        onChange={handleSelectChange}
-                                    >
+                                        onChange={handleSelectChange} >
                                         <MenuItem value="pickle">Pickle</MenuItem>
                                     </Select>
                                 </FormControl>
