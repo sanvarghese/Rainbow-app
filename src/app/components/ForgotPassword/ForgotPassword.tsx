@@ -2,38 +2,41 @@
 
 import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { TextField, Button, Typography, Paper, Alert } from '@mui/material';
-import '../ForgotPassword/ForgotPassword.css'
+import { TextField, Button, Typography, Paper, Alert, Link } from '@mui/material';
+import './ForgotPassword.css';
 
 const ForgotPassword: React.FC = () => {
-    const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
-    const [formData, setFormData] = useState({
-        newPassword: '',
-        confirmPassword: '',
-    });
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleEmailSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email) return;
-        // Here you'd trigger your backend API to send reset link
-        console.log('Email submitted:', email);
-        setStep(2);
-    };
+        setError('');
+        setSuccess('');
+        setLoading(true);
 
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+        try {
+            const res = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
 
-    const handlePasswordSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (formData.newPassword !== formData.confirmPassword) {
-            alert('Passwords do not match!');
-            return;
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Something went wrong');
+            }
+
+            setSuccess(data.message);
+            setEmail('');
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
-        console.log('Password reset with:', formData);
-        // Call API to update password
     };
 
     return (
@@ -45,73 +48,50 @@ const ForgotPassword: React.FC = () => {
                             Forgot Password
                         </Typography>
 
-                        {/* Step 1: Email Form */}
-                        {step === 1 && (
-                            <form onSubmit={handleEmailSubmit}>
-                                <div className="mb-3">
-                                    <TextField
-                                        fullWidth
-                                        label="Email"
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    fullWidth
-                                    disabled={!email}
-                                    className='submit-btn'
-                                >
-                                    Submit
-                                </Button>
-                            </form>
+                        <Typography variant="body2" align="center" sx={{ mb: 3 }}>
+                            Enter your email address and we'll send you a link to reset your password.
+                        </Typography>
+
+                        {error && (
+                            <Alert severity="error" sx={{ mb: 2 }}>
+                                {error}
+                            </Alert>
                         )}
 
-                        {/* Step 2: Show message + password form */}
-                        {step === 2 && (
-                            <>
-                                <Alert severity="success" className="mb-3">
-                                    Check your email for the password reset instructions.
-                                </Alert>
-                                <form onSubmit={handlePasswordSubmit}>
-                                    <div className="mb-3">
-                                        <TextField
-                                            fullWidth
-                                            label="New Password"
-                                            type="password"
-                                            name="newPassword"
-                                            value={formData.newPassword}
-                                            onChange={handlePasswordChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <TextField
-                                            fullWidth
-                                            label="Confirm Password"
-                                            type="password"
-                                            name="confirmPassword"
-                                            value={formData.confirmPassword}
-                                            onChange={handlePasswordChange}
-                                            required
-                                        />
-                                    </div>
-                                    <Button
-                                        type="submit"
-                                        variant="contained"
-                                        color="primary"
-                                        fullWidth
-                                        className='rest-btn'
-                                    >
-                                        Reset Password
-                                    </Button>
-                                </form>
-                            </>
+                        {success && (
+                            <Alert severity="success" sx={{ mb: 2 }}>
+                                {success}
+                            </Alert>
                         )}
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-3">
+                                <TextField
+                                    fullWidth
+                                    label="Email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                                disabled={!email || loading}
+                                className='submit-btn'
+                            >
+                                {loading ? 'Sending...' : 'Send Reset Link'}
+                            </Button>
+
+                            <div className="text-center mt-3">
+                                <Link href="/auth/login" underline="hover">
+                                    Back to Login
+                                </Link>
+                            </div>
+                        </form>
                     </Paper>
                 </Col>
             </Row>
