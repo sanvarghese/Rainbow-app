@@ -1,6 +1,7 @@
 import React from 'react'
 // import '../../../assets/css/TopHeader.css';
 import './TopHeader.css'
+import Link from 'next/link'
 
 const TopHeader = () => {
     return (
@@ -11,7 +12,11 @@ const TopHeader = () => {
 
                         <div className="col-md-6 row-first">
                             <ul className="list-inline m-0">
-                                <li className="list-inline-item border-end px-3">Become A Seller</li>
+                                <li className="list-inline-item border-end px-3">
+                                    <Link href="/become-a-seller" className="text-white text-decoration-none">
+                                        Become A Seller
+                                    </Link>
+                                </li>
                                 <li className="list-inline-item border-end px-3">Free Delivery</li>
                                 <li className="list-inline-item px-3">Returns Policy</li>
                             </ul>

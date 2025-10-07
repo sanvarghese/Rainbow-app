@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import '../BecomeSeller/BecomeSeller.css'
+import React, { useState, useEffect } from "react";
+import "../BecomeSeller/BecomeSeller.css";
 import {
     Box,
     Button,
@@ -9,9 +9,14 @@ import {
     Paper,
     TextField,
     Typography,
+    Alert,
 } from "@mui/material";
 
-const CreateCompanyForm: React.FC = () => {
+interface CreateCompanyFormProps {
+    onSuccess?: () => void;
+}
+
+const CreateCompanyForm: React.FC<CreateCompanyFormProps> = ({ onSuccess }) => {
     const [formData, setFormData] = useState({
         companyLogo: null as File | null,
         badges: null as File | null,
@@ -24,7 +29,6 @@ const CreateCompanyForm: React.FC = () => {
         gstNumber: "",
         instagramLink: "",
         facebookLink: "",
-
     });
 
     const [preview, setPreview] = useState({
@@ -33,11 +37,45 @@ const CreateCompanyForm: React.FC = () => {
         banner: "",
     });
 
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    // Load existing company data if editing
+    useEffect(() => {
+        loadCompanyData();
+    }, []);
+
+    const loadCompanyData = async () => {
+        try {
+            const res = await fetch("/api/merchant/company");
+            const data = await res.json();
+
+            if (data.company) {
+                setFormData({
+                    ...data.company,
+                    companyLogo: null,
+                    badges: null,
+                    banner: null,
+                });
+
+                setPreview({
+                    companyLogo: data.company.companyLogo || "",
+                    badges: data.company.badges || "",
+                    banner: data.company.banner || "",
+                });
+            }
+        } catch (error) {
+            console.error("Failed to load company data:", error);
+        }
+    };
+
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+        setError("");
     };
 
     const handleFileChange = (
@@ -56,14 +94,94 @@ const CreateCompanyForm: React.FC = () => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Form submitted:", formData);
+        setLoading(true);
+        setError("");
+        setSuccess("");
+
+        try {
+            const form = new FormData();
+
+            // append text fields
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value && typeof value === "string") {
+                    form.append(key, value);
+                }
+            });
+
+            // append files
+            if (formData.companyLogo) form.append("companyLogo", formData.companyLogo);
+            if (formData.badges) form.append("badges", formData.badges);
+            if (formData.banner) form.append("banner", formData.banner);
+
+            const res = await fetch("/api/merchant/company", {
+                method: "POST",
+                body: form,
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) throw new Error(result.message || "Failed to save company");
+
+            setSuccess("Company saved successfully!");
+            if (onSuccess) onSuccess();
+        } catch (err: any) {
+            setError(err.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
     };
+
+    // const handleSubmit = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+    //     setLoading(true);
+    //     setError("");
+    //     setSuccess("");
+
+    //     try {
+    //         const form = new FormData();
+    //         Object.entries(formData).forEach(([key, value]) => {
+    //             if (value && typeof value === "string") {
+    //                 form.append(key, value);
+    //             }
+    //         });
+    //         if (formData.companyLogo) form.append("companyLogo", formData.companyLogo);
+    //         if (formData.badges) form.append("badges", formData.badges);
+    //         if (formData.banner) form.append("banner", formData.banner);
+
+    //         console.log("FormData entries:", [...form.entries()]);
+
+    //         const res = await fetch("/api/merchant/company", {
+    //             method: "POST",
+    //             body: form,
+    //         });
+
+    //         const text = await res.text();
+    //         console.log("Raw response:", text);
+
+    //         let result;
+    //         try {
+    //             result = JSON.parse(text);
+    //         } catch (parseError) {
+    //             throw new Error("Invalid JSON response from server");
+    //         }
+
+    //         if (!res.ok) throw new Error(result.message || "Failed to save company");
+
+    //         setSuccess("Company saved successfully!");
+    //         if (onSuccess) onSuccess();
+    //     } catch (err: any) {
+    //         console.error("Error in handleSubmit:", err);
+    //         setError(err.message || "Something went wrong");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     return (
         <div className="create-company-section min-vh-100 bg-light">
-            {/* 🔹 Banner Section */}
+            {/* Banner Section */}
             <Box
                 sx={{
                     background: "linear-gradient(135deg, #007F27 0%, #00bb38ff 100%)",
@@ -83,12 +201,15 @@ const CreateCompanyForm: React.FC = () => {
                 </Container>
             </Box>
 
-            {/* 🔹 Form Section */}
+            {/* Form Section */}
             <Container className="mt-n4 mb-5">
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+                    {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                    {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+
                     <form onSubmit={handleSubmit}>
                         <div className="row g-4">
-                            {/* Company Logo */}
+                            {/* File Inputs with Preview */}
                             <div className="col-md-6">
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                     Company Logo
@@ -107,7 +228,6 @@ const CreateCompanyForm: React.FC = () => {
                                 )}
                             </div>
 
-                            {/* Badges */}
                             <div className="col-md-6">
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                     Badges
@@ -126,7 +246,6 @@ const CreateCompanyForm: React.FC = () => {
                                 )}
                             </div>
 
-                            {/* Banner */}
                             <div className="col-12">
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                     Banner Image
@@ -149,7 +268,7 @@ const CreateCompanyForm: React.FC = () => {
                                 )}
                             </div>
 
-                            {/* Company Name */}
+                            {/* Text Inputs */}
                             <div className="col-md-6">
                                 <TextField
                                     fullWidth
@@ -161,7 +280,6 @@ const CreateCompanyForm: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Email */}
                             <div className="col-md-6">
                                 <TextField
                                     fullWidth
@@ -171,11 +289,9 @@ const CreateCompanyForm: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     required
-                                    
                                 />
                             </div>
 
-                            {/* Description */}
                             <div className="col-12">
                                 <TextField
                                     fullWidth
@@ -185,11 +301,9 @@ const CreateCompanyForm: React.FC = () => {
                                     rows={3}
                                     value={formData.description}
                                     onChange={handleInputChange}
-                                    type='text'
                                 />
                             </div>
 
-                            {/* Address */}
                             <div className="col-12">
                                 <TextField
                                     fullWidth
@@ -198,11 +312,9 @@ const CreateCompanyForm: React.FC = () => {
                                     value={formData.address}
                                     onChange={handleInputChange}
                                     required
-                                    type='text'
                                 />
                             </div>
 
-                            {/* Phone Number */}
                             <div className="col-md-6">
                                 <TextField
                                     fullWidth
@@ -211,11 +323,10 @@ const CreateCompanyForm: React.FC = () => {
                                     value={formData.phoneNumber}
                                     onChange={handleInputChange}
                                     required
-                                    type='number'
+                                    type="tel"
                                 />
                             </div>
 
-                            {/* GST Number */}
                             <div className="col-md-6">
                                 <TextField
                                     fullWidth
@@ -223,24 +334,20 @@ const CreateCompanyForm: React.FC = () => {
                                     name="gstNumber"
                                     value={formData.gstNumber}
                                     onChange={handleInputChange}
-                                    type='text'
                                 />
                             </div>
 
-                            {/* Fb Media */}
                             <div className="col-md-6">
                                 <TextField
                                     fullWidth
-                                    label="Face book Link"
+                                    label="Facebook Link"
                                     name="facebookLink"
                                     value={formData.facebookLink}
                                     onChange={handleInputChange}
                                     placeholder="https://www.facebook.com/"
-                                    type='text'
                                 />
                             </div>
 
-                            {/* Social Media */}
                             <div className="col-md-6">
                                 <TextField
                                     fullWidth
@@ -254,12 +361,21 @@ const CreateCompanyForm: React.FC = () => {
 
                             {/* Actions */}
                             <div className="col-12 d-flex justify-content-end gap-2">
-                                <Button variant="outlined" className="cancel-btn">Cancel</Button>
+                                <Button
+                                    variant="outlined"
+                                    className="cancel-btn"
+                                    onClick={() => loadCompanyData()}
+                                    disabled={loading}
+                                >
+                                    Cancel
+                                </Button>
                                 <Button
                                     type="submit"
                                     variant="contained"
-                                    className="create-btn">
-                                    Create Company
+                                    className="create-btn"
+                                    disabled={loading}
+                                >
+                                    {loading ? "Saving..." : "Create Company"}
                                 </Button>
                             </div>
                         </div>
@@ -269,4 +385,5 @@ const CreateCompanyForm: React.FC = () => {
         </div>
     );
 };
+
 export default CreateCompanyForm;
