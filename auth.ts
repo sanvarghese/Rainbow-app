@@ -2,8 +2,9 @@ import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import connectDB from './lib/mongodb';
+import User from './models/User';
+// import connectDB from '@/lib/mongodb';
 // import User from '@/models/User';
-import User from './models/User'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -54,12 +55,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     },

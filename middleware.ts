@@ -3,16 +3,27 @@ import { NextResponse } from 'next/server';
 import { auth } from './auth';
 
 export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isAuthPage = req.nextUrl.pathname.startsWith('/auth');
-  const isProtectedRoute = req.nextUrl.pathname.startsWith('/dashboard');
+  const { pathname } = req.nextUrl;
+  const isAuthenticated = !!req.auth;
+  const userRole = req.auth?.user?.role;
 
-  if (isProtectedRoute && !isLoggedIn) {
+  // Public routes that don't require authentication
+  const publicRoutes = ['/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/reset-password', '/become-a-seller'];
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+
+  // Redirect authenticated users away from auth pages
+  if (isAuthenticated && pathname.startsWith('/auth/')) {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  }
+
+  // Protect dashboard and merchant routes
+  if (!isAuthenticated && (pathname.startsWith('/dashboard') || pathname.startsWith('/api/merchant'))) {
     return NextResponse.redirect(new URL('/auth/login', req.url));
   }
 
-  if (isAuthPage && isLoggedIn) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
+  // Merchant-only routes
+  if (pathname.startsWith('/api/merchant') && userRole !== 'Merchant') {
+    return NextResponse.json({ error: 'Access denied' }, { status: 403 });
   }
 
   return NextResponse.next();
