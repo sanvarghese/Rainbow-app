@@ -14,12 +14,19 @@ import {
     MenuItem,
     Radio,
     RadioGroup,
-    FormControlLabel
+    FormControlLabel,
+    Alert,
+    CircularProgress,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
 import '../BecomeSeller/BecomeSeller.css'
 
-const CreateProduct = () => {
+interface CreateProductProps {
+    onSuccess?: () => void;
+    initialData?: any;
+}
+
+const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess }) => {
     const [formData, setFormData] = useState({
         productImage: null as File | null,
         badges: null as File | null,
@@ -37,11 +44,56 @@ const CreateProduct = () => {
         badges: ""
     });
 
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+    const validateField = (name: string, value: string) => {
+        let errorMsg = '';
+
+        switch (name) {
+            case 'name':
+                if (!value.trim()) errorMsg = 'Product name is required';
+                break;
+            case 'descriptionShort':
+                if (!value.trim()) {
+                    errorMsg = 'Description is required';
+                } else if (value.length < 50) {
+                    errorMsg = `Description must be at least 50 characters (current: ${value.length})`;
+                }
+                break;
+            case 'quantity':
+                const qty = Number(value);
+                if (!value) {
+                    errorMsg = 'Quantity is required';
+                } else if (isNaN(qty) || qty < 0) {
+                    errorMsg = 'Quantity must be a positive number';
+                }
+                break;
+            case 'category':
+                if (!value) errorMsg = 'Please select a category';
+                break;
+            case 'subCategory':
+                if (!value) errorMsg = 'Please select a subcategory';
+                break;
+        }
+
+        setFieldErrors(prev => ({
+            ...prev,
+            [name]: errorMsg
+        }));
+
+        return !errorMsg;
+    };
+
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }>
     ) => {
         const { name, value } = e.target as HTMLInputElement;
         setFormData((prev) => ({ ...prev, [name]: value }));
+        setError('');
+        validateField(name, value);
     };
 
     const handleFileChange = (
@@ -49,8 +101,22 @@ const CreateProduct = () => {
         field: "productImage" | "badges"
     ) => {
         const file = e.target.files?.[0];
+
         if (file) {
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError(`${field} file size must be less than 5MB`);
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                setError(`${field} must be an image file`);
+                return;
+            }
+
             setFormData((prev) => ({ ...prev, [field]: file }));
+            setError('');
 
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -60,20 +126,98 @@ const CreateProduct = () => {
         }
     };
 
-    // handle Select (dropdowns) separately
     const handleSelectChange = (e: SelectChangeEvent<string>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+        setError('');
+        validateField(name, value);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Form submitted:", formData);
+        setError('');
+        setSuccess('');
+        setFieldErrors({});
+
+        // Validate all required fields
+        const requiredFields = ['name', 'descriptionShort', 'quantity', 'category', 'subCategory'];
+        let hasErrors = false;
+
+        requiredFields.forEach(field => {
+            if (!validateField(field, formData[field as keyof typeof formData] as string)) {
+                hasErrors = true;
+            }
+        });
+
+        // Validate food type for food/powder categories
+        if ((formData.category === 'food' || formData.category === 'powder') && !formData.foodType) {
+            setFieldErrors(prev => ({
+                ...prev,
+                foodType: 'Food type is required for food and powder categories'
+            }));
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
+            setError('Please fix the errors above');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const formDataToSend = new FormData();
+
+            // Add all fields
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value !== null && value !== undefined) {
+                    if (value instanceof File) {
+                        formDataToSend.append(key, value);
+                    } else {
+                        formDataToSend.append(key, value.toString());
+                    }
+                }
+            });
+
+            const res = await fetch('/api/merchant/product', {
+                method: 'POST',
+                body: formDataToSend,
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.details || data.error || 'Something went wrong');
+            }
+
+            setSuccess(data.message);
+
+            // Reset form
+            setFormData({
+                productImage: null,
+                badges: null,
+                name: "",
+                descriptionShort: "",
+                descriptionLong: "",
+                quantity: "",
+                category: "",
+                subCategory: "",
+                foodType: "",
+            });
+            setPreview({ productImage: "", badges: "" });
+
+            if (onSuccess) {
+                setTimeout(() => onSuccess(), 1500);
+            }
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div className="create-product-section min-vh-100 bg-light">
-            {/* 🔹 Banner Section */}
             <Box
                 sx={{
                     background: "linear-gradient(135deg, #006d21ff 0%, #00bb38ff 100%)",
@@ -85,24 +229,33 @@ const CreateProduct = () => {
             >
                 <Container>
                     <Typography variant="h3" fontWeight="bold">
-                        Create your product
+                        Create Your Product
                     </Typography>
                     <Typography variant="h6" sx={{ opacity: 0.9, mt: 1 }}>
-                        Fill in the details below to add your product
+                        Step 3 of 3: Add Product Details
                     </Typography>
                 </Container>
             </Box>
 
-            {/* 🔹 Form Section */}
             <Container className="mt-n4 mb-5">
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+                    {error && (
+                        <Alert severity="error" sx={{ mb: 3 }}>
+                            {error}
+                        </Alert>
+                    )}
+
+                    {success && (
+                        <Alert severity="success" sx={{ mb: 3 }}>
+                            {success}
+                        </Alert>
+                    )}
+
                     <form onSubmit={handleSubmit}>
                         <div className="row g-4">
-
-                            {/* Product image */}
                             <div className="col-md-6">
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                    Product image
+                                    Product Image
                                 </Typography>
                                 <input
                                     type="file"
@@ -113,12 +266,11 @@ const CreateProduct = () => {
                                     <img
                                         src={preview.productImage}
                                         alt="Product"
-                                        style={{ maxWidth: "200px", marginTop: "10px" }}
+                                        style={{ maxWidth: "200px", marginTop: "10px", borderRadius: "8px" }}
                                     />
                                 )}
                             </div>
 
-                            {/* Badges */}
                             <div className="col-md-6">
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                     Badges
@@ -132,12 +284,11 @@ const CreateProduct = () => {
                                     <img
                                         src={preview.badges}
                                         alt="Badges"
-                                        style={{ maxWidth: "200px", marginTop: "10px" }}
+                                        style={{ maxWidth: "200px", marginTop: "10px", borderRadius: "8px" }}
                                     />
                                 )}
                             </div>
 
-                            {/* Product Name */}
                             <div className="col-md-6">
                                 <TextField
                                     fullWidth
@@ -147,27 +298,29 @@ const CreateProduct = () => {
                                     onChange={handleInputChange}
                                     required
                                     type='text'
+                                    error={!!fieldErrors.name}
+                                    helperText={fieldErrors.name}
                                 />
                             </div>
 
-                            {/* Short Description */}
                             <div className="col-md-6">
                                 <TextField
                                     fullWidth
-                                    label="Description (At least 500 words)"
+                                    label="Short Description (At least 50 characters)"
                                     name="descriptionShort"
                                     value={formData.descriptionShort}
                                     onChange={handleInputChange}
                                     required
                                     type='text'
+                                    error={!!fieldErrors.descriptionShort}
+                                    helperText={fieldErrors.descriptionShort}
                                 />
                             </div>
 
-                            {/* Long Description */}
                             <div className="col-12">
                                 <TextField
                                     fullWidth
-                                    label="Description (At least 2000 words)"
+                                    label="Long Description (Optional)"
                                     name="descriptionLong"
                                     multiline
                                     rows={3}
@@ -177,7 +330,6 @@ const CreateProduct = () => {
                                 />
                             </div>
 
-                            {/* Quantity */}
                             <div className="col-6">
                                 <TextField
                                     fullWidth
@@ -187,12 +339,13 @@ const CreateProduct = () => {
                                     onChange={handleInputChange}
                                     required
                                     type='number'
+                                    error={!!fieldErrors.quantity}
+                                    helperText={fieldErrors.quantity}
                                 />
                             </div>
 
-                            {/* Category */}
                             <div className="col-6">
-                                <FormControl fullWidth>
+                                <FormControl fullWidth required error={!!fieldErrors.category}>
                                     <InputLabel>Category</InputLabel>
                                     <Select
                                         name="category"
@@ -204,26 +357,36 @@ const CreateProduct = () => {
                                         <MenuItem value="paste">Paste</MenuItem>
                                         <MenuItem value="accessories">Accessories</MenuItem>
                                     </Select>
+                                    {fieldErrors.category && (
+                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                                            {fieldErrors.category}
+                                        </Typography>
+                                    )}
                                 </FormControl>
                             </div>
 
-                            {/* Subcategory */}
                             <div className="col-6">
-                                <FormControl fullWidth>
+                                <FormControl fullWidth required error={!!fieldErrors.subCategory}>
                                     <InputLabel>Subcategory</InputLabel>
                                     <Select
                                         name="subCategory"
                                         value={formData.subCategory}
-                                        onChange={handleSelectChange} >
+                                        onChange={handleSelectChange}>
                                         <MenuItem value="pickle">Pickle</MenuItem>
+                                        <MenuItem value="spices">Spices</MenuItem>
+                                        <MenuItem value="snacks">Snacks</MenuItem>
                                     </Select>
+                                    {fieldErrors.subCategory && (
+                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                                            {fieldErrors.subCategory}
+                                        </Typography>
+                                    )}
                                 </FormControl>
                             </div>
 
-                            {/* Veg / Non-Veg (only for Food or Powder) */}
                             {(formData.category === "food" || formData.category === "powder") && (
                                 <div className="col-6">
-                                    <FormControl>
+                                    <FormControl required error={!!fieldErrors.foodType}>
                                         <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                             Food Type
                                         </Typography>
@@ -236,15 +399,33 @@ const CreateProduct = () => {
                                             <FormControlLabel value="veg" control={<Radio />} label="Veg" />
                                             <FormControlLabel value="non-veg" control={<Radio />} label="Non-Veg" />
                                         </RadioGroup>
+                                        {fieldErrors.foodType && (
+                                            <Typography variant="caption" color="error">
+                                                {fieldErrors.foodType}
+                                            </Typography>
+                                        )}
                                     </FormControl>
                                 </div>
                             )}
 
-                            {/* Actions */}
                             <div className="col-12 d-flex justify-content-end gap-2">
-                                <Button variant="outlined" className="cancel-btn">Cancel</Button>
-                                <Button type="submit" variant="contained" className="create-btn">
-                                    Create Product
+                                <Button
+                                    variant="outlined"
+                                    className="cancel-btn"
+                                    disabled={loading}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    className="create-btn"
+                                    disabled={loading}>
+                                    {loading ? (
+                                        <>
+                                            <CircularProgress size={20} sx={{ mr: 1 }} />
+                                            Creating...
+                                        </>
+                                    ) : 'Create Product'}
                                 </Button>
                             </div>
                         </div>
