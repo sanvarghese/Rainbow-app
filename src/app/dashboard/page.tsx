@@ -411,7 +411,11 @@ export default function DashboardPage() {
                         </Box>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Button variant="outlined" startIcon={<DashboardIcon />} onClick={handleBackToDashboard}>
+                        <Button variant="outlined" className='' startIcon={<DashboardIcon />} onClick={handleBackToDashboard}
+                            sx={{
+                                textTransform: 'capitalize'
+                            }}
+                        >
                             View Dashboard
                         </Button>
                         <Button
@@ -420,6 +424,10 @@ export default function DashboardPage() {
                             startIcon={<SaveIcon />}
                             onClick={handleSaveAll}
                             size="large"
+                            className='te'
+                            sx={{
+                                textTransform: 'capitalize'
+                            }}
                         >
                             Save All & Complete
                         </Button>
@@ -437,8 +445,8 @@ export default function DashboardPage() {
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setShowSaveDialog(false)}>Cancel</Button>
-                    <Button onClick={handleConfirmSave} variant="contained" color="success">
+                    <Button onClick={() => setShowSaveDialog(false)} sx={{ color: '#2e7d32', textTransform: 'capitalize' }}>Cancel</Button>
+                    <Button onClick={handleConfirmSave} variant="contained" color="success" sx={{ textTransform: 'capitalize' }}>
                         Confirm & Save
                     </Button>
                 </DialogActions>
