@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from 'react'
 import specialoff from '../../../../assets/images/SpecialOFFER.jpg';
 import '../SpecialOffer/SpecialOffer.css';

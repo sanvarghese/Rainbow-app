@@ -3,25 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-    Container,
-    Paper,
-    Typography,
-    Box,
-    Stepper,
-    Step,
-    StepLabel,
-    Button,
-    Alert,
-    Card,
-    CardContent,
-    CardMedia,
-    Chip,
-    Divider,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-} from '@mui/material';
+    Container, Paper, Typography, Box, Stepper, Step, StepLabel, Button, Alert, Card, CardContent,
+    CardMedia, Chip, Divider, Dialog, DialogTitle, DialogContent, DialogActions,
+}
+    from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SaveIcon from '@mui/icons-material/Save';
@@ -44,6 +29,7 @@ interface OnboardingStatus {
 }
 
 export default function MerchantDashboard() {
+    
     const router = useRouter();
     const [status, setStatus] = useState<OnboardingStatus | null>(null);
     const [loading, setLoading] = useState(true);
@@ -118,7 +104,7 @@ export default function MerchantDashboard() {
     const handleSaveAll = () => setShowSaveDialog(true);
     const handleConfirmSave = async () => {
         setShowSaveDialog(false);
-        
+
         try {
             // Mark setup as complete
             const res = await fetch('/api/merchant/complete-setup', {
