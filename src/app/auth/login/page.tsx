@@ -50,8 +50,27 @@ const LoginPage: React.FC = () => {
                 throw new Error(result.error);
             }
 
-            // Redirect to dashboard or home page
-            router.push('/');
+            // Check user role and redirect accordingly
+            const res = await fetch('/api/auth/session');
+            const session = await res.json();
+
+            if (session?.user?.role === 'Merchant') {
+                // Check merchant onboarding status
+                const statusRes = await fetch('/api/merchant/status');
+                const statusData = await statusRes.json();
+
+                if (statusData.hasCompany && statusData.hasProducts) {
+                    // Setup complete - redirect to merchant dashboard
+                    router.push('/dashboard');
+                } else {
+                    // Setup incomplete - redirect to complete setup
+                    router.push('/dashboard');
+                }
+            } else {
+                // Normal user - redirect to home page
+                router.push('/');
+            }
+            
             router.refresh();
         } catch (err: any) {
             setError(err.message || 'Invalid credentials');
@@ -125,7 +144,7 @@ const LoginPage: React.FC = () => {
                             <div className="text-center mt-3">
                                 <Typography variant="body2">
                                     Don't have an account?{' '}
-                                    <Link href="/auth/sign-up" underline="hover">
+                                    <Link href="/auth/signup" underline="hover">
                                         Sign up
                                     </Link>
                                 </Typography>
