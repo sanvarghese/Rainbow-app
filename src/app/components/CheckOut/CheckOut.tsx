@@ -4,8 +4,18 @@ import React, { useState } from "react";
 import { Button, Card, Typography } from "@mui/material";
 import PaymentOptions from "./PaymentOption";
 import "../CheckOut/CheckOut.css";
+import { auth } from "../../../../auth";
+import { redirect } from "next/navigation";
 
-const CheckOut = () => {
+export default async function CheckOut() {
+
+  const session = await auth();
+  
+    // If user is not logged in, redirect to login
+    if (!session?.user) {
+      redirect('/auth/login');
+    }
+
   // toggle state for address selection
   const [selectedOption, setSelectedOption] = useState<"existing" | "new">(
     "existing"
@@ -39,7 +49,7 @@ const CheckOut = () => {
     <div className="checkOut-page-section">
       <div className="container checkout-container">
         <Typography variant="h6" className="checkout-title mb-3">
-          Check out
+          Check out..
         </Typography>
 
         {/* Header with radio toggle */}
@@ -288,4 +298,4 @@ const CheckOut = () => {
   );
 };
 
-export default CheckOut;
+
