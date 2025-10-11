@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
-    Home, Users, Package, Bell, User, Edit, Lock, LogOut, RefreshCw, TrendingUp, TrendingDown, 
+    Home, Users, Package, Bell, User, Edit, Lock, LogOut, RefreshCw, TrendingUp, TrendingDown,
     CreditCard, Monitor, Calendar, ChevronDown, Menu, X, ShoppingCart, ListOrdered, Plus
 } from 'lucide-react';
 import Image from 'next/image';
 import logo from "../../../assets/images/mazhavillu_logo.png"
 import '../MerchantDashboardView/main.css'
 import CompanySection from './CompanySection';
+import ProductsSection from './ProductsSection';
 // import ProductsSection from './ProductsSection';
 
 interface MerchantDashboardViewProps {
@@ -130,8 +131,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('dashboard')}
                                 className={`flex items-center w-full p-3 rounded-lg font-medium transition-colors ${activeSection === 'dashboard'
-                                        ? 'bg-green-50 text-green-700'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Home className="w-5 h-5 mr-3" />
                                 <span>Dashboard</span>
@@ -141,8 +142,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('company')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'company'
-                                        ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700 font-medium'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Users className="w-5 h-5 mr-3" />
                                 <span>Company</span>
@@ -152,8 +153,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('products')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'products'
-                                        ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700 font-medium'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Package className="w-5 h-5 mr-3" />
                                 <span>Products</span>
@@ -163,8 +164,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('purchase')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'purchase'
-                                        ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700 font-medium'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <ShoppingCart className="w-5 h-5 mr-3" />
                                 <span>Purchase</span>
@@ -174,8 +175,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('order')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'order'
-                                        ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700 font-medium'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <ListOrdered className="w-5 h-5 mr-3" />
                                 <span>Order</span>
@@ -267,8 +268,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                 <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.iconColor}`} />
                                             </div>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${stat.isPositive
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-red-100 text-red-700'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-red-100 text-red-700'
                                                 }`}>
                                                 {stat.isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                                                 {stat.change}

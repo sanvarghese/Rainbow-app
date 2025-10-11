@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Box,
     Button,
@@ -26,7 +26,7 @@ interface CreateProductProps {
     initialData?: any;
 }
 
-const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess }) => {
+const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData }) => {
     const [formData, setFormData] = useState({
         productImage: null as File | null,
         badges: null as File | null,
@@ -43,6 +43,32 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess }) => {
         productImage: "",
         badges: ""
     });
+
+    // const [error, setError] = useState('');
+    // const [success, setSuccess] = useState('');
+    // const [loading, setLoading] = useState(false);
+    // const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+    // Load initial data when editing
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                productImage: null,
+                badges: null,
+                name: initialData.name || "",
+                descriptionShort: initialData.descriptionShort || "",
+                descriptionLong: initialData.descriptionLong || "",
+                quantity: initialData.quantity?.toString() || "",
+                category: initialData.category || "",
+                subCategory: initialData.subCategory || "",
+                foodType: initialData.foodType || "",
+            });
+            setPreview({
+                productImage: initialData.productImage || "",
+                badges: initialData.badges || ""
+            });
+        }
+    }, [initialData]);
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -179,6 +205,10 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess }) => {
                 }
             });
 
+            if (initialData?._id) {
+                formDataToSend.append("productId", initialData._id);
+            }
+
             const res = await fetch('/api/merchant/product', {
                 method: 'POST',
                 body: formDataToSend,
@@ -229,10 +259,10 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess }) => {
             >
                 <Container>
                     <Typography variant="h3" fontWeight="bold">
-                        Create Your Product
+                        {initialData ? 'Edit Product' : 'Create Your Product'}
                     </Typography>
                     <Typography variant="h6" sx={{ opacity: 0.9, mt: 1 }}>
-                        Step 3 of 3: Add Product Details
+                        {initialData ? 'Update product details' : 'Step 3 of 3: Add Product Details'}
                     </Typography>
                 </Container>
             </Box>
@@ -423,9 +453,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess }) => {
                                     {loading ? (
                                         <>
                                             <CircularProgress size={20} sx={{ mr: 1 }} />
-                                            Creating...
+                                            {initialData ? 'Updating...' : 'Creating...'}
                                         </>
-                                    ) : 'Create Product'}
+                                    ) : (initialData ? 'Update Product' : 'Create Product')}
                                 </Button>
                             </div>
                         </div>
