@@ -3,10 +3,6 @@ import { auth } from '../../../../../auth';
 import connectDB from '../../../../../lib/mongodb';
 import Company from '../../../../../models/Company';
 import Product from '../../../../../models/Product';
-// import { auth } from '@/auth';
-// import connectDB from '@/lib/mongodb';
-// import Product from '@/models/Product';
-// import Company from '@/models/Company';
 
 async function parseForm(req: NextRequest): Promise<{ fields: any; files: any }> {
   const formData = await req.formData();
@@ -55,6 +51,13 @@ export async function POST(req: NextRequest) {
     }
 
     const { fields, files } = await parseForm(req);
+
+    // Debug logging
+    console.log('Form fields received:', fields);
+    console.log('Product ID:', fields.productId);
+
+    // Check if this is an update (productId present)
+    const isUpdate = !!fields.productId;
 
     // Validate required fields
     const requiredFields = ['name', 'descriptionShort', 'quantity', 'category', 'subCategory'];
@@ -117,8 +120,6 @@ export async function POST(req: NextRequest) {
     }
 
     const productData: any = {
-      userId: session.user.id,
-      companyId: company._id,
       name: fields.name,
       descriptionShort: fields.descriptionShort,
       descriptionLong: fields.descriptionLong || '',
@@ -128,7 +129,7 @@ export async function POST(req: NextRequest) {
       foodType: fields.foodType || null,
     };
 
-    // Add images
+    // Add images only if new files are uploaded
     if (files.productImage) {
       productData.productImage = `data:${files.productImage.mimetype};base64,${files.productImage.data}`;
     }
@@ -136,18 +137,55 @@ export async function POST(req: NextRequest) {
       productData.badges = `data:${files.badges.mimetype};base64,${files.badges.data}`;
     }
 
-    const product = await Product.create(productData);
+    if (isUpdate) {
+      // UPDATE existing product
+      const product = await Product.findOne({ 
+        _id: fields.productId, 
+        userId: session.user.id 
+      });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Product created successfully',
-        product,
-      },
-      { status: 201 }
-    );
+      if (!product) {
+        return NextResponse.json(
+          { error: 'Product not found' },
+          { status: 404 }
+        );
+      }
+
+      // Update fields
+      Object.keys(productData).forEach(key => {
+        if (productData[key] !== undefined && productData[key] !== null) {
+          product[key] = productData[key];
+        }
+      });
+
+      await product.save();
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Product updated successfully',
+          product,
+        },
+        { status: 200 }
+      );
+    } else {
+      // CREATE new product
+      productData.userId = session.user.id;
+      productData.companyId = company._id;
+
+      const product = await Product.create(productData);
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Product created successfully',
+          product,
+        },
+        { status: 201 }
+      );
+    }
   } catch (error: any) {
-    console.error('Product creation error:', error);
+    console.error('Product operation error:', error);
     
     // Handle validation errors
     if (error.name === 'ValidationError') {
@@ -164,7 +202,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Server error',
-        details: error.message || 'Something went wrong while creating product'
+        details: error.message || 'Something went wrong'
       },
       { status: 500 }
     );
