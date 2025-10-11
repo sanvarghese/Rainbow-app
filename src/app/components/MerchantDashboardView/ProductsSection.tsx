@@ -15,8 +15,6 @@ const ProductsSection = () => {
     const [deleteLoading, setDeleteLoading] = useState(false);
     const itemsPerPage = 6;
 
-    console.log(selectedProduct,"selectedProduct.!!")
-
     useEffect(() => {
         fetchProducts();
     }, []);
@@ -44,7 +42,7 @@ const ProductsSection = () => {
         console.log('Editing product:', product); // Debug log
         setSelectedProduct(product);
         setIsEditing(true);
-        
+
     };
 
     const handleDeleteClick = (product: any) => {
@@ -54,10 +52,12 @@ const ProductsSection = () => {
 
     const handleDeleteConfirm = async () => {
         if (!productToDelete) return;
-        
+
         setDeleteLoading(true);
         try {
-            const res = await fetch(`/api/merchant/product?id=${productToDelete._id}`, {
+            // const res = await fetch(`/api/merchant/product?id=${productToDelete._id}`, {
+            const res = await fetch(`/api/merchant/product/${productToDelete._id}`, {
+
                 method: 'DELETE',
             });
 
@@ -69,7 +69,7 @@ const ProductsSection = () => {
 
             // Refresh products list
             await fetchProducts();
-            
+
             // Reset to first page if current page becomes empty
             const newTotalPages = Math.ceil((products.length - 1) / itemsPerPage);
             if (currentPage > newTotalPages && newTotalPages > 0) {
@@ -232,11 +232,10 @@ const ProductsSection = () => {
                                             {product.subCategory}
                                         </span>
                                         {product.foodType && (
-                                            <span className={`px-2 py-1 text-xs rounded-full ${
-                                                product.foodType === 'veg' 
-                                                    ? 'bg-green-100 text-green-700' 
+                                            <span className={`px-2 py-1 text-xs rounded-full ${product.foodType === 'veg'
+                                                    ? 'bg-green-100 text-green-700'
                                                     : 'bg-red-100 text-red-700'
-                                            }`}>
+                                                }`}>
                                                 {product.foodType}
                                             </span>
                                         )}
@@ -248,11 +247,10 @@ const ProductsSection = () => {
                                             <p className="text-xs text-gray-500">Quantity</p>
                                             <p className="font-semibold text-gray-800">{product.quantity}</p>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                            product.isApproved
+                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${product.isApproved
                                                 ? 'bg-green-100 text-green-700'
                                                 : 'bg-yellow-100 text-yellow-700'
-                                        }`}>
+                                            }`}>
                                             {product.isApproved ? 'Approved' : 'Pending'}
                                         </span>
                                     </div>
@@ -272,11 +270,10 @@ const ProductsSection = () => {
                                 <button
                                     onClick={goToPreviousPage}
                                     disabled={currentPage === 1}
-                                    className={`p-2 rounded-lg transition-colors ${
-                                        currentPage === 1
+                                    className={`p-2 rounded-lg transition-colors ${currentPage === 1
                                             ? 'text-gray-400 cursor-not-allowed'
                                             : 'text-gray-700 hover:bg-gray-100'
-                                    }`}>
+                                        }`}>
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
 
@@ -293,11 +290,10 @@ const ProductsSection = () => {
                                                 <button
                                                     key={page}
                                                     onClick={() => goToPage(page)}
-                                                    className={`w-10 h-10 rounded-lg transition-colors ${
-                                                        currentPage === page
+                                                    className={`w-10 h-10 rounded-lg transition-colors ${currentPage === page
                                                             ? 'bg-green-600 text-white'
                                                             : 'text-gray-700 hover:bg-gray-100'
-                                                    }`}>
+                                                        }`}>
                                                     {page}
                                                 </button>
                                             );
@@ -314,11 +310,10 @@ const ProductsSection = () => {
                                 <button
                                     onClick={goToNextPage}
                                     disabled={currentPage === totalPages}
-                                    className={`p-2 rounded-lg transition-colors ${
-                                        currentPage === totalPages
+                                    className={`p-2 rounded-lg transition-colors ${currentPage === totalPages
                                             ? 'text-gray-400 cursor-not-allowed'
                                             : 'text-gray-700 hover:bg-gray-100'
-                                    }`}>
+                                        }`}>
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
                             </div>
@@ -362,7 +357,7 @@ const ProductsSection = () => {
                             <button
                                 onClick={handleDeleteConfirm}
                                 disabled={deleteLoading}
-                                
+
                                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2">
                                 {deleteLoading ? (
                                     <>

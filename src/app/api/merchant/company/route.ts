@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { auth } from '@/auth';
-// import connectDB from '@/lib/mongodb';
-// import Company from '@/models/Company';
 import formidable from 'formidable';
 import fs from 'fs/promises';
 import path from 'path';
