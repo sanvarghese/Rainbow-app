@@ -10,6 +10,7 @@ import {
     TextField,
     Typography,
     Alert,
+    CircularProgress,
 } from "@mui/material";
 
 interface CreateCompanyFormProps {
@@ -30,6 +31,8 @@ const CreateCompanyForm: React.FC<CreateCompanyFormProps> = ({ onSuccess }) => {
         instagramLink: "",
         facebookLink: "",
     });
+
+    console.log(formData, 'formData of company')
 
     const [preview, setPreview] = useState({
         companyLogo: "",
@@ -375,7 +378,13 @@ const CreateCompanyForm: React.FC<CreateCompanyFormProps> = ({ onSuccess }) => {
                                     className="create-btn"
                                     disabled={loading}
                                 >
-                                    {loading ? "Saving..." : "Create Company"}
+                                    {/* {loading ? "Saving..." : "Create Company"} */}
+                                    {loading ? (
+                                        <>
+                                            <CircularProgress size={20} sx={{ mr: 1 }} />
+                                            {formData ? 'Updating...' : 'Creating...'}
+                                        </>
+                                    ) : (formData ? 'Update Company' : 'Create Company')}
                                 </Button>
                             </div>
                         </div>
