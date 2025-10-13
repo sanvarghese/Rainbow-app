@@ -12,9 +12,9 @@ export default async function Page() {
   }
 
   // If user is a Merchant, redirect to dashboard
-  if (session.user.role === 'Merchant') {
-    redirect('/dashboard');
-  }
+  // if (session.user.role === 'Merchant') {
+  //   redirect('/dashboard');
+  // }
 
   // Normal users can access home page
   return <HomePage />;

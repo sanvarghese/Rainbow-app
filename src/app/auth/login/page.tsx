@@ -60,7 +60,8 @@ const LoginPage: React.FC = () => {
                 const statusData = await statusRes.json();
 
                 if (statusData.hasCompany && statusData.hasProducts) {
-                    // Setup complete - redirect to merchant dashboard
+                    // Setup complete - merchants can choose where to go
+                    // Redirect to home page by default (they can navigate to dashboard)
                     router.push('/dashboard');
                 } else {
                     // Setup incomplete - redirect to complete setup
