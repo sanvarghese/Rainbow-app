@@ -1,5 +1,5 @@
-import { auth } from './auth';
 import { NextResponse } from 'next/server';
+import { auth } from './auth';
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -24,14 +24,17 @@ export default auth((req) => {
 
   // If authenticated user tries to access auth pages, redirect appropriately
   if (isAuthenticated && isPublicRoute && pathname !== '/become-a-seller') {
-    // Merchants go to dashboard, normal users go to home
-    const redirectUrl = userRole === 'Merchant' ? '/dashboard' : '/';
-    return NextResponse.redirect(new URL(redirectUrl, req.url));
+    // Redirect based on role
+    if (userRole === 'Merchant') {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
+    } else {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
   }
 
   // Prevent normal users from accessing merchant routes
   if (isAuthenticated && userRole !== 'Merchant') {
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/merchant')) {
+    if (pathname.startsWith('/dashboard') || pathname.startsWith('/merchant-preview')) {
       return NextResponse.redirect(new URL('/', req.url));
     }
   }
@@ -41,7 +44,7 @@ export default auth((req) => {
     return NextResponse.json({ error: 'Access denied' }, { status: 403 });
   }
 
-  // Allow merchants to access become-a-seller page (for re-registration if needed)
+  // Redirect merchants from become-a-seller to dashboard
   if (pathname === '/become-a-seller' && userRole === 'Merchant') {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
