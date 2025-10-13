@@ -2,21 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import {
-    Box,
-    Button,
-    Container,
-    Paper,
-    TextField,
-    Typography,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Radio,
-    RadioGroup,
-    FormControlLabel,
-    Alert,
-    CircularProgress,
+    Box, Button, Container, Paper, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Radio, RadioGroup, FormControlLabel, Alert, CircularProgress,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
 import '../BecomeSeller/BecomeSeller.css'
@@ -34,6 +20,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         descriptionShort: "",
         descriptionLong: "",
         quantity: "",
+        prize: "",
+        offerPrize:"",
         category: "",
         subCategory: "",
         foodType: "",
@@ -59,6 +47,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 descriptionShort: initialData.descriptionShort || "",
                 descriptionLong: initialData.descriptionLong || "",
                 quantity: initialData.quantity?.toString() || "",
+                prize: initialData.prize?.toString() || "",
+                offerPrize: initialData.OfferPrize?.toString() || "",
                 category: initialData.category || "",
                 subCategory: initialData.subCategory || "",
                 foodType: initialData.foodType || "",
@@ -95,6 +85,22 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                     errorMsg = 'Quantity is required';
                 } else if (isNaN(qty) || qty < 0) {
                     errorMsg = 'Quantity must be a positive number';
+                }
+                break;
+                case 'prize':
+                const prize = Number(value);
+                if (!value) {
+                    errorMsg = 'Prize is required';
+                } else if (isNaN(prize) || prize < 0) {
+                    errorMsg = 'Prize must be a positive number';
+                }
+                break;
+                 case 'offerPrize':
+                const offerPrize = Number(value);
+                if (!value) {
+                    errorMsg = 'Offer Prize is required';
+                } else if (isNaN(offerPrize) || offerPrize < 0) {
+                    errorMsg = 'Offer Prize must be a positive number';
                 }
                 break;
             case 'category':
@@ -166,7 +172,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setFieldErrors({});
 
         // Validate all required fields
-        const requiredFields = ['name', 'descriptionShort', 'quantity', 'category', 'subCategory'];
+        const requiredFields = ['name', 'descriptionShort', 'quantity','prize','offer prize', 'category', 'subCategory'];
         let hasErrors = false;
 
         requiredFields.forEach(field => {
@@ -230,6 +236,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 descriptionShort: "",
                 descriptionLong: "",
                 quantity: "",
+                prize:"",
+                offerPrize:"",
                 category: "",
                 subCategory: "",
                 foodType: "",
@@ -371,6 +379,34 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                     type='number'
                                     error={!!fieldErrors.quantity}
                                     helperText={fieldErrors.quantity}
+                                />
+                            </div>
+
+                            <div className="col-6">
+                                <TextField
+                                    fullWidth
+                                    label="Prize"
+                                    name="prize"
+                                    value={formData.prize}
+                                    onChange={handleInputChange}
+                                    required
+                                    type='number'
+                                    error={!!fieldErrors.prize}
+                                    helperText={fieldErrors.prize}
+                                />
+                            </div>
+
+                             <div className="col-6">
+                                <TextField
+                                    fullWidth
+                                    label="Offer Prize"
+                                    name="offerPrize"
+                                    value={formData.offerPrize}
+                                    onChange={handleInputChange}
+                                    required
+                                    type='number'
+                                    error={!!fieldErrors.offerPrize}
+                                    helperText={fieldErrors.offerPrize}
                                 />
                             </div>
 

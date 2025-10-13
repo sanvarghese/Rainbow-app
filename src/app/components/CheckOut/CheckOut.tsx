@@ -49,7 +49,7 @@ export default async function CheckOut() {
     <div className="checkOut-page-section">
       <div className="container checkout-container">
         <Typography variant="h6" className="checkout-title mb-3">
-          Check out..
+          Check out
         </Typography>
 
         {/* Header with radio toggle */}
