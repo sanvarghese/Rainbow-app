@@ -9,6 +9,8 @@ export interface IProduct extends Document {
   descriptionShort: string;
   descriptionLong?: string;
   quantity: number;
+  prize: number;
+  offerPrize: number;
   category: string;
   subCategory: string;
   foodType?: string;
@@ -51,6 +53,16 @@ const ProductSchema = new Schema<IProduct>(
       type: Number,
       required: [true, 'Quantity is required'],
       min: [0, 'Quantity cannot be negative'],
+    },
+    prize: {
+      type: Number,
+      required: [true, 'Prize is required'],
+      min: [0, 'Prize cannot be negative'],
+    },
+    offerPrize:{
+       type: Number,
+      required: [true, 'Offer prize is required'],
+      min: [0, 'Offer prize cannot be negative'],
     },
     category: {
       type: String,
