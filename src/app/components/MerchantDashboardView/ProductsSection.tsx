@@ -247,6 +247,14 @@ const ProductsSection = () => {
                                             <p className="text-xs text-gray-500">Quantity</p>
                                             <p className="font-semibold text-gray-800">{product.quantity}</p>
                                         </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Prize</p>
+                                            <p className="font-semibold text-gray-800">{product.prize}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500">Offer Prize</p>
+                                            <p className="font-semibold text-gray-800">{product.offerPrize}</p>
+                                        </div>
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${product.isApproved
                                                 ? 'bg-green-100 text-green-700'
                                                 : 'bg-yellow-100 text-yellow-700'

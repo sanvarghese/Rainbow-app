@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
-    Home, Users, Package, Bell, User, Edit, Lock, LogOut, RefreshCw, TrendingUp, TrendingDown,
+    Home, Users, Package, Bell, User, Edit, Lock, LogOut, RefreshCw, TrendingUp, TrendingDown, 
     CreditCard, Monitor, Calendar, ChevronDown, Menu, X, ShoppingCart, ListOrdered, Plus
 } from 'lucide-react';
 import Image from 'next/image';
@@ -12,7 +12,6 @@ import logo from "../../../assets/images/mazhavillu_logo.png"
 import '../MerchantDashboardView/main.css'
 import CompanySection from './CompanySection';
 import ProductsSection from './ProductsSection';
-// import ProductsSection from './ProductsSection';
 
 interface MerchantDashboardViewProps {
     onBackToPreview?: () => void;
@@ -27,6 +26,27 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState<'dashboard' | 'company' | 'products' | 'purchase' | 'order'>('dashboard');
+    const [userData, setUserData] = useState<any>(null);
+    const [loadingUser, setLoadingUser] = useState(true);
+
+    // Fetch user data
+    useEffect(() => {
+        fetchUserData();
+    }, []);
+
+    const fetchUserData = async () => {
+        try {
+            const res = await fetch('/api/auth/session');
+            const data = await res.json();
+            if (data.user) {
+                setUserData(data.user);
+            }
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
+        } finally {
+            setLoadingUser(false);
+        }
+    };
 
     const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -131,8 +151,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('dashboard')}
                                 className={`flex items-center w-full p-3 rounded-lg font-medium transition-colors ${activeSection === 'dashboard'
-                                    ? 'bg-green-50 text-green-700'
-                                    : 'hover:bg-gray-100 text-gray-700'
+                                        ? 'bg-green-50 text-green-700'
+                                        : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Home className="w-5 h-5 mr-3" />
                                 <span>Dashboard</span>
@@ -140,10 +160,18 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                         </li>
                         <li>
                             <button
+                                onClick={() => router.push('/')}
+                                className="flex items-center w-full p-3 rounded-lg transition-colors hover:bg-gray-100 text-gray-700">
+                                <ShoppingCart className="w-5 h-5 mr-3" />
+                                <span>Browse Products</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button
                                 onClick={() => handleSectionChange('company')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'company'
-                                    ? 'bg-green-50 text-green-700 font-medium'
-                                    : 'hover:bg-gray-100 text-gray-700'
+                                        ? 'bg-green-50 text-green-700 font-medium'
+                                        : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Users className="w-5 h-5 mr-3" />
                                 <span>Company</span>
@@ -153,8 +181,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('products')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'products'
-                                    ? 'bg-green-50 text-green-700 font-medium'
-                                    : 'hover:bg-gray-100 text-gray-700'
+                                        ? 'bg-green-50 text-green-700 font-medium'
+                                        : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Package className="w-5 h-5 mr-3" />
                                 <span>Products</span>
@@ -164,10 +192,10 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('purchase')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'purchase'
-                                    ? 'bg-green-50 text-green-700 font-medium'
-                                    : 'hover:bg-gray-100 text-gray-700'
+                                        ? 'bg-green-50 text-green-700 font-medium'
+                                        : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
-                                <ShoppingCart className="w-5 h-5 mr-3" />
+                                <ListOrdered className="w-5 h-5 mr-3" />
                                 <span>Purchase</span>
                             </button>
                         </li>
@@ -175,8 +203,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('order')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'order'
-                                    ? 'bg-green-50 text-green-700 font-medium'
-                                    : 'hover:bg-gray-100 text-gray-700'
+                                        ? 'bg-green-50 text-green-700 font-medium'
+                                        : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <ListOrdered className="w-5 h-5 mr-3" />
                                 <span>Order</span>
@@ -205,44 +233,81 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                 <button
                                     onClick={handleProfileMenuOpen}
                                     className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-200 transition-colors">
-                                    <img
-                                        src="/images/fakers/profile-5.jpg"
-                                        alt="Profile"
-                                        className="w-8 h-8 rounded-full object-cover"
-                                    />
+                                    {userData?.profileImage ? (
+                                        <img
+                                            src={userData.profileImage}
+                                            alt="Profile"
+                                            className="w-8 h-8 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white font-semibold">
+                                            {userData?.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+                                        </div>
+                                    )}
                                 </button>
 
                                 {anchorEl && (
-                                    <div className="absolute right-0 top-12 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                                        <div className="p-3 border-b border-gray-200">
-                                            <div className="font-semibold text-gray-800">Theertha Biju</div>
-                                            <div className="text-sm text-gray-600">Frontend Developer</div>
-                                        </div>
+                                    <>
+                                        {/* Backdrop */}
+                                        <div 
+                                            className="fixed inset-0 z-40"
+                                            onClick={handleProfileMenuClose}
+                                        ></div>
+                                        
+                                        {/* Dropdown Menu */}
+                                        <div className="absolute right-0 top-12 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                            <div className="p-3 border-b border-gray-200">
+                                                <div className="font-semibold text-gray-800">
+                                                    {userData?.name || 'User'}
+                                                </div>
+                                                <div className="text-sm text-gray-600">
+                                                    {userData?.email || ''}
+                                                </div>
+                                            </div>
 
-                                        <div className="p-1">
-                                            <button className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                                                <User className="w-4 h-4 mr-2" />
-                                                Profile
-                                            </button>
-                                            <button className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                                                <Edit className="w-4 h-4 mr-2" />
-                                                Edit Account
-                                            </button>
-                                            <button className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                                                <Lock className="w-4 h-4 mr-2" />
-                                                Reset Password
-                                            </button>
-                                        </div>
+                                            <div className="p-1">
+                                                <button 
+                                                    onClick={() => {
+                                                        handleProfileMenuClose();
+                                                        router.push('/profile');
+                                                    }}
+                                                    className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                                                    <User className="w-4 h-4 mr-2" />
+                                                    Profile
+                                                </button>
+                                                <button 
+                                                    onClick={() => {
+                                                        handleProfileMenuClose();
+                                                        router.push('/profile/edit');
+                                                    }}
+                                                    className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                                                    <Edit className="w-4 h-4 mr-2" />
+                                                    Edit Account
+                                                </button>
+                                                <button 
+                                                    onClick={() => {
+                                                        handleProfileMenuClose();
+                                                        router.push('/profile/password');
+                                                    }}
+                                                    className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                                                    <Lock className="w-4 h-4 mr-2" />
+                                                    Reset Password
+                                                </button>
+                                            </div>
 
-                                        <div className="border-t border-gray-200 p-1">
-                                            <button
-                                                onClick={handleLogout}
-                                                className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                                                <LogOut className="w-4 h-4 mr-2" />
-                                                Logout
-                                            </button>
+                                            <div className="border-t border-gray-200 p-1">
+                                                <button
+                                                    onClick={() => {
+                                                        handleProfileMenuClose();
+                                                        handleLogout();
+                                                    }}
+                                                    className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                                                    <LogOut className="w-4 h-4 mr-2" />
+                                                    Logout
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -268,8 +333,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                 <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.iconColor}`} />
                                             </div>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${stat.isPositive
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-red-100 text-red-700'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-red-100 text-red-700'
                                                 }`}>
                                                 {stat.isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                                                 {stat.change}
