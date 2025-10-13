@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     const isUpdate = !!fields.productId;
 
     // Validate required fields
-    const requiredFields = ['name', 'descriptionShort', 'quantity', 'category', 'subCategory'];
+    const requiredFields = ['name', 'descriptionShort', 'quantity', 'price', 'offerPrice', 'category', 'subCategory'];
     const missingFields = requiredFields.filter(field => !fields[field]);
     
     if (missingFields.length > 0) {
@@ -233,6 +233,68 @@ export async function GET(req: NextRequest) {
       { 
         error: 'Server error',
         details: 'Failed to fetch products'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(req.url);
+    const productId = searchParams.get('id');
+
+    if (!productId) {
+      return NextResponse.json(
+        { error: 'Product ID is required' },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+
+    // Find product and verify ownership
+    const product = await Product.findOne({
+      _id: productId,
+      userId: session.user.id
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      );
+    }
+
+    // TODO: Check if product is in any active orders
+    // const hasActiveOrders = await Order.findOne({ productId: productId, status: { $in: ['pending', 'processing'] } });
+    // if (hasActiveOrders) {
+    //   return NextResponse.json({
+    //     error: 'Cannot delete product',
+    //     details: 'This product is part of active orders'
+    //   }, { status: 400 });
+    // }
+
+    await Product.deleteOne({ _id: productId });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Product deleted successfully'
+    });
+  } catch (error: any) {
+    console.error('Delete product error:', error);
+    return NextResponse.json(
+      { 
+        error: 'Server error',
+        details: 'Failed to delete product'
       },
       { status: 500 }
     );

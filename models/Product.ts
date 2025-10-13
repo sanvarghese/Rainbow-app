@@ -1,4 +1,5 @@
 import mongoose, { Schema, models, Document } from 'mongoose';
+import './Company'; 
 
 export interface IProduct extends Document {
   userId: mongoose.Types.ObjectId;
@@ -9,8 +10,8 @@ export interface IProduct extends Document {
   descriptionShort: string;
   descriptionLong?: string;
   quantity: number;
-  prize: number;
-  offerPrize: number;
+  price: number;
+  offerPrice: number;
   category: string;
   subCategory: string;
   foodType?: string;
@@ -54,15 +55,15 @@ const ProductSchema = new Schema<IProduct>(
       required: [true, 'Quantity is required'],
       min: [0, 'Quantity cannot be negative'],
     },
-    prize: {
+    price: {
       type: Number,
-      required: [true, 'Prize is required'],
-      min: [0, 'Prize cannot be negative'],
+      required: [true, 'Price is required'],
+      min: [0, 'Price cannot be negative'],
     },
-    offerPrize:{
+    offerPrice:{
        type: Number,
-      required: [true, 'Offer prize is required'],
-      min: [0, 'Offer prize cannot be negative'],
+      required: [true, 'Offer price is required'],
+      min: [0, 'Offer price cannot be negative'],
     },
     category: {
       type: String,
