@@ -1,16 +1,19 @@
 "use client";
 
-import React from "react";
-import Image, { StaticImageData } from "next/image";
+import React, { useState } from "react";
+import Image from "next/image";
+import DefaultProductImage from "../../../assets/images/defaultProduct.jpg";
 
 interface ProductCardProps {
-  img: StaticImageData;
+  id: string;
+  img: string;
   title: string;
   subtitle: string;
   rating: string;
   reviews: string;
   oldPrice: string;
   newPrice: string;
+  discount?: number;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -21,7 +24,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   reviews,
   oldPrice,
   newPrice,
+  discount,
 }) => {
+  const [imageSrc, setImageSrc] = useState(img || DefaultProductImage.src);
+
   return (
     <div className="youmightlikecard">
       <div className="card topcard3">
@@ -29,11 +35,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="cardimgdiv3">
           <Image
             className="topimg3"
-            src={img}
+            src={imageSrc}
             alt={title}
             width={200}
             height={200}
+            style={{ objectFit: "cover" }}
+            onError={() => setImageSrc(DefaultProductImage.src)}
           />
+
+          {/* Discount Badge */}
+          {discount && discount > 0 && (
+            <div className="discount-badge" style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              backgroundColor: '#28a745',
+              color: 'white',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}>
+              {discount}% OFF
+            </div>
+          )}
+
           {/* Wishlist & Cart icons */}
           <div className="icons">
             <svg
@@ -68,7 +94,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </h5>
           <div className="row row-2">
             <div className="col-6">
-              {oldPrice} <span><b>{newPrice}</b></span>
+              {oldPrice && (
+                <>
+                  <span style={{ textDecoration: 'line-through', color: '#6c757d', fontSize: '14px' }}>
+                    {oldPrice}
+                  </span>{' '}
+                  <span style={{ color: '#28a745', fontWeight: 'bold' }}>{newPrice}</span>
+                </>
+              )}
+              {!oldPrice && (
+                <span style={{ color: '#28a745', fontWeight: 'bold' }}>{newPrice}</span>
+              )}
             </div>
             <div className="col-6 d-flex justify-content-end">
               <button className="btn topbtn3">

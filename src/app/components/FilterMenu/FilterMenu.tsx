@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Checkbox, FormControlLabel, Chip, Button } from "@mui/material";
 
@@ -10,35 +10,42 @@ interface FilterTag {
   type: "category" | "discount";
 }
 
-const FilterMenu: React.FC = () => {
-  const [selectedFilters, setSelectedFilters] = useState<FilterTag[]>([
-    { id: "discount-30-or-more", label: "30% or more", type: "discount" },
-    { id: "category-dry-fruits", label: "Dry Fruits", type: "category" },
-  ]);
+interface FilterMenuProps {
+  onFilterChange?: (filters: any) => void;
+}
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    "dry-fruits",
-  ]);
-  const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([
-    "30-or-more",
-  ]);
+const FilterMenu: React.FC<FilterMenuProps> = ({ onFilterChange }) => {
+  const [selectedFilters, setSelectedFilters] = useState<FilterTag[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
 
   const categories = [
-    { id: "curry-powder", label: "Curry powder" },
-    { id: "honey", label: "Honey" },
-    { id: "dry-fruits", label: "Dry Fruits" },
-    { id: "snacks", label: "Snacks" },
-    { id: "breakfast-items", label: "Breakfast Items" },
+    { id: "food", label: "Food" },
+    { id: "powder", label: "Powder" },
+    { id: "paste", label: "Paste" },
+    { id: "accessories", label: "Accessories" },
   ];
 
   const discounts = [
-    { id: "30-or-more", label: "30% or more" },
-    { id: "40-or-more", label: "40% or more" },
-    { id: "50-or-more", label: "50% or more" },
-    { id: "60-or-more", label: "60% or more" },
-    { id: "70-or-more", label: "70% or more" },
-    { id: "80-or-more", label: "80% or more" },
+    { id: "30", label: "30% or more" },
+    { id: "40", label: "40% or more" },
+    { id: "50", label: "50% or more" },
+    { id: "60", label: "60% or more" },
+    { id: "70", label: "70% or more" },
+    { id: "80", label: "80% or more" },
   ];
+
+  // Notify parent component when filters change
+  useEffect(() => {
+    if (onFilterChange) {
+      onFilterChange({
+        categories: selectedCategories,
+        minDiscount: selectedDiscounts.length > 0 
+          ? Math.max(...selectedDiscounts.map(d => parseInt(d))) // Use MAX instead of MIN
+          : null,
+      });
+    }
+  }, [selectedCategories, selectedDiscounts, onFilterChange]);
 
   const removeFilter = (filterId: string) => {
     setSelectedFilters((prev) => prev.filter((f) => f.id !== filterId));
@@ -94,37 +101,27 @@ const FilterMenu: React.FC = () => {
     }
   };
 
+  const clearAllFilters = () => {
+    setSelectedCategories([]);
+    setSelectedDiscounts([]);
+    setSelectedFilters([]);
+  };
+
   return (
     <div className="card border-0 shadow-sm">
       <div className="card-body p-3">
-        {/* Header Buttons */}
-        <div className="d-flex mb-3">
-          <Button
-            variant="outlined"
-            className="flex-fill me-2"
-            sx={{
-              backgroundColor: "#e9ecef",
-              color: "#495057",
-              fontWeight: 500,
-              borderRadius: "8px",
-              textTransform: "none",
-            }}
-          >
-            Filters
-          </Button>
-          <Button
-            variant="outlined"
-            className="flex-fill ms-2"
-            sx={{
-              backgroundColor: "#e9ecef",
-              color: "#495057",
-              fontWeight: 500,
-              borderRadius: "8px",
-              textTransform: "none",
-            }}
-          >
-            Categories
-          </Button>
+        {/* Header */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h6 className="fw-bold mb-0">Filters</h6>
+          {selectedFilters.length > 0 && (
+            <Button
+              size="small"
+              onClick={clearAllFilters}
+              sx={{ textTransform: "none", fontSize: "12px" }}
+            >
+              Clear All
+            </Button>
+          )}
         </div>
 
         {/* Selected Filters */}

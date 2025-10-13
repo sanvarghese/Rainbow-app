@@ -20,8 +20,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         descriptionShort: "",
         descriptionLong: "",
         quantity: "",
-        prize: "",
-        offerPrize:"",
+        price: "",
+        offerPrice:"",
         category: "",
         subCategory: "",
         foodType: "",
@@ -47,8 +47,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 descriptionShort: initialData.descriptionShort || "",
                 descriptionLong: initialData.descriptionLong || "",
                 quantity: initialData.quantity?.toString() || "",
-                prize: initialData.prize?.toString() || "",
-                offerPrize: initialData.OfferPrize?.toString() || "",
+                price: initialData.price?.toString() || "",
+                offerPrice: initialData.OfferPrice?.toString() || "",
                 category: initialData.category || "",
                 subCategory: initialData.subCategory || "",
                 foodType: initialData.foodType || "",
@@ -87,20 +87,20 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                     errorMsg = 'Quantity must be a positive number';
                 }
                 break;
-                case 'prize':
-                const prize = Number(value);
+                case 'price':
+                const price = Number(value);
                 if (!value) {
-                    errorMsg = 'Prize is required';
-                } else if (isNaN(prize) || prize < 0) {
-                    errorMsg = 'Prize must be a positive number';
+                    errorMsg = 'Price is required';
+                } else if (isNaN(price) || price < 0) {
+                    errorMsg = 'Price must be a positive number';
                 }
                 break;
-                 case 'offerPrize':
-                const offerPrize = Number(value);
+                 case 'offerPrice':
+                const offerPrice = Number(value);
                 if (!value) {
-                    errorMsg = 'Offer Prize is required';
-                } else if (isNaN(offerPrize) || offerPrize < 0) {
-                    errorMsg = 'Offer Prize must be a positive number';
+                    errorMsg = 'Offer Price is required';
+                } else if (isNaN(offerPrice) || offerPrice < 0) {
+                    errorMsg = 'Offer Price must be a positive number';
                 }
                 break;
             case 'category':
@@ -172,7 +172,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setFieldErrors({});
 
         // Validate all required fields
-        const requiredFields = ['name', 'descriptionShort', 'quantity','prize','offer prize', 'category', 'subCategory'];
+        const requiredFields = ['name', 'descriptionShort', 'quantity','price','offer price', 'category', 'subCategory'];
         let hasErrors = false;
 
         requiredFields.forEach(field => {
@@ -236,8 +236,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 descriptionShort: "",
                 descriptionLong: "",
                 quantity: "",
-                prize:"",
-                offerPrize:"",
+                price:"",
+                offerPrice:"",
                 category: "",
                 subCategory: "",
                 foodType: "",
@@ -385,28 +385,28 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                             <div className="col-6">
                                 <TextField
                                     fullWidth
-                                    label="Prize"
-                                    name="prize"
-                                    value={formData.prize}
+                                    label="Price"
+                                    name="price"
+                                    value={formData.price}
                                     onChange={handleInputChange}
                                     required
                                     type='number'
-                                    error={!!fieldErrors.prize}
-                                    helperText={fieldErrors.prize}
+                                    error={!!fieldErrors.price}
+                                    helperText={fieldErrors.price}
                                 />
                             </div>
 
                              <div className="col-6">
                                 <TextField
                                     fullWidth
-                                    label="Offer Prize"
-                                    name="offerPrize"
-                                    value={formData.offerPrize}
+                                    label="Offer Price"
+                                    name="offerPrice"
+                                    value={formData.offerPrice}
                                     onChange={handleInputChange}
                                     required
                                     type='number'
-                                    error={!!fieldErrors.offerPrize}
-                                    helperText={fieldErrors.offerPrize}
+                                    error={!!fieldErrors.offerPrice}
+                                    helperText={fieldErrors.offerPrice}
                                 />
                             </div>
 
