@@ -13,7 +13,7 @@ import "../../components/ProductDetails/RelatedProducts/RelatedProducts";
 const page = () => {
     return (
         <>
-            {/* <Header /> */}
+            <Header />
             {/* product details page */}
             {/* <ProductSingle />
             <Description />
@@ -23,7 +23,6 @@ const page = () => {
             {/* <BlogPage/> */}
 
             <ProductList />
-
             <Footer />
         </>
 
