@@ -96,6 +96,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate price
+    const price = Number(fields.price);
+    if (isNaN(price) || price < 0) {
+      return NextResponse.json(
+        { 
+          error: 'Validation failed',
+          details: 'Price must be a positive number'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate offer price
+    const offerPrice = Number(fields.offerPrice);
+    if (isNaN(offerPrice) || offerPrice < 0) {
+      return NextResponse.json(
+        { 
+          error: 'Validation failed',
+          details: 'Offer price must be a positive number'
+        },
+        { status: 400 }
+      );
+    }
+
     // Validate category
     const validCategories = ['food', 'powder', 'paste', 'accessories'];
     if (!validCategories.includes(fields.category)) {
@@ -124,6 +148,8 @@ export async function POST(req: NextRequest) {
       descriptionShort: fields.descriptionShort,
       descriptionLong: fields.descriptionLong || '',
       quantity: quantity,
+      price: price,
+      offerPrice: offerPrice,
       category: fields.category,
       subCategory: fields.subCategory,
       foodType: fields.foodType || null,
@@ -273,15 +299,6 @@ export async function DELETE(req: NextRequest) {
         { status: 404 }
       );
     }
-
-    // TODO: Check if product is in any active orders
-    // const hasActiveOrders = await Order.findOne({ productId: productId, status: { $in: ['pending', 'processing'] } });
-    // if (hasActiveOrders) {
-    //   return NextResponse.json({
-    //     error: 'Cannot delete product',
-    //     details: 'This product is part of active orders'
-    //   }, { status: 400 });
-    // }
 
     await Product.deleteOne({ _id: productId });
 

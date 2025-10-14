@@ -99,11 +99,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <span style={{ textDecoration: 'line-through', color: '#6c757d', fontSize: '14px' }}>
                     {oldPrice}
                   </span>{' '}
-                  <span style={{ color: '#28a745', fontWeight: 'bold' }}>{newPrice}</span>
+                  <span style={{ color: '#1a7c3f', fontWeight: 'bold' }}>{newPrice}</span>
                 </>
               )}
               {!oldPrice && (
-                <span style={{ color: '#28a745', fontWeight: 'bold' }}>{newPrice}</span>
+                <span style={{ color: '#1a7c3f', fontWeight: 'bold' }}>{newPrice}</span>
               )}
             </div>
             <div className="col-6 d-flex justify-content-end">

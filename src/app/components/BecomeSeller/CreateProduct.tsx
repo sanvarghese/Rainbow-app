@@ -5,11 +5,116 @@ import {
     Box, Button, Container, Paper, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Radio, RadioGroup, FormControlLabel, Alert, CircularProgress,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Underline from '@tiptap/extension-underline'
+import TextAlign from '@tiptap/extension-text-align'
+import Placeholder from '@tiptap/extension-placeholder'
+import {
+    Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
+    AlignLeft, AlignCenter, AlignRight, Undo, Redo
+} from 'lucide-react'
 import '../BecomeSeller/BecomeSeller.css'
+import '../../components/BecomeSeller/CreateProduct.css'
 
 interface CreateProductProps {
     onSuccess?: () => void;
     initialData?: any;
+}
+
+const MenuBar = ({ editor }: any) => {
+    if (!editor) {
+        return null
+    }
+
+    return (
+        <div className="flex flex-wrap gap-1 p-2 border-b border-gray-300 bg-gray-50">
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                disabled={!editor.can().chain().focus().toggleBold().run()}
+                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bold') ? 'bg-gray-300' : ''}`}
+                title="Bold">
+                <Bold size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                disabled={!editor.can().chain().focus().toggleItalic().run()}
+                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('italic') ? 'bg-gray-300' : ''}`}
+                title="Italic">
+                <Italic size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                disabled={!editor.can().chain().focus().toggleUnderline().run()}
+                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('underline') ? 'bg-gray-300' : ''}`}
+                title="Underline">
+                <UnderlineIcon size={18} />
+            </button>
+
+            <div className="w-px h-8 bg-gray-300 mx-1"></div>
+
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bulletList') ? 'bg-gray-300' : ''}`}
+                title="Bullet List">
+                <List size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('orderedList') ? 'bg-gray-300' : ''}`}
+                title="Numbered List">
+                <ListOrdered size={18} />
+            </button>
+
+            <div className="w-px h-8 bg-gray-300 mx-1"></div>
+
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-300' : ''}`}
+                title="Align Left">
+                <AlignLeft size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-300' : ''}`}
+                title="Align Center">
+                <AlignCenter size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-300' : ''}`}
+                title="Align Right">
+                <AlignRight size={18} />
+            </button>
+
+            <div className="w-px h-8 bg-gray-300 mx-1"></div>
+
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().undo().run()}
+                disabled={!editor.can().chain().focus().undo().run()}
+                className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
+                title="Undo">
+                <Undo size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().redo().run()}
+                disabled={!editor.can().chain().focus().redo().run()}
+                className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
+                title="Redo">
+                <Redo size={18} />
+            </button>
+        </div>
+    )
 }
 
 const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData }) => {
@@ -21,7 +126,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         descriptionLong: "",
         quantity: "",
         price: "",
-        offerPrice:"",
+        offerPrice: "",
         category: "",
         subCategory: "",
         foodType: "",
@@ -32,10 +137,35 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         badges: ""
     });
 
-    // const [error, setError] = useState('');
-    // const [success, setSuccess] = useState('');
-    // const [loading, setLoading] = useState(false);
-    // const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+    // Initialize Tiptap editor
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Underline,
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+            Placeholder.configure({
+                placeholder: 'Write a detailed description of your product...',
+            }),
+        ],
+        content: formData.descriptionLong,
+        immediatelyRender: false,
+        onUpdate: ({ editor }) => {
+            const html = editor.getHTML()
+            setFormData((prev) => ({ ...prev, descriptionLong: html }))
+        },
+        editorProps: {
+            attributes: {
+                class: 'prose prose-sm max-w-none focus:outline-none min-h-[150px] p-3',
+            },
+        },
+    })
 
     // Load initial data when editing
     useEffect(() => {
@@ -57,13 +187,13 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 productImage: initialData.productImage || "",
                 badges: initialData.badges || ""
             });
-        }
-    }, [initialData]);
 
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+            // Update editor content
+            if (editor && initialData.descriptionLong) {
+                editor.commands.setContent(initialData.descriptionLong)
+            }
+        }
+    }, [initialData, editor]);
 
     const validateField = (name: string, value: string) => {
         let errorMsg = '';
@@ -87,7 +217,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                     errorMsg = 'Quantity must be a positive number';
                 }
                 break;
-                case 'price':
+            case 'price':
                 const price = Number(value);
                 if (!value) {
                     errorMsg = 'Price is required';
@@ -95,7 +225,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                     errorMsg = 'Price must be a positive number';
                 }
                 break;
-                 case 'offerPrice':
+            case 'offerPrice':
                 const offerPrice = Number(value);
                 if (!value) {
                     errorMsg = 'Offer Price is required';
@@ -172,7 +302,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setFieldErrors({});
 
         // Validate all required fields
-        const requiredFields = ['name', 'descriptionShort', 'quantity','price','offer price', 'category', 'subCategory'];
+        const requiredFields = ['name', 'descriptionShort', 'quantity', 'price', 'offerPrice', 'category', 'subCategory'];
         let hasErrors = false;
 
         requiredFields.forEach(field => {
@@ -236,13 +366,18 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 descriptionShort: "",
                 descriptionLong: "",
                 quantity: "",
-                price:"",
-                offerPrice:"",
+                price: "",
+                offerPrice: "",
                 category: "",
                 subCategory: "",
                 foodType: "",
             });
             setPreview({ productImage: "", badges: "" });
+
+            // Clear editor
+            if (editor) {
+                editor.commands.clearContent()
+            }
 
             if (onSuccess) {
                 setTimeout(() => onSuccess(), 1500);
@@ -356,16 +491,13 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                             </div>
 
                             <div className="col-12">
-                                <TextField
-                                    fullWidth
-                                    label="Long Description (Optional)"
-                                    name="descriptionLong"
-                                    multiline
-                                    rows={3}
-                                    value={formData.descriptionLong}
-                                    onChange={handleInputChange}
-                                    type='text'
-                                />
+                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                                    Long Description
+                                </Typography>
+                                <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+                                    <MenuBar editor={editor} />
+                                    <EditorContent editor={editor} />
+                                </div>
                             </div>
 
                             <div className="col-6">
@@ -396,7 +528,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 />
                             </div>
 
-                             <div className="col-6">
+                            <div className="col-6">
                                 <TextField
                                     fullWidth
                                     label="Offer Price"
