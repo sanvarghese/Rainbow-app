@@ -141,8 +141,8 @@ const ProductList = () => {
         { value: 'oldest', label: 'Date (Oldest)' },
         { value: 'priceAsc', label: 'Price (Low to High)' },
         { value: 'priceDesc', label: 'Price (High to Low)' },
-        { value: 'nameAsc', label: 'Alphabetical (A-Z)' },
-        { value: 'nameDesc', label: 'Alphabetical (Z-A)' },
+        // { value: 'nameAsc', label: 'Alphabetical (A-Z)' },
+        // { value: 'nameDesc', label: 'Alphabetical (Z-A)' },
         { value: 'discount', label: 'Discount (High to Low)' },
     ];
 

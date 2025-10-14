@@ -149,7 +149,7 @@ const FilterMenu: React.FC<FilterMenuProps> = ({ onFilterChange }) => {
         <div className="mb-4">
           <h6
             className="fw-bold mb-2"
-            style={{ color: "#28a745", fontSize: "13px", letterSpacing: "0.5px" }}
+            style={{ color: "#1a7c3f", fontSize: "13px", letterSpacing: "0.5px" }}
           >
             CATEGORIES
           </h6>
@@ -178,7 +178,7 @@ const FilterMenu: React.FC<FilterMenuProps> = ({ onFilterChange }) => {
         <div>
           <h6
             className="fw-bold mb-2"
-            style={{ color: "#28a745", fontSize: "13px", letterSpacing: "0.5px" }}
+            style={{ color: "#1a7c3f", fontSize: "13px", letterSpacing: "0.5px" }}
           >
             DISCOUNTS
           </h6>
