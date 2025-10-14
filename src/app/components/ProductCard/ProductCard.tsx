@@ -87,8 +87,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Product Details */}
         <div className="card-body">
-          <h2 className="card-title">{title}</h2>
-          <h6 className="subheading3">{subtitle}</h6>
+          <h2 className="card-title">{subtitle}</h2>
+          <h6 className="subheading3">{title}</h6>
           <h5 className="card-text">
             {rating} <span className="star3">★</span> ({reviews})
           </h5>
