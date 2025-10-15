@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './globals.css';
 import SessionProvider from '../../components/SessionProvider';
+import { CartProvider } from '@/context/CartContext';
 
 export const metadata: Metadata = {
   title: 'Your App Name',
@@ -17,7 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        <CartProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </CartProvider>
+
       </body>
     </html>
   );
