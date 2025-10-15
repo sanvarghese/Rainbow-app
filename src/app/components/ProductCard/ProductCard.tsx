@@ -74,14 +74,12 @@ const handleAddToCart = async (e: React.MouseEvent) => {
     // You can add a toast notification here
     
   } catch (error: any) {
-    console.error("❌ Failed to add to cart:", error);
     console.error("Error details:", {
       message: error.message,
       stack: error.stack
     });
     
     // Show user-friendly error message
-    alert(`Failed to add to cart: ${error.message}`);
     console.log(error.message, "error message.!")
   } finally {
     setIsAddingToCart(false);
@@ -111,7 +109,7 @@ const handleAddToCart = async (e: React.MouseEvent) => {
 
   const handleCardClick = () => {
     // Navigate to product detail page
-    window.location.href = `/products/${id}`;
+    window.location.href = `/shop/${id}`;
   };
 
   // Calculate actual discount percentage
@@ -144,7 +142,7 @@ const handleAddToCart = async (e: React.MouseEvent) => {
                 position: 'absolute',
                 top: '10px',
                 left: '10px',
-                backgroundColor: '#28a745',
+                backgroundColor: '#007F27',
                 color: 'white',
                 padding: '4px 8px',
                 borderRadius: '4px',
@@ -277,11 +275,11 @@ const handleAddToCart = async (e: React.MouseEvent) => {
                   <span style={{ textDecoration: 'line-through', color: '#6c757d', fontSize: '14px' }}>
                     {oldPrice}
                   </span>{' '}
-                  <span style={{ color: '#1a7c3f', fontWeight: 'bold', fontSize: '16px' }}>{newPrice}</span>
+                  <span style={{ color: '#007F27', fontWeight: 'bold', fontSize: '16px' }}>{newPrice}</span>
                 </>
               )}
               {(!oldPrice || parseFloat(oldPrice.replace('₹', '')) <= parseFloat(newPrice.replace('₹', ''))) && (
-                <span style={{ color: '#1a7c3f', fontWeight: 'bold', fontSize: '16px' }}>{newPrice}</span>
+                <span style={{ color: '#007F27', fontWeight: 'bold', fontSize: '16px' }}>{newPrice}</span>
               )}
             </div>
             <div className="col-6 d-flex justify-content-end">
@@ -290,7 +288,7 @@ const handleAddToCart = async (e: React.MouseEvent) => {
                 onClick={handleBuyNow}
                 disabled={isAddingToCart}
                 style={{
-                  backgroundColor: '#28a745',
+                  backgroundColor: '#007F27',
                   color: 'white',
                   border: 'none',
                   padding: '8px 0',
