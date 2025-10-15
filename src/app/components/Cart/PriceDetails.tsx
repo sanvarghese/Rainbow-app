@@ -1,36 +1,25 @@
 "use client";
 
 import React from "react";
-import Image from "next/image"; // ✅ Next.js Image
-// import "../assets/css/cart.css";
-import "../cart/cart.css"
-// import cartpricebottom from "../../../assets/images/cartpricebottom.png";
-import cartpricebottom from "../../../assets/images/cartpricebottom.png"
+import Image from "next/image";
+import "../cart/cart.css";
+import cartpricebottom from "../../../assets/images/cartpricebottom.png";
+import { useCart } from "@/context/CartContext";
 
-// ✅ Define props type if using TypeScript
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  rating: number;
-}
-
-interface Props {
-  cartItems: CartItem[];
-}
-
-const PriceDetails: React.FC<Props> = ({ cartItems }) => {
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+const PriceDetails: React.FC = () => {
+  const { cart } = useCart();
+  
+  // Calculate values based on cart items
+  const subtotal = cart.items.reduce(
+    (total, item) => total + (item.price * item.quantity),
     0
   );
-
-  const discount = 8.0;
-  const total = subtotal - discount;
+  const totalAmount = cart.totalAmount;
+  const totalSavings = cart.totalSavings || subtotal - totalAmount;
+  const deliveryCharge = 0;
 
   const handleCheckout = () => {
-    console.log("Proceeding to checkout with items:", cartItems);
+    console.log("Proceeding to checkout with items:", cart.items);
   };
 
   return (
@@ -41,17 +30,19 @@ const PriceDetails: React.FC<Props> = ({ cartItems }) => {
 
           <div className="d-flex justify-content-between mb-2">
             <span>
-              <b>Subtotal</b>
+              <b>Subtotal ({cart.totalItems} items)</b>
             </span>
             <span>₹{subtotal.toFixed(2)}</span>
           </div>
 
-          <div className="d-flex justify-content-between mb-2">
-            <span>
-              <b>Discount</b>
-            </span>
-            <span className="text-success">- ₹{discount.toFixed(2)}</span>
-          </div>
+          {totalSavings > 0 && (
+            <div className="d-flex justify-content-between mb-2">
+              <span>
+                <b>Discount</b>
+              </span>
+              <span className="text-success">- ₹{totalSavings.toFixed(2)}</span>
+            </div>
+          )}
 
           <div className="d-flex justify-content-between mb-2">
             <span>
@@ -67,20 +58,21 @@ const PriceDetails: React.FC<Props> = ({ cartItems }) => {
               <b>Total Amount</b>
             </span>
             <span>
-              <b>₹{total.toFixed(2)}</b>
+              <b>₹{totalAmount.toFixed(2)}</b>
             </span>
           </div>
 
-          <div className="youwillsave text-success mb-3">
-            You will save ₹{discount.toFixed(2)} on this order
-          </div>
+          {totalSavings > 0 && (
+            <div className="youwillsave text-success mb-3">
+              You will save ₹{totalSavings.toFixed(2)} on this order
+            </div>
+          )}
 
           <button className="btn checkoutbtn" onClick={handleCheckout}>
             <b>Proceed to checkout</b>
           </button>
         </div>
 
-        {/* ✅ Next.js Image instead of <img> */}
         <Image
           className="cartpricebottom"
           src={cartpricebottom}
