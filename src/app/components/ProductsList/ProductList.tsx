@@ -158,7 +158,7 @@ const ProductList = () => {
                 <div className='col-12 col-sm-8 col-md-9 col-lg-10 mb-4'>
                     <div className="relatedProducts product-list">
                         <div className="container-fluid">
-                            <div className="row justify-content-center">
+                            <div className="row justify-content-start">
                                 {/* Header with Results Count and Sort */}
                                 <div className="youmightheading productlist d-flex justify-content-between align-items-center mb-4">
                                     <h4 className="h4_1">
