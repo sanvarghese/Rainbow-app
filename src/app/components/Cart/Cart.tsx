@@ -1,84 +1,79 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image"; 
 import "./Cart.css";
 import card_2 from "../../../assets/images/card_2.png";
-// import card_2 from "../../../assets/images/card_2.png";
 import PriceDetails from "./PriceDetails";
-// import Pricedetaiules from "./Pricedetaiules"; 
-
-// If using TypeScript, define type
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  rating: number;
-}
+import { useCart } from "@/context/CartContext";
+// import { useCart } from "../../../contexts/CartContext";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: "KOTTHAS KITCHEN Chicken Masala (100g)",
-      price: 55.0,
-      quantity: 1,
-      rating: 4.7,
-    },
-    {
-      id: 2,
-      name: "KOTTHAS KITCHEN Chicken Masala (100g)",
-      price: 55.0,
-      quantity: 1,
-      rating: 4.7,
-    },
-    {
-      id: 3,
-      name: "KOTTHAS KITCHEN Chicken Masala (100g)",
-      price: 55.0,
-      quantity: 1,
-      rating: 4.7,
-    },
-  ]);
+  const { cart, updateCartItem, removeFromCart } = useCart();
 
-  const handleIncrement = (id: number) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
+  console.log(cart, 'cart data')
+
+  const handleIncrement = (productId: string, currentQuantity: number) => {
+    updateCartItem(productId, currentQuantity + 1);
+  };
+
+  const handleDecrement = (productId: string, currentQuantity: number) => {
+    if (currentQuantity > 1) {
+      updateCartItem(productId, currentQuantity - 1);
+    }
+  };
+
+  const handleRemove = (productId: string) => {
+    removeFromCart(productId);
+  };
+
+  const handleSaveForLater = (productId: string) => {
+    console.log(`Item with id ${productId} saved for later.`);
+    // Implement save for later functionality
+  };
+
+  if (cart.loading) {
+    return (
+      <div className="cart-page">
+        <div className="container-fluid cart-shop pb-5">
+          <div className="text-center py-5">
+            <div className="spinner-border text-success" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-2">Loading cart...</p>
+          </div>
+        </div>
+      </div>
     );
-  };
+  }
 
-  const handleDecrement = (id: number) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
+  if (cart.items.length === 0) {
+    return (
+      <div className="cart-page">
+        <div className="container-fluid cart-shop pb-5">
+          <div className="text-center py-5">
+            <h4 className="shoppingcarthead">Your Shopping Cart</h4>
+            <p className="text-muted">Your cart is empty</p>
+            <button className="btn btn-success mt-3">
+              Continue Shopping
+            </button>
+          </div>
+        </div>
+      </div>
     );
-  };
-
-  const handleRemove = (id: number) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
-  };
-
-  const handleSaveForLater = (id: number) => {
-    console.log(`Item with id ${id} saved for later.`);
-  };
+  }
 
   return (
     <div className="cart-page">
       <div className="container-fluid cart-shop pb-5">
         <div className="row">
           <div className="col-12 col-sm-12 col-md-8 col-lg-8 cartone">
-            <h4 className="shoppingcarthead">Your Shopping Cart</h4>
+            <h4 className="shoppingcarthead">Your Shopping Cart ({cart.totalItems} items)</h4>
 
-            {cartItems.map((item) => (
-              <div key={item.id} className="card cartcard row position-relative">
+            {cart.items.map((item) => (
+              <div key={item._id} className="card cartcard row position-relative">
                 <button
                   className="btn remove-btn"
-                  onClick={() => handleRemove(item.id)}
+                  onClick={() => handleRemove(item.productId._id)}
                 >
                   <span className="remove"> Remove</span>
                 </button>
@@ -86,26 +81,28 @@ const Cart = () => {
                 <div className="col-3 d-flex align-items-center justify-content-center">
                   <Image
                     className="cartimg"
-                    src={card_2}
-                    alt="cartimg"
+                    src={item.productImage || card_2}
+                    alt={item.name}
                     width={120}
                     height={120}
+                    onError={(e) => {
+                      e.currentTarget.src = card_2;
+                    }}
                   />
                 </div>
 
                 <div className="card-body col-6 cartbody">
                   <h2 className="card-title carttitle">{item.name}</h2>
                   <h6 className="subheadingcart">
-                    <span className="stars_in_cart">
-                      {"★ ".repeat(Math.floor(item.rating))}
-                    </span>{" "}
-                    {item.rating} Star Rating
+                    Sold by: {item.companyId.name}
                   </h6>
                   <div className="amount">
                     ₹{item.price}{" "}
-                    <span>
-                      <b>₹{item.price}</b>
-                    </span>
+                    {item.productId.offerPrice < item.productId.price && (
+                      <span className="text-muted text-decoration-line-through">
+                        ₹{item.productId.price}
+                      </span>
+                    )}
                   </div>
 
                   <div className="row row-cart2 mt-2">
@@ -113,21 +110,21 @@ const Cart = () => {
                       <div className="countbtn d-flex align-items-center gap-2">
                         <button
                           className="btn btn-outline btninc"
-                          onClick={() => handleDecrement(item.id)}
+                          onClick={() => handleDecrement(item.productId._id, item.quantity)}
                         >
                           <b>-</b>
                         </button>
                         <span>{item.quantity}</span>
                         <button
                           className="btn btn-outline btndec"
-                          onClick={() => handleIncrement(item.id)}
+                          onClick={() => handleIncrement(item.productId._id, item.quantity)}
                         >
                           +
                         </button>
                       </div>
                       <button
                         className="btn btncart btn-outline"
-                        onClick={() => handleSaveForLater(item.id)}
+                        onClick={() => handleSaveForLater(item.productId._id)}
                       >
                         <p className="saveforlater">Save for later</p>
                       </button>
@@ -141,7 +138,13 @@ const Cart = () => {
               </div>
             ))}
           </div>
-          <PriceDetails cartItems={cartItems} />
+          <PriceDetails cartItems={cart.items.map(item => ({
+            id: parseInt(item._id),
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            rating: 4.7, // You can add rating to your product model if needed
+          }))} />
         </div>
       </div>
     </div>
