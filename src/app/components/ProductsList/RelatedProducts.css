@@ -227,8 +227,8 @@
 
 .relatedProducts .icons .wishlisttop {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 8px;
+    right: 8px;
     display: flex;
     gap: 10px;
     z-index: 10;
@@ -236,7 +236,7 @@
 
 .relatedProducts .icons .carttop {
     position: absolute;
-    top: 30px;
+    top: 47px;
     right: 10px;
     display: flex;
     gap: 10px;
