@@ -178,7 +178,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 descriptionLong: initialData.descriptionLong || "",
                 quantity: initialData.quantity?.toString() || "",
                 price: initialData.price?.toString() || "",
-                offerPrice: initialData.OfferPrice?.toString() || "",
+                offerPrice: initialData.offerPrice?.toString() || "",
                 category: initialData.category || "",
                 subCategory: initialData.subCategory || "",
                 foodType: initialData.foodType || "",
