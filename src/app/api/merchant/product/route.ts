@@ -2,26 +2,48 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '../../../../../auth';
 import connectDB from '../../../../../lib/mongodb';
 import Company from '../../../../../models/Company';
+import mongoose from 'mongoose';
+
+// Clear cached model to ensure we use the latest schema
+if (mongoose.models.Product) {
+  delete mongoose.models.Product;
+}
+
 import Product from '../../../../../models/Product';
 
 async function parseForm(req: NextRequest): Promise<{ fields: any; files: any }> {
   const formData = await req.formData();
   const fields: any = {};
-  const files: any = {};
+  const files: any = {
+    productImages: [] // Initialize as array for multiple images
+  };
 
-  for (const [key, value] of formData.entries()) {
+  // Get all entries as array to properly handle multiple files with same key
+  const entries = Array.from(formData.entries());
+  
+  for (const [key, value] of entries) {
     if (value instanceof File) {
       const bytes = await value.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      files[key] = {
+      const fileData = {
         data: buffer.toString('base64'),
         mimetype: value.type,
         name: value.name,
       };
+      
+      // Handle multiple product images
+      if (key === 'productImages') {
+        files.productImages.push(fileData);
+      } else {
+        files[key] = fileData;
+      }
     } else {
       fields[key] = value;
     }
   }
+
+  console.log('Parsed product images count:', files.productImages.length);
+  console.log('Product images array:', files.productImages.map((f: any) => f.name));
 
   return { fields, files };
 }
@@ -38,7 +60,10 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
-    // Check if company exists
+    // Debug: Check if productImages field exists in schema
+    console.log('Product schema paths:', Object.keys(Product.schema.paths));
+    console.log('Has productImages field:', 'productImages' in Product.schema.paths);
+
     const company = await Company.findOne({ userId: session.user.id });
     if (!company) {
       return NextResponse.json(
@@ -52,11 +77,15 @@ export async function POST(req: NextRequest) {
 
     const { fields, files } = await parseForm(req);
 
-    // Debug logging
     console.log('Form fields received:', fields);
+    console.log('Files received - productImages count:', files.productImages?.length || 0);
+    console.log('Product images details:', files.productImages?.map((img: any) => ({ 
+      name: img.name, 
+      type: img.mimetype,
+      size: img.data?.length 
+    })));
     console.log('Product ID:', fields.productId);
 
-    // Check if this is an update (productId present)
     const isUpdate = !!fields.productId;
 
     // Validate required fields
@@ -155,14 +184,6 @@ export async function POST(req: NextRequest) {
       foodType: fields.foodType || null,
     };
 
-    // Add images only if new files are uploaded
-    if (files.productImage) {
-      productData.productImage = `data:${files.productImage.mimetype};base64,${files.productImage.data}`;
-    }
-    if (files.badges) {
-      productData.badges = `data:${files.badges.mimetype};base64,${files.badges.data}`;
-    }
-
     if (isUpdate) {
       // UPDATE existing product
       const product = await Product.findOne({ 
@@ -177,14 +198,75 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Update fields
+      console.log('Current product images in DB:', product.productImages?.length || 0);
+
+      // Handle product images for update
+      let existingImages: string[] = [];
+      
+      // Parse existing images from form data if provided
+      if (fields.existingImages) {
+        try {
+          existingImages = JSON.parse(fields.existingImages);
+          console.log('Existing images from form:', existingImages.length);
+        } catch (e) {
+          console.error('Error parsing existing images:', e);
+        }
+      }
+
+      // Add new images if uploaded
+      const newImages = files.productImages?.map((file: any) => {
+        const imageData = `data:${file.mimetype};base64,${file.data}`;
+        console.log('Converting new image:', file.name, 'Size:', file.data.length);
+        return imageData;
+      }) || [];
+
+      console.log('New images count:', newImages.length);
+      console.log('New images preview:', newImages.map(img => img.substring(0, 50) + '...'));
+
+      // Combine existing and new images
+      const allImages = [...existingImages, ...newImages];
+      console.log('Total images after merge:', allImages.length);
+
+      // Validate minimum 2 images
+      if (allImages.length < 2) {
+        return NextResponse.json(
+          { 
+            error: 'Validation failed',
+            details: `At least 2 product images are required. Current: ${allImages.length}`
+          },
+          { status: 400 }
+        );
+      }
+
+      // Validate maximum 5 images
+      if (allImages.length > 5) {
+        return NextResponse.json(
+          { 
+            error: 'Validation failed',
+            details: 'Maximum 5 product images allowed'
+          },
+          { status: 400 }
+        );
+      }
+
+      productData.productImages = allImages;
+      console.log('Final product images to save:', allImages.length);
+
+      // Update other fields
       Object.keys(productData).forEach(key => {
         if (productData[key] !== undefined && productData[key] !== null) {
           product[key] = productData[key];
         }
       });
 
+      // Handle badges separately
+      if (files.badges) {
+        product.badges = `data:${files.badges.mimetype};base64,${files.badges.data}`;
+        console.log('Badge updated');
+      }
+
       await product.save();
+      console.log('Product saved successfully with images:', product.productImages?.length);
 
       return NextResponse.json(
         {
@@ -196,6 +278,38 @@ export async function POST(req: NextRequest) {
       );
     } else {
       // CREATE new product
+      
+      // Validate product images for new product
+      if (!files.productImages || files.productImages.length < 2) {
+        return NextResponse.json(
+          { 
+            error: 'Validation failed',
+            details: 'At least 2 product images are required'
+          },
+          { status: 400 }
+        );
+      }
+
+      if (files.productImages.length > 5) {
+        return NextResponse.json(
+          { 
+            error: 'Validation failed',
+            details: 'Maximum 5 product images allowed'
+          },
+          { status: 400 }
+        );
+      }
+
+      // Convert images to base64 data URIs
+      productData.productImages = files.productImages.map((file: any) => 
+        `data:${file.mimetype};base64,${file.data}`
+      );
+
+      // Add badges if provided
+      if (files.badges) {
+        productData.badges = `data:${files.badges.mimetype};base64,${files.badges.data}`;
+      }
+
       productData.userId = session.user.id;
       productData.companyId = company._id;
 
@@ -287,7 +401,6 @@ export async function DELETE(req: NextRequest) {
 
     await connectDB();
 
-    // Find product and verify ownership
     const product = await Product.findOne({
       _id: productId,
       userId: session.user.id

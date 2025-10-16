@@ -4,7 +4,7 @@ import './Company';
 export interface IProduct extends Document {
   userId: mongoose.Types.ObjectId;
   companyId: mongoose.Types.ObjectId;
-  productImage?: string;
+  productImages: string[]; // Changed from single to array
   badges?: string;
   name: string;
   descriptionShort: string;
@@ -32,8 +32,15 @@ const ProductSchema = new Schema<IProduct>(
       ref: 'Company',
       required: true,
     },
-    productImage: {
-      type: String,
+    productImages: {
+      type: [String], // Array of strings
+      required: [true, 'At least 2 product images are required'],
+      validate: {
+        validator: function(v: string[]) {
+          return v && v.length >= 2;
+        },
+        message: 'At least 2 product images are required'
+      }
     },
     badges: {
       type: String,
@@ -85,9 +92,15 @@ const ProductSchema = new Schema<IProduct>(
   },
   {
     timestamps: true,
+    strict: false, // IMPORTANT: Allow fields not defined in schema temporarily
   }
 );
 
-const Product = models.Product || mongoose.model<IProduct>('Product', ProductSchema);
+// Clear any existing model to avoid caching issues
+if (models.Product) {
+  delete models.Product;
+}
+
+const Product = mongoose.model<IProduct>('Product', ProductSchema);
 
 export default Product;

@@ -7,11 +7,7 @@ import { FaStar, FaRegHeart } from "react-icons/fa";
 import { useCart } from "@/context/CartContext";
 import "./productenter.css";
 
-import product1 from "../../../../assets/images/product_1.png";
 import productmain from "../../../../assets/images/product_main.png";
-import product2 from "../../../../assets/images/card_2.png";
-import product3 from "../../../../assets/images/card_3.png";
-import product4 from "../../../../assets/images/card_4.png";
 import megasale from "../../../../assets/images/megasale.png";
 
 interface Product {
@@ -19,7 +15,7 @@ interface Product {
   name: string;
   descriptionShort: string;
   descriptionLong?: string;
-  productImage?: string;
+  productImages: string[];
   price: number;
   offerPrice: number;
   quantity: number;
@@ -41,6 +37,7 @@ const ProductSingle = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { addToCart } = useCart();
 
   console.log(productId, "productId from product details page.!")
@@ -91,7 +88,6 @@ const ProductSingle = () => {
     
     try {
       await addToCart(product._id, quantity);
-      // Redirect to cart page after adding
       window.location.href = '/cart';
     } catch (err) {
       console.error("Failed to proceed with buy now:", err);
@@ -143,13 +139,11 @@ const ProductSingle = () => {
     );
   }
 
-  // Calculate discount percentage
   const discountPercentage = product.discount > 0 ? product.discount : 
     (product.price > product.offerPrice 
       ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
       : 0);
 
-  // Mock features based on product data
   const features = [
     `Category: ${product.category}`,
     `Type: ${product.foodType || 'Vegetarian'}`,
@@ -157,27 +151,84 @@ const ProductSingle = () => {
     "Fresh spices and masala",
   ];
 
+  // Get product images or use fallback
+  const productImages = product.productImages && product.productImages.length > 0 
+    ? product.productImages 
+    : [productmain];
+
+  const currentImage = productImages[selectedImageIndex];
+
   return (
     <section className="product-page mt-3">
       <div className="product-container">
         {/* Left thumbnails */}
         <div className="image-column">
-          <Image className="thumbnail selected" src={product1} alt="thumb1" />
-          <Image className="thumbnail" src={product2} alt="thumb2" />
-          <Image className="thumbnail" src={product3} alt="thumb3" />
-          <Image className="thumbnail" src={product4} alt="thumb4" />
+          {productImages.map((img, index) => (
+            <div 
+              key={index}
+              className={`thumbnail ${selectedImageIndex === index ? 'selected' : ''}`}
+              onClick={() => setSelectedImageIndex(index)}
+              style={{ 
+                cursor: 'pointer',
+                border: selectedImageIndex === index ? '2px solid #006d21ff' : '2px solid transparent',
+                borderRadius: '8px',
+                padding: '4px',
+                marginBottom: '8px'
+              }}
+            >
+              <Image 
+                src={img} 
+                alt={`${product.name} - Image ${index + 1}`}
+                width={80}
+                height={80}
+                style={{ 
+                  objectFit: 'cover',
+                  borderRadius: '6px',
+                  width: '100%',
+                  height: 'auto'
+                }}
+              />
+            </div>
+          ))}
         </div>
 
         {/* Main Image */}
         <div className="main-image-section">
-          <Image 
-            className="main-image" 
-            src={product.productImage || productmain} 
-            alt={product.name}
-            width={400}
-            height={400}
-            style={{ objectFit: 'cover' }}
-          />
+          <div style={{ position: 'relative', width: '100%', height: '400px' }}>
+            <Image 
+              className="main-image" 
+              src={currentImage}
+              alt={product.name}
+              fill
+              style={{ objectFit: 'cover', borderRadius: '8px' }}
+              priority
+            />
+          </div>
+          
+          {/* Image navigation indicators */}
+          {productImages.length > 1 && (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              gap: '8px', 
+              marginTop: '12px' 
+            }}>
+              {productImages.map((_, index) => (
+                <div
+                  key={index}
+                  onClick={() => setSelectedImageIndex(index)}
+                  style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    backgroundColor: selectedImageIndex === index ? '#006d21ff' : '#ccc',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Details */}
@@ -294,6 +345,35 @@ const ProductSingle = () => {
           <Image src={megasale} alt="Mega Sale" className="banner-image" />
         </div>
       </div>
+
+      {/* Long Description Section */}
+      {product.descriptionLong && (
+        <div className="product-container mt-4">
+          <div style={{ 
+            backgroundColor: 'white', 
+            padding: '24px', 
+            borderRadius: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <h3 style={{ 
+              color: '#006d21ff', 
+              marginBottom: '16px',
+              fontSize: '24px',
+              fontWeight: 'bold'
+            }}>
+              Product Description
+            </h3>
+            <div 
+              className="product-long-description"
+              dangerouslySetInnerHTML={{ __html: product.descriptionLong }}
+              style={{
+                lineHeight: '1.6',
+                color: '#333'
+              }}
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 };

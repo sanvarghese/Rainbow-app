@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import {
-    Box, Button, Container, Paper, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Radio, RadioGroup, FormControlLabel, Alert, CircularProgress,
+    Box, Button, Container, Paper, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Radio, RadioGroup, FormControlLabel, Alert, CircularProgress, IconButton, Grid,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -12,7 +12,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import Placeholder from '@tiptap/extension-placeholder'
 import {
     Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
-    AlignLeft, AlignCenter, AlignRight, Undo, Redo
+    AlignLeft, AlignCenter, AlignRight, Undo, Redo, X, Upload, Image as ImageIcon
 } from 'lucide-react'
 import '../BecomeSeller/BecomeSeller.css'
 import '../../components/BecomeSeller/CreateProduct.css'
@@ -119,7 +119,7 @@ const MenuBar = ({ editor }: any) => {
 
 const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData }) => {
     const [formData, setFormData] = useState({
-        productImage: null as File | null,
+        productImages: [] as File[],
         badges: null as File | null,
         name: "",
         descriptionShort: "",
@@ -133,7 +133,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
     });
 
     const [preview, setPreview] = useState({
-        productImage: "",
+        productImages: [] as string[],
         badges: ""
     });
 
@@ -171,7 +171,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
     useEffect(() => {
         if (initialData) {
             setFormData({
-                productImage: null,
+                productImages: [],
                 badges: null,
                 name: initialData.name || "",
                 descriptionShort: initialData.descriptionShort || "",
@@ -184,11 +184,10 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 foodType: initialData.foodType || "",
             });
             setPreview({
-                productImage: initialData.productImage || "",
+                productImages: initialData.productImages || [],
                 badges: initialData.badges || ""
             });
 
-            // Update editor content
             if (editor && initialData.descriptionLong) {
                 editor.commands.setContent(initialData.descriptionLong)
             }
@@ -258,20 +257,114 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         validateField(name, value);
     };
 
+    const handleMultipleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        
+        if (files.length === 0) return;
+
+        // Count existing images that are URLs (from server)
+        const existingUrlImages = preview.productImages.filter(img => 
+            typeof img === 'string' && (img.startsWith('http') || img.startsWith('data:image'))
+        ).length;
+
+        // Validate total number of images (max 5)
+        const totalImages = existingUrlImages + formData.productImages.length + files.length;
+        if (totalImages > 5) {
+            setError(`Maximum 5 product images allowed. You currently have ${existingUrlImages + formData.productImages.length} images.`);
+            e.target.value = ''; // Clear the input
+            return;
+        }
+
+        // Validate each file
+        for (const file of files) {
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Each image must be less than 5MB');
+                e.target.value = '';
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                setError('Only image files are allowed');
+                e.target.value = '';
+                return;
+            }
+        }
+
+        setError('');
+
+        // Add files to state
+        setFormData(prev => ({
+            ...prev,
+            productImages: [...prev.productImages, ...files]
+        }));
+
+        // Generate previews
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(prev => ({
+                    ...prev,
+                    productImages: [...prev.productImages, reader.result as string]
+                }));
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Clear the input value so same file can be selected again if removed
+        e.target.value = '';
+
+        // Clear field errors
+        setFieldErrors(prev => ({
+            ...prev,
+            productImages: ''
+        }));
+    };
+
+    const removeProductImage = (index: number) => {
+        const imageToRemove = preview.productImages[index];
+        
+        // Check if it's a new file (starts with blob or data:image/png etc from FileReader)
+        // vs existing image from server (starts with http or data:image/jpeg;base64 from server)
+        const isExistingServerImage = typeof imageToRemove === 'string' && 
+            (imageToRemove.startsWith('http') || imageToRemove.includes(';base64,'));
+
+        if (isExistingServerImage) {
+            // Remove from preview only (will be handled in existingImages)
+            setPreview(prev => ({
+                ...prev,
+                productImages: prev.productImages.filter((_, i) => i !== index)
+            }));
+        } else {
+            // It's a newly added file, remove from both formData and preview
+            // Find the index in formData.productImages
+            const newFileIndex = preview.productImages
+                .slice(0, index)
+                .filter(img => !((typeof img === 'string') && (img.startsWith('http') || img.includes(';base64,'))))
+                .length;
+
+            setFormData(prev => ({
+                ...prev,
+                productImages: prev.productImages.filter((_, i) => i !== newFileIndex)
+            }));
+
+            setPreview(prev => ({
+                ...prev,
+                productImages: prev.productImages.filter((_, i) => i !== index)
+            }));
+        }
+    };
+
     const handleFileChange = (
         e: React.ChangeEvent<HTMLInputElement>,
-        field: "productImage" | "badges"
+        field: "badges"
     ) => {
         const file = e.target.files?.[0];
 
         if (file) {
-            // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 setError(`${field} file size must be less than 5MB`);
                 return;
             }
 
-            // Validate file type
             if (!file.type.startsWith('image/')) {
                 setError(`${field} must be an image file`);
                 return;
@@ -301,6 +394,23 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setSuccess('');
         setFieldErrors({});
 
+        // Count existing server images and new files
+        const existingServerImages = preview.productImages.filter(img => 
+            typeof img === 'string' && (img.startsWith('http') || img.includes(';base64,'))
+        );
+        
+        const totalProductImages = existingServerImages.length + formData.productImages.length;
+        
+        // Validate minimum 2 images
+        if (totalProductImages < 2) {
+            setFieldErrors(prev => ({
+                ...prev,
+                productImages: 'At least 2 product images are required'
+            }));
+            setError(`Please add at least 2 product images. You currently have ${totalProductImages} image(s).`);
+            return;
+        }
+
         // Validate all required fields
         const requiredFields = ['name', 'descriptionShort', 'quantity', 'price', 'offerPrice', 'category', 'subCategory'];
         let hasErrors = false;
@@ -311,7 +421,6 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             }
         });
 
-        // Validate food type for food/powder categories
         if ((formData.category === 'food' || formData.category === 'powder') && !formData.foodType) {
             setFieldErrors(prev => ({
                 ...prev,
@@ -330,9 +439,25 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         try {
             const formDataToSend = new FormData();
 
-            // Add all fields
+            // Add product images (new files) - IMPORTANT: append each file individually
+            console.log('Adding product images to FormData:', formData.productImages.length);
+            formData.productImages.forEach((file, index) => {
+                console.log(`Appending image ${index + 1}:`, file.name, file.type, file.size);
+                formDataToSend.append('productImages', file);
+            });
+
+            // Add existing images when updating
+            if (initialData?.productImages) {
+                const existingImages = preview.productImages.filter(img => 
+                    typeof img === 'string' && (img.startsWith('http') || img.includes(';base64,'))
+                );
+                console.log('Existing images count:', existingImages.length);
+                formDataToSend.append('existingImages', JSON.stringify(existingImages));
+            }
+
+            // Add other fields
             Object.entries(formData).forEach(([key, value]) => {
-                if (value !== null && value !== undefined) {
+                if (key !== 'productImages' && value !== null && value !== undefined) {
                     if (value instanceof File) {
                         formDataToSend.append(key, value);
                     } else {
@@ -343,6 +468,16 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
             if (initialData?._id) {
                 formDataToSend.append("productId", initialData._id);
+            }
+
+            // Debug: Log FormData contents
+            console.log('FormData entries:');
+            for (let pair of formDataToSend.entries()) {
+                if (pair[1] instanceof File) {
+                    console.log(pair[0], ':', pair[1].name, pair[1].type, pair[1].size);
+                } else {
+                    console.log(pair[0], ':', pair[1]);
+                }
             }
 
             const res = await fetch('/api/merchant/product', {
@@ -360,7 +495,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
             // Reset form
             setFormData({
-                productImage: null,
+                productImages: [],
                 badges: null,
                 name: "",
                 descriptionShort: "",
@@ -372,9 +507,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 subCategory: "",
                 foodType: "",
             });
-            setPreview({ productImage: "", badges: "" });
+            setPreview({ productImages: [], badges: "" });
 
-            // Clear editor
             if (editor) {
                 editor.commands.clearContent()
             }
@@ -426,27 +560,190 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
                     <form onSubmit={handleSubmit}>
                         <div className="row g-4">
-                            <div className="col-md-6">
-                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                    Product Image
-                                </Typography>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleFileChange(e, "productImage")}
-                                />
-                                {preview.productImage && (
-                                    <img
-                                        src={preview.productImage}
-                                        alt="Product"
-                                        style={{ maxWidth: "200px", marginTop: "10px", borderRadius: "8px" }}
-                                    />
-                                )}
+                            {/* Product Images Section - Enhanced UI */}
+                            <div className="col-12">
+                                <Box sx={{ 
+                                    border: '2px dashed #006d21ff', 
+                                    borderRadius: 2, 
+                                    p: 3,
+                                    backgroundColor: '#f8f9fa',
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        backgroundColor: '#e9f7ef',
+                                        borderColor: '#00bb38ff'
+                                    }
+                                }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                        <ImageIcon size={24} style={{ color: '#006d21ff', marginRight: '8px' }} />
+                                        <Typography variant="h6" fontWeight={600} sx={{ color: '#006d21ff' }}>
+                                            Product Images *
+                                        </Typography>
+                                    </Box>
+                                    
+                                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                                        Upload minimum 2 and maximum 5 high-quality product images. First image will be the main display image.
+                                    </Typography>
+
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                        <Button
+                                            component="label"
+                                            variant="contained"
+                                            startIcon={<Upload />}
+                                            disabled={preview.productImages.length >= 5}
+                                            sx={{
+                                                backgroundColor: '#006d21ff',
+                                                '&:hover': { backgroundColor: '#00bb38ff' },
+                                                '&:disabled': { backgroundColor: '#ccc' }
+                                            }}
+                                        >
+                                            {preview.productImages.length === 0 ? 'Upload Images' : 'Add More Images'}
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                hidden
+                                                onChange={handleMultipleFileChange}
+                                                disabled={preview.productImages.length >= 5}
+                                            />
+                                        </Button>
+                                        
+                                        <Box sx={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: 1,
+                                            px: 2,
+                                            py: 1,
+                                            backgroundColor: preview.productImages.length >= 2 ? '#d4edda' : '#fff3cd',
+                                            borderRadius: 1,
+                                            border: `1px solid ${preview.productImages.length >= 2 ? '#c3e6cb' : '#ffeaa7'}`
+                                        }}>
+                                            <Typography variant="body2" fontWeight={600}>
+                                                {preview.productImages.length}/5 images
+                                            </Typography>
+                                            {preview.productImages.length < 2 && (
+                                                <Typography variant="caption" color="error" sx={{ ml: 1 }}>
+                                                    (Need {2 - preview.productImages.length} more)
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                    </Box>
+
+                                    {fieldErrors.productImages && (
+                                        <Alert severity="error" sx={{ mb: 2 }}>
+                                            {fieldErrors.productImages}
+                                        </Alert>
+                                    )}
+
+                                    {/* Image Preview Grid */}
+                                    {preview.productImages.length > 0 && (
+                                        <Grid container spacing={2} sx={{ mt: 1 }}>
+                                            {preview.productImages.map((img, index) => (
+                                                <Grid item xs={6} sm={4} md={3} key={index}>
+                                                    <Box sx={{ 
+                                                        position: 'relative',
+                                                        paddingTop: '100%', // 1:1 Aspect Ratio
+                                                        borderRadius: 2,
+                                                        overflow: 'hidden',
+                                                        boxShadow: 2,
+                                                        border: index === 0 ? '3px solid #006d21ff' : '2px solid #e0e0e0',
+                                                        transition: 'all 0.3s ease',
+                                                        '&:hover': {
+                                                            transform: 'scale(1.05)',
+                                                            boxShadow: 4
+                                                        }
+                                                    }}>
+                                                        {index === 0 && (
+                                                            <Box sx={{
+                                                                position: 'absolute',
+                                                                top: 8,
+                                                                left: 8,
+                                                                backgroundColor: '#006d21ff',
+                                                                color: 'white',
+                                                                px: 1,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontSize: '0.75rem',
+                                                                fontWeight: 'bold',
+                                                                zIndex: 2
+                                                            }}>
+                                                                MAIN
+                                                            </Box>
+                                                        )}
+                                                        <img
+                                                            src={img}
+                                                            alt={`Product ${index + 1}`}
+                                                            style={{
+                                                                position: 'absolute',
+                                                                top: 0,
+                                                                left: 0,
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover'
+                                                            }}
+                                                        />
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => removeProductImage(index)}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                top: 8,
+                                                                right: 8,
+                                                                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                                                color: 'white',
+                                                                zIndex: 2,
+                                                                '&:hover': { 
+                                                                    backgroundColor: 'rgba(200, 0, 0, 1)' 
+                                                                }
+                                                            }}
+                                                        >
+                                                            <X size={16} />
+                                                        </IconButton>
+                                                        <Typography
+                                                            variant="caption"
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                bottom: 8,
+                                                                left: '50%',
+                                                                transform: 'translateX(-50%)',
+                                                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                                                color: 'white',
+                                                                px: 1,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontSize: '0.7rem'
+                                                            }}
+                                                        >
+                                                            Image {index + 1}
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>
+                                            ))}
+                                        </Grid>
+                                    )}
+
+                                    {preview.productImages.length === 0 && (
+                                        <Box sx={{ 
+                                            textAlign: 'center', 
+                                            py: 4,
+                                            border: '1px dashed #ccc',
+                                            borderRadius: 2,
+                                            backgroundColor: 'white'
+                                        }}>
+                                            <ImageIcon size={48} style={{ color: '#ccc', marginBottom: '16px' }} />
+                                            <Typography variant="body2" color="textSecondary">
+                                                No images uploaded yet
+                                            </Typography>
+                                            <Typography variant="caption" color="textSecondary">
+                                                Click "Upload Images" button above to add product images
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </Box>
                             </div>
 
                             <div className="col-md-6">
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                    Badges
+                                    Badges (Optional)
                                 </Typography>
                                 <input
                                     type="file"
@@ -476,7 +773,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 />
                             </div>
 
-                            <div className="col-md-6">
+                            <div className="col-12">
                                 <TextField
                                     fullWidth
                                     label="Short Description (At least 50 characters)"
@@ -484,15 +781,16 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                     value={formData.descriptionShort}
                                     onChange={handleInputChange}
                                     required
-                                    type='text'
+                                    multiline
+                                    rows={3}
                                     error={!!fieldErrors.descriptionShort}
-                                    helperText={fieldErrors.descriptionShort}
+                                    helperText={fieldErrors.descriptionShort || `${formData.descriptionShort.length}/50 characters`}
                                 />
                             </div>
 
                             <div className="col-12">
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                    Long Description
+                                    Long Description (Optional)
                                 </Typography>
                                 <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
                                     <MenuBar editor={editor} />
@@ -500,7 +798,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 </div>
                             </div>
 
-                            <div className="col-6">
+                            <div className="col-md-4">
                                 <TextField
                                     fullWidth
                                     label="Quantity"
@@ -514,7 +812,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 />
                             </div>
 
-                            <div className="col-6">
+                            <div className="col-md-4">
                                 <TextField
                                     fullWidth
                                     label="Price"
@@ -528,7 +826,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 />
                             </div>
 
-                            <div className="col-6">
+                            <div className="col-md-4">
                                 <TextField
                                     fullWidth
                                     label="Offer Price"
@@ -542,7 +840,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 />
                             </div>
 
-                            <div className="col-6">
+                            <div className="col-md-6">
                                 <FormControl fullWidth required error={!!fieldErrors.category}>
                                     <InputLabel>Category</InputLabel>
                                     <Select
@@ -563,7 +861,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 </FormControl>
                             </div>
 
-                            <div className="col-6">
+                            <div className="col-md-6">
                                 <FormControl fullWidth required error={!!fieldErrors.subCategory}>
                                     <InputLabel>Subcategory</InputLabel>
                                     <Select
@@ -583,7 +881,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                             </div>
 
                             {(formData.category === "food" || formData.category === "powder") && (
-                                <div className="col-6">
+                                <div className="col-12">
                                     <FormControl required error={!!fieldErrors.foodType}>
                                         <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                             Food Type
@@ -606,25 +904,58 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 </div>
                             )}
 
-                            <div className="col-12 d-flex justify-content-end gap-2">
-                                <Button
-                                    variant="outlined"
-                                    className="cancel-btn"
-                                    disabled={loading}>
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    className="create-btn"
-                                    disabled={loading}>
-                                    {loading ? (
-                                        <>
-                                            <CircularProgress size={20} sx={{ mr: 1 }} />
-                                            {initialData ? 'Updating...' : 'Creating...'}
-                                        </>
-                                    ) : (initialData ? 'Update Product' : 'Create Product')}
-                                </Button>
+                            <div className="col-12">
+                                <Box sx={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    pt: 2,
+                                    borderTop: '2px solid #e0e0e0'
+                                }}>
+                                    <Typography variant="body2" color="textSecondary">
+                                        * Required fields
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <Button
+                                            variant="outlined"
+                                            className="cancel-btn"
+                                            disabled={loading}
+                                            sx={{
+                                                borderColor: '#006d21ff',
+                                                color: '#006d21ff',
+                                                '&:hover': {
+                                                    borderColor: '#00bb38ff',
+                                                    backgroundColor: 'rgba(0, 109, 33, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                            className="create-btn"
+                                            disabled={loading}
+                                            sx={{
+                                                backgroundColor: '#006d21ff',
+                                                minWidth: '160px',
+                                                '&:hover': { backgroundColor: '#00bb38ff' },
+                                                '&:disabled': { backgroundColor: '#ccc' }
+                                            }}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
+                                                    {initialData ? 'Updating...' : 'Creating...'}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {initialData ? 'Update Product' : 'Create Product'}
+                                                </>
+                                            )}
+                                        </Button>
+                                    </Box>
+                                </Box>
                             </div>
                         </div>
                     </form>
