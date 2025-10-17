@@ -33,16 +33,25 @@ const ProductsSection = () => {
         }
     };
 
+    // Get the first product image or fallback to the old productImage field
+    const getProductImage = (product: any) => {
+        // Check if productImages array exists and has at least one image
+        if (product.productImages && product.productImages.length > 0) {
+            return product.productImages[0];
+        }
+        // Fallback to the old productImage field for backward compatibility
+        return product.productImage || null;
+    };
+
     const handleAddProduct = () => {
         setSelectedProduct(null);
         setIsEditing(true);
     };
 
     const handleEditProduct = (product: any) => {
-        console.log('Editing product:', product); // Debug log
+        console.log('Editing product:', product);
         setSelectedProduct(product);
         setIsEditing(true);
-
     };
 
     const handleDeleteClick = (product: any) => {
@@ -55,9 +64,7 @@ const ProductsSection = () => {
 
         setDeleteLoading(true);
         try {
-            // const res = await fetch(`/api/merchant/product?id=${productToDelete._id}`, {
             const res = await fetch(`/api/merchant/product/${productToDelete._id}`, {
-
                 method: 'DELETE',
             });
 
@@ -171,100 +178,114 @@ const ProductsSection = () => {
             ) : (
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {currentProducts.map((product) => (
-                            <div key={product._id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                                {/* Product Image */}
-                                {product.productImage ? (
-                                    <div className="relative h-48 bg-gray-100">
-                                        <img
-                                            src={product.productImage}
-                                            alt={product.name}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        {product.badges && (
-                                            <div className="absolute top-2 right-2">
-                                                <img
-                                                    src={product.badges}
-                                                    alt="Badge"
-                                                    className="w-12 h-12 object-contain"
-                                                />
+                        {currentProducts.map((product) => {
+                            const productImage = getProductImage(product);
+                            const imageCount = product.productImages ? product.productImages.length : 0;
+                            
+                            return (
+                                <div key={product._id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                                    {/* Product Image */}
+                                    {productImage ? (
+                                        <div className="relative h-48 bg-gray-100">
+                                            <img
+                                                src={productImage}
+                                                alt={product.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                            
+                                            {/* Image Count Badge */}
+                                            {imageCount > 1 && (
+                                                <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs">
+                                                    +{imageCount - 1} more
+                                                </div>
+                                            )}
+                                            
+                                            {/* Badges */}
+                                            {product.badges && (
+                                                <div className="absolute top-2 right-2">
+                                                    <img
+                                                        src={product.badges}
+                                                        alt="Badge"
+                                                        className="w-12 h-12 object-contain"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="h-48 bg-gray-100 flex items-center justify-center">
+                                            <PackageIcon className="w-16 h-16 text-gray-300" />
+                                        </div>
+                                    )}
+
+                                    {/* Product Details */}
+                                    <div className="p-4">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-800 line-clamp-1 flex-1">
+                                                {product.name}
+                                            </h3>
+                                            <div className="flex gap-1 ml-2">
+                                                <button
+                                                    onClick={() => handleEditProduct(product)}
+                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    title="Edit Product">
+                                                    <Edit className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteClick(product)}
+                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Delete Product">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
                                             </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="h-48 bg-gray-100 flex items-center justify-center">
-                                        <PackageIcon className="w-16 h-16 text-gray-300" />
-                                    </div>
-                                )}
-
-                                {/* Product Details */}
-                                <div className="p-4">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h3 className="text-lg font-semibold text-gray-800 line-clamp-1 flex-1">
-                                            {product.name}
-                                        </h3>
-                                        <div className="flex gap-1 ml-2">
-                                            <button
-                                                onClick={() => handleEditProduct(product)}
-                                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                title="Edit Product">
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteClick(product)}
-                                                className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                title="Delete Product">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
                                         </div>
-                                    </div>
 
-                                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                                        {product.descriptionShort}
-                                    </p>
+                                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                                            {product.descriptionShort}
+                                        </p>
 
-                                    {/* Tags */}
-                                    <div className="flex flex-wrap gap-2 mb-3">
-                                        <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                                            {product.category}
-                                        </span>
-                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-                                            {product.subCategory}
-                                        </span>
-                                        {product.foodType && (
-                                            <span className={`px-2 py-1 text-xs rounded-full ${product.foodType === 'veg'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-red-100 text-red-700'
-                                                }`}>
-                                                {product.foodType}
+                                        {/* Tags */}
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                                {product.category}
                                             </span>
-                                        )}
-                                    </div>
+                                            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                                {product.subCategory}
+                                            </span>
+                                            {product.foodType && (
+                                                <span className={`px-2 py-1 text-xs rounded-full ${product.foodType === 'veg'
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    {product.foodType}
+                                                </span>
+                                            )}
+                                        </div>
 
-                                    {/* Footer */}
-                                    <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                                        <div>
-                                            <p className="text-xs text-gray-500">Quantity</p>
-                                            <p className="font-semibold text-gray-800">{product.quantity}</p>
+                                        {/* Footer */}
+                                        <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+                                            <div>
+                                                <p className="text-xs text-gray-500">Quantity</p>
+                                                <p className="font-semibold text-gray-800">{product.quantity}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500">Price</p>
+                                                <p className="font-semibold text-gray-800">₹{product.price}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500">Offer Price</p>
+                                                <p className="font-semibold text-gray-800">₹{product.offerPrice}</p>
+                                            </div>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${product.isApproved
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-yellow-100 text-yellow-700'
+                                                }`}>
+                                                {product.isApproved ? 'Approved' : 'Pending'}
+                                            </span>
                                         </div>
-                                        <div>
-                                            <p className="text-xs text-gray-500">Price</p>
-                                            <p className="font-semibold text-gray-800">{product.price}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-gray-500">Offer Price</p>
-                                            <p className="font-semibold text-gray-800">{product.offerPrice}</p>
-                                        </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${product.isApproved
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-yellow-100 text-yellow-700'
-                                            }`}>
-                                            {product.isApproved ? 'Approved' : 'Pending'}
-                                        </span>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {/* Pagination */}
@@ -365,7 +386,6 @@ const ProductsSection = () => {
                             <button
                                 onClick={handleDeleteConfirm}
                                 disabled={deleteLoading}
-
                                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2">
                                 {deleteLoading ? (
                                     <>

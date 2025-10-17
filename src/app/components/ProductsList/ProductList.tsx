@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Product {
     _id: string;
+    productImages?: string[]; 
     productImage?: string;
     name: string;
     descriptionShort: string;
@@ -18,9 +19,11 @@ interface Product {
     subCategory: string;
     foodType?: string;
     company: {
+        _id: string;
         name: string;
         companyLogo?: string;
     };
+    companyId: string; // Add this for cart functionality
 }
 
 interface Pagination {
@@ -107,6 +110,16 @@ const ProductList = () => {
         fetchProducts();
     }, [fetchProducts]);
 
+    // Helper function to get the first product image
+    const getProductImage = (product: Product): string => {
+        // Check if productImages array exists and has at least one image
+        if (product.productImages && product.productImages.length > 0) {
+            return product.productImages[0];
+        }
+        // Fallback to the old productImage field for backward compatibility
+        return product.productImage || '/placeholder-product.png';
+    };
+
     const handleSortChange = (option: string) => {
         setSortOption(option);
         setPagination(prev => ({ ...prev, page: 1 }));
@@ -141,8 +154,6 @@ const ProductList = () => {
         { value: 'oldest', label: 'Date (Oldest)' },
         { value: 'priceAsc', label: 'Price (Low to High)' },
         { value: 'priceDesc', label: 'Price (High to Low)' },
-        // { value: 'nameAsc', label: 'Alphabetical (A-Z)' },
-        // { value: 'nameDesc', label: 'Alphabetical (Z-A)' },
         { value: 'discount', label: 'Discount (High to Low)' },
     ];
 
@@ -218,14 +229,19 @@ const ProductList = () => {
                                             >
                                                 <ProductCard
                                                     id={product._id}
-                                                    img={product.productImage || '/placeholder-product.png'}
+                                                    productId={product._id}
+                                                    img={getProductImage(product)}
                                                     title={product.company?.name || 'Unknown Brand'}
                                                     subtitle={product.name}
                                                     rating="4.5"
-                                                    reviews="0"
-                                                    oldPrice={product.price > product.offerPrice ? `₹${product.price.toFixed(2)}` : ''}
+                                                    reviews="100" // You can add actual review count later
+                                                    oldPrice={`₹${product.price.toFixed(2)}`}
                                                     newPrice={`₹${product.offerPrice.toFixed(2)}`}
                                                     discount={product.discount}
+                                                    price={product.price}
+                                                    offerPrice={product.offerPrice}
+                                                    companyId={product.company?._id || product.companyId}
+                                                    productImage={getProductImage(product)}
                                                 />
                                             </div>
                                         ))}
