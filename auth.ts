@@ -3,8 +3,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import connectDB from './lib/mongodb';
 import User from './models/User';
-// import connectDB from '@/lib/mongodb';
-// import User from '@/models/User';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -58,6 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.profileImage = user.profileImage;
       }
       return token;
     },
@@ -65,7 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
-        session.user.profileImage= token.profileImage as string
+        session.user.profileImage = token.profileImage as string;
       }
       return session;
     },
