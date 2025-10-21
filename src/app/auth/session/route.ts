@@ -1,12 +1,16 @@
+
 import { NextResponse } from 'next/server';
 import { auth } from '../../../../auth';
 
 export async function GET() {
   try {
     const session = await auth();
-    
-    if (!session?.user) {
-      return NextResponse.json({ user: null }, { status: 401 });
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { user: null },
+        { status: 200 }
+      );
     }
 
     return NextResponse.json({
@@ -16,11 +20,12 @@ export async function GET() {
         email: session.user.email,
         role: session.user.role,
         profileImage: session.user.profileImage,
-      }
+      },
     });
   } catch (error) {
+    console.error('Session fetch error:', error);
     return NextResponse.json(
-      { error: 'Failed to get session' },
+      { error: 'Failed to fetch session' },
       { status: 500 }
     );
   }

@@ -6,6 +6,7 @@ const page = () => {
     return (
        <CheckOut/>
         // <MerchantDashboardView/>
+        // <h2>this is my check out</h2>
 
     )
 }
