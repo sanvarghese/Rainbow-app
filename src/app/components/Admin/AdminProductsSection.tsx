@@ -1,6 +1,4 @@
-// app/components/Admin/AdminProductSection.tsx
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import { Package, Building, Eye, Edit, Trash2, CheckCircle, XCircle, X } from 'lucide-react';
 import AdminCreateProduct from './AdminCreateProduct';
