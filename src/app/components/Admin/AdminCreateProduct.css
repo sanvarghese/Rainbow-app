@@ -1,0 +1,24 @@
+
+/* ✅ Fix Tiptap list styles */
+.ProseMirror ul,
+.ProseMirror ol {
+  margin-left: 1.5rem; /* Adds space to show bullets properly */
+  padding-left: 1.5rem;
+}
+
+.ProseMirror ul {
+  list-style-type: disc; /* Bullet style */
+}
+
+.ProseMirror ol {
+  list-style-type: decimal; /* Numbered list style */
+}
+
+.ProseMirror li {
+  margin: 0.3rem 0; /* Small spacing between list items */
+}
+
+/* ✅ Optional: keep editor text looking neat */
+.ProseMirror p {
+  margin: 0.5rem 0;
+}
