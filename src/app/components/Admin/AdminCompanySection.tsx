@@ -2,7 +2,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Building, Mail, Phone, MapPin, FileText, Facebook, Instagram, Eye } from 'lucide-react';
+import { Building, Mail, Phone, MapPin, FileText, Facebook, Instagram, Edit, Plus } from 'lucide-react';
+import AdminCreateCompany from './AdminCreateCompanyForm';
+// import AdminCreateCompany from './AdminCreateCompany';
 
 interface Company {
   _id: string;
@@ -13,6 +15,7 @@ interface Company {
   description?: string;
   companyLogo?: string;
   banner?: string;
+  badges?: string;
   gstNumber?: string;
   facebookLink?: string;
   instagramLink?: string;
@@ -28,14 +31,19 @@ interface Company {
 const AdminCompanySection = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
 
   useEffect(() => {
-    fetchCompanies();
-  }, []);
+    // Only fetch companies when NOT showing the form
+    if (!showCreateForm && !editingCompany) {
+      fetchCompanies();
+    }
+  }, [showCreateForm, editingCompany]);
 
   const fetchCompanies = async () => {
     try {
+      setLoading(true);
       const res = await fetch('/api/admin/companies');
       const data = await res.json();
       if (data.success) {
@@ -47,6 +55,40 @@ const AdminCompanySection = () => {
       setLoading(false);
     }
   };
+
+  const handleEdit = (company: Company) => {
+    setEditingCompany(company);
+    setShowCreateForm(true);
+  };
+
+  const handleCreateSuccess = () => {
+    setShowCreateForm(false);
+    setEditingCompany(null);
+    fetchCompanies();
+  };
+
+  const handleCancel = () => {
+    setShowCreateForm(false);
+    setEditingCompany(null);
+  };
+
+  // Show create/edit form
+  if (showCreateForm) {
+    return (
+      <div>
+        <button
+          onClick={handleCancel}
+          className="mb-4 px-4 py-2 text-gray-600 hover:text-gray-800 flex items-center gap-2"
+        >
+          ← Back to Companies
+        </button>
+        <AdminCreateCompany
+          initialData={editingCompany}
+          onSuccess={handleCreateSuccess}
+        />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -65,18 +107,32 @@ const AdminCompanySection = () => {
             {companies.length} compan{companies.length !== 1 ? 'ies' : 'y'} total
           </p>
         </div>
+        <button
+          onClick={() => setShowCreateForm(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          Create New Company
+        </button>
       </div>
 
       {companies.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl shadow-sm">
           <Building className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-800 mb-2">No Companies Found</h3>
-          <p className="text-gray-600">There are no companies registered yet.</p>
+          <p className="text-gray-600 mb-4">Get started by creating your first company.</p>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Create Your First Company
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {companies.map((company) => (
-            <div key={company._id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div key={company._id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
               {/* Company Banner */}
               {company.banner && (
                 <div className="h-32 bg-gray-100">
@@ -151,32 +207,38 @@ const AdminCompanySection = () => {
                   <p className="text-xs text-gray-600">{company.userId.email}</p>
                 </div>
 
-                {(company.facebookLink || company.instagramLink) && (
-                  <div className="flex gap-2">
-                    {company.facebookLink && (
-                      <a
-                        href={company.facebookLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
-                      >
-                        <Facebook className="w-3 h-3" />
-                        Facebook
-                      </a>
-                    )}
-                    {company.instagramLink && (
-                      <a
-                        href={company.instagramLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 bg-pink-50 text-pink-600 rounded-lg hover:bg-pink-100 transition-colors text-sm"
-                      >
-                        <Instagram className="w-3 h-3" />
-                        Instagram
-                      </a>
-                    )}
-                  </div>
-                )}
+                <div className="flex gap-2 mb-4">
+                  {company.facebookLink && (
+                    <a
+                      href={company.facebookLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
+                    >
+                      <Facebook className="w-3 h-3" />
+                      Facebook
+                    </a>
+                  )}
+                  {company.instagramLink && (
+                    <a
+                      href={company.instagramLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-3 py-1.5 bg-pink-50 text-pink-600 rounded-lg hover:bg-pink-100 transition-colors text-sm"
+                    >
+                      <Instagram className="w-3 h-3" />
+                      Instagram
+                    </a>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => handleEdit(company)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+                >
+                  <Edit className="w-4 h-4" />
+                  Edit Company
+                </button>
               </div>
             </div>
           ))}

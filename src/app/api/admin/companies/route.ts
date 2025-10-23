@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       ...(badgesUrl && { badges: badgesUrl }),
       ...(bannerUrl && { banner: bannerUrl }),
       // Note: You may want to add userId from admin session
-      // userId: admin.userId,
+      userId: admin.id,
     };
 
     let company;
@@ -180,11 +180,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET - Fetch company (for editing)
+
+
 export async function GET(req: NextRequest) {
   try {
     const admin = await verifyAdminToken();
-    
+
     if (!admin) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
@@ -194,43 +195,79 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
-    const { searchParams } = new URL(req.url);
-    const companyId = searchParams.get('id');
-
-    if (!companyId) {
-      return NextResponse.json(
-        { success: false, error: 'Company ID is required' },
-        { status: 400 }
-      );
-    }
-
-    const company = await Company.findById(companyId)
-      .populate('userId', 'name email');
-
-    if (!company) {
-      return NextResponse.json(
-        { success: false, error: 'Company not found' },
-        { status: 404 }
-      );
-    }
+    const companies = await Company.find()
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,
-      company,
+      companies,
     });
-
   } catch (error: any) {
-    console.error('Fetch company error:', error);
+    console.error('Fetch all companies error:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: 'Server error',
-        details: error.message
+        details: error.message,
       },
       { status: 500 }
     );
   }
 }
+
+
+// GET - Fetch company (for editing)
+// export async function GET(req: NextRequest) {
+//   try {
+//     const admin = await verifyAdminToken();
+    
+//     if (!admin) {
+//       return NextResponse.json(
+//         { success: false, error: 'Unauthorized' },
+//         { status: 401 }
+//       );
+//     }
+
+//     await connectDB();
+
+//     const { searchParams } = new URL(req.url);
+//     const companyId = searchParams.get('id');
+
+//     if (!companyId) {
+//       return NextResponse.json(
+//         { success: false, error: 'Company ID is required' },
+//         { status: 400 }
+//       );
+//     }
+
+//     const company = await Company.findById(companyId)
+//       .populate('userId', 'name email');
+
+//     if (!company) {
+//       return NextResponse.json(
+//         { success: false, error: 'Company not found' },
+//         { status: 404 }
+//       );
+//     }
+
+//     return NextResponse.json({
+//       success: true,
+//       company,
+//     });
+
+//   } catch (error: any) {
+//     console.error('Fetch company error:', error);
+//     return NextResponse.json(
+//       { 
+//         success: false,
+//         error: 'Server error',
+//         details: error.message
+//       },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 // Configure to handle file uploads
 export const config = {

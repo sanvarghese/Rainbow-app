@@ -190,7 +190,7 @@ const AdminCreateCompany: React.FC<AdminCreateCompanyProps> = ({ onSuccess, init
                 }
             }
 
-            const res = await fetch('/api/admin/company', {
+            const res = await fetch('/api/admin/companies', {
                 method: 'POST',
                 body: formDataToSend,
             });
@@ -555,4 +555,4 @@ const AdminCreateCompany: React.FC<AdminCreateCompanyProps> = ({ onSuccess, init
     );
 };
 
-export default AdminCreateCompany
+export default AdminCreateCompany;
