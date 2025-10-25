@@ -27,7 +27,28 @@ const TopHeader = () => {
                                 <li className="list-inline-item border-end px-3">About us</li>
                                 <li className="list-inline-item border-end px-3">Help Center</li>
                                 <li className="list-inline-item border-end px-3">Languages</li>
-                                <li className="list-inline-item px-3">My Account</li>
+                                {/* <li className="list-inline-item px-3">My Account</li> */}
+
+                                 {/* Dropdown Section */}
+                                <li className="list-inline-item px-3 dropdown">
+                                    <span className="dropdown-toggle text-white" data-bs-toggle="dropdown" style={{ cursor: 'pointer' }}>
+                                        My Account
+                                    </span>
+
+                                    <ul className="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <Link className="dropdown-item" href="/my-profile">My Profile</Link>
+                                        </li>
+                                        <li>
+                                            <Link className="dropdown-item" href="/cart">Cart</Link>
+                                        </li>
+                                        <li>
+                                            <button className="dropdown-item text-danger">Logout</button>
+                                        </li>
+                                    </ul>
+                                </li>
+                                {/* End Dropdown */}
+                                
                             </ul>
                         </div>
                     </div>
