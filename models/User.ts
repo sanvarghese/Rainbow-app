@@ -1,11 +1,13 @@
-import mongoose, { Schema, models } from 'mongoose';
+import mongoose, { Schema, models, Document } from 'mongoose';
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  role: 'user' | 'merchant' | 'admin';
+  role: 'user' | 'merchant' | 'admin' | 'Normal';
   profileImage: string;
+  mobile?: string;
+  gender?: 'male' | 'female' | 'other';
   resetToken?: string;
   resetTokenExpiry?: Date;
   createdAt: Date;
@@ -34,10 +36,19 @@ const UserSchema = new Schema<IUser>(
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
     },
-     role: {
+    role: {
       type: String,
-      enum: ['user', 'merchant', 'admin'],
+      enum: ['user', 'merchant', 'admin', 'Normal'],
       default: 'user',
+    },
+    mobile: {
+      type: String,
+      default: null,
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'other'],
+      default: null,
     },
     resetToken: {
       type: String,
