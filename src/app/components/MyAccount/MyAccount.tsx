@@ -580,8 +580,8 @@ const MyAccount = () => {
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenAddressDialog(false)}>Cancel</Button>
-                    <Button onClick={handleAddressSubmit} variant="contained" disabled={loading}>
+                    <Button onClick={() => setOpenAddressDialog(false)} sx={{color:'#00a651'}}>Cancel</Button>
+                    <Button onClick={handleAddressSubmit} className='save-btn' variant="contained" disabled={loading}>
                         {loading ? 'Saving...' : 'Save Address'}
                     </Button>
                 </DialogActions>

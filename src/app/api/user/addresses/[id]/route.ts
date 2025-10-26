@@ -1,66 +1,99 @@
-// app/api/user/addresses/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '../../../../../../auth';
 import connectDB from '../../../../../../lib/mongodb';
 import User from '../../../../../../models/User';
-import { auth } from '../../../../../../auth';
 import DeliveryAddress from '../../../../../../models/DeliveryAddress';
-// import dbConnect from '@/lib/dbConnect';
-// import DeliveryAddress from '@/models/DeliveryAddress';
-// import User from '@/models/User';
 // import { getServerSession } from 'next-auth';
+// import connectDB from '@/lib/mongodb'; // Adjust path as needed
+// import User from '@/models/User'; // Adjust path as needed
+// import DeliveryAddress from '@/models/DeliveryAddress'; // Adjust path as needed
 
 // PUT - Update address
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectDB();
-    
     const session = await auth();
     
-    if (!session?.user?.email) {
+    if (!session || !session.user?.email) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { success: false, message: 'Unauthorized' },
         { status: 401 }
       );
     }
 
+    const body = await req.json();
+    const {
+      fullName,
+      phoneNumber,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      postalCode,
+      country,
+      isDefault,
+      addressType
+    } = body;
+
+    await connectDB();
+    
     const user = await User.findOne({ email: session.user.email });
     
     if (!user) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { success: false, message: 'User not found' },
         { status: 404 }
       );
     }
 
-    const body = await req.json();
-    
-    // Verify the address belongs to the user
-    const existingAddress = await DeliveryAddress.findOne({
-      _id: params.id,
-      userId: user._id,
+    // Await params before accessing id
+    const { id } = await params;
+
+    const address = await DeliveryAddress.findOne({
+      _id: id,
+      userId: user._id
     });
 
-    if (!existingAddress) {
+    if (!address) {
       return NextResponse.json(
-        { error: 'Address not found' },
+        { success: false, message: 'Address not found' },
         { status: 404 }
       );
     }
 
-    const address = await DeliveryAddress.findByIdAndUpdate(
-      params.id,
-      body,
-      { new: true, runValidators: true }
-    );
+    // If this is set as default, unset all other defaults
+    if (isDefault && !address.isDefault) {
+      await DeliveryAddress.updateMany(
+        { userId: user._id, _id: { $ne: id } },
+        { isDefault: false }
+      );
+    }
 
-    return NextResponse.json({ address }, { status: 200 });
+    // Update fields
+    address.fullName = fullName || address.fullName;
+    address.phoneNumber = phoneNumber || address.phoneNumber;
+    address.addressLine1 = addressLine1 || address.addressLine1;
+    address.addressLine2 = addressLine2 !== undefined ? addressLine2 : address.addressLine2;
+    address.city = city || address.city;
+    address.state = state || address.state;
+    address.postalCode = postalCode || address.postalCode;
+    address.country = country || address.country;
+    address.isDefault = isDefault !== undefined ? isDefault : address.isDefault;
+    address.addressType = addressType || address.addressType;
+
+    await address.save();
+
+    return NextResponse.json({
+      success: true,
+      message: 'Address updated successfully',
+      address
+    });
   } catch (error) {
     console.error('Error updating address:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, message: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -69,52 +102,61 @@ export async function PUT(
 // DELETE - Delete address
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectDB();
-    
     const session = await auth();
     
-    if (!session?.user?.email) {
+    if (!session || !session.user?.email) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { success: false, message: 'Unauthorized' },
         { status: 401 }
       );
     }
 
+    await connectDB();
+    
     const user = await User.findOne({ email: session.user.email });
     
     if (!user) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { success: false, message: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Verify the address belongs to the user
-    const address = await DeliveryAddress.findOne({
-      _id: params.id,
-      userId: user._id,
+    // Await params before accessing id
+    const { id } = await params;
+
+    const address = await DeliveryAddress.findOneAndDelete({
+      _id: id,
+      userId: user._id
     });
 
     if (!address) {
       return NextResponse.json(
-        { error: 'Address not found' },
+        { success: false, message: 'Address not found' },
         { status: 404 }
       );
     }
 
-    await DeliveryAddress.findByIdAndDelete(params.id);
+    // If deleted address was default, set another address as default
+    if (address.isDefault) {
+      const nextAddress = await DeliveryAddress.findOne({ userId: user._id });
+      if (nextAddress) {
+        nextAddress.isDefault = true;
+        await nextAddress.save();
+      }
+    }
 
-    return NextResponse.json(
-      { message: 'Address deleted successfully' },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      success: true,
+      message: 'Address deleted successfully'
+    });
   } catch (error) {
     console.error('Error deleting address:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, message: 'Internal server error' },
       { status: 500 }
     );
   }
