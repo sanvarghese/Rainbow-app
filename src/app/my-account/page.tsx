@@ -7,5 +7,5 @@ const page = () => {
     <MyAccount/>
   )
 }
-
+  
 export default page

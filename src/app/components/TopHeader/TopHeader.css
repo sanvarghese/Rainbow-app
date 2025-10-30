@@ -1,4 +1,7 @@
-.top-header .container-fluid{
+/* -------------------
+   General Top Header
+------------------- */
+.top-header .container-fluid {
   margin-top: 0;
   width: 90%;
   padding: 0;
@@ -8,13 +11,134 @@
   background-color: #007f27;
 }
 
+.top-header {
+  font-size: 14px;
+}
+
+.list-inline-item {
+  cursor: pointer;
+}
+
+/* -------------------
+   Dropdown Styles
+------------------- */
+.dropdown {
+  position: relative;
+}
+
+.dropdown > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.dropdown > span:hover {
+  color: #cce6d0;
+}
+
+/* Dropdown Menu Base */
+.dropdown-menu {
+  position: absolute;
+  z-index: 1050;
+  display: none;
+  min-width: 230px;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: #212529;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  animation: dropdownFade 0.25s ease;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-menu-end {
+  right: 0;
+  left: auto;
+}
+
+/* Dropdown item */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  color: #212529;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.dropdown-item svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.dropdown-item:hover svg {
+  opacity: 1;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: #f4f4f4;
+  color: #007f27;
+}
+
+/* Divider */
+.dropdown-divider {
+  height: 0;
+  margin: 0.5rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Logout button */
+.dropdown-item.text-danger {
+  color: #007f27 !important;
+  font-weight: 500;
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: #007f27;
+  color: #fff !important;
+}
+
+/* Dropdown fade-in animation */
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------
+   Responsive Layouts
+------------------- */
 @media (max-width: 425px) {
   .row-first {
     display: none;
   }
+
   .row-second {
     font-size: 8px;
     place-items: center;
+  }
+
+  .dropdown-menu {
+    min-width: 160px;
+    font-size: 0.85rem;
   }
 }
 
@@ -46,6 +170,11 @@
   .row-second {
     font-size: 8px;
     place-items: center;
+  }
+
+  .dropdown-menu {
+    min-width: 150px;
+    font-size: 0.875rem;
   }
 }
 
