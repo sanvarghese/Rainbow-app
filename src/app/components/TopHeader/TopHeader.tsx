@@ -96,7 +96,7 @@ const TopHeader = () => {
                                             <li>
                                                 <Link 
                                                     className="dropdown-item" 
-                                                    href="/my-profile"
+                                                    href="/my-account"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-person me-2" viewBox="0 0 16 16">

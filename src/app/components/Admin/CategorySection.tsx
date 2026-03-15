@@ -253,7 +253,7 @@ const CategorySection = () => {
                     />
                     <button
                       onClick={addSubCategory}
-                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                     >
                       Add Subcategory
                     </button>

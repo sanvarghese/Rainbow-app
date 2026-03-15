@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import {
-    Box, Button, Container, Paper, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Radio, RadioGroup, FormControlLabel, Alert, CircularProgress, IconButton, Grid,
+    Box, Button, Container, Paper, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Radio, RadioGroup, FormControlLabel, Alert, CircularProgress, IconButton, Grid, Switch, Divider, Card, CardContent,
 } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -12,15 +12,36 @@ import TextAlign from '@tiptap/extension-text-align'
 import Placeholder from '@tiptap/extension-placeholder'
 import {
     Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
-    AlignLeft, AlignCenter, AlignRight, Undo, Redo, X, Upload, Image as ImageIcon
+    AlignLeft, AlignCenter, AlignRight, Undo, Redo, X, Upload, Image as ImageIcon, Plus, Trash2
 } from 'lucide-react'
 import '../BecomeSeller/BecomeSeller.css'
 import '../../components/BecomeSeller/CreateProduct.css'
+
+interface Variant {
+    id: string;
+    variantType: string;
+    variantUnit?: string;
+    variantValue: string;
+    displayValue: string;
+    quantity: string;
+    price: string;
+    offerPrice: string;
+}
 
 interface CreateProductProps {
     onSuccess?: () => void;
     initialData?: any;
 }
+
+// Variant type options with their default units
+const VARIANT_TYPES = {
+    weight: { label: 'Weight', units: ['g', 'kg', 'mg', 'lb', 'oz'] },
+    volume: { label: 'Volume', units: ['ml', 'L', 'fl oz', 'gal'] },
+    size: { label: 'Size', units: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'] },
+    piece: { label: 'Piece', units: ['1 pc', '2 pcs', '3 pcs', '5 pcs', '10 pcs', '12 pcs', '20 pcs'] },
+    pack: { label: 'Pack', units: ['1 pack', '2 packs', '3 packs', '5 packs', '10 packs'] },
+    custom: { label: 'Custom', units: [] }
+};
 
 const MenuBar = ({ editor }: any) => {
     if (!editor) {
@@ -130,7 +151,10 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         category: "",
         subCategory: "",
         foodType: "",
+        hasVariants: false,
     });
+
+    const [variants, setVariants] = useState<Variant[]>([]);
 
     const [preview, setPreview] = useState({
         productImages: [] as string[],
@@ -182,17 +206,104 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 category: initialData.category || "",
                 subCategory: initialData.subCategory || "",
                 foodType: initialData.foodType || "",
+                hasVariants: initialData.hasVariants || false,
             });
             setPreview({
                 productImages: initialData.productImages || [],
                 badges: initialData.badges || ""
             });
 
+            if (initialData.variants && initialData.variants.length > 0) {
+                const loadedVariants = initialData.variants.map((v: any, index: number) => ({
+                    id: `variant-${Date.now()}-${index}`,
+                    variantType: v.variantType,
+                    variantUnit: v.variantUnit || '',
+                    variantValue: v.variantValue,
+                    displayValue: v.displayValue,
+                    quantity: v.quantity.toString(),
+                    price: v.price.toString(),
+                    offerPrice: v.offerPrice.toString(),
+                }));
+                setVariants(loadedVariants);
+            }
+
             if (editor && initialData.descriptionLong) {
                 editor.commands.setContent(initialData.descriptionLong)
             }
         }
     }, [initialData, editor]);
+
+    // Handle variant toggle
+    const handleVariantToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const checked = event.target.checked;
+        setFormData(prev => ({ ...prev, hasVariants: checked }));
+        
+        if (checked && variants.length === 0) {
+            // Add first variant automatically
+            addVariant();
+        }
+    };
+
+    // Add new variant
+    const addVariant = () => {
+        const newVariant: Variant = {
+            id: `variant-${Date.now()}`,
+            variantType: 'weight',
+            variantUnit: '',
+            variantValue: '',
+            displayValue: '',
+            quantity: '',
+            price: '',
+            offerPrice: '',
+        };
+        setVariants([...variants, newVariant]);
+    };
+
+    // Remove variant
+    const removeVariant = (id: string) => {
+        setVariants(variants.filter(v => v.id !== id));
+    };
+
+    // Update variant field
+    const updateVariant = (id: string, field: keyof Variant, value: string) => {
+        setVariants(variants.map(v => {
+            if (v.id === id) {
+                const updated = { ...v, [field]: value };
+                
+                // Auto-generate display value when type, value, or unit changes
+                if (field === 'variantType' || field === 'variantValue' || field === 'variantUnit') {
+                    // Only auto-generate if displayValue is empty or was auto-generated before
+                    if (!v.displayValue || v.displayValue === generateDisplayValue(v)) {
+                        updated.displayValue = generateDisplayValue(updated);
+                    }
+                }
+                
+                return updated;
+            }
+            return v;
+        }));
+    };
+
+    // Generate display value based on type and value
+    const generateDisplayValue = (variant: Variant): string => {
+        if (!variant.variantValue) return '';
+        
+        if (variant.variantType === 'custom') {
+            return variant.variantUnit 
+                ? `${variant.variantValue} ${variant.variantUnit}` 
+                : variant.variantValue;
+        }
+        
+        // For predefined types like size, piece, pack - use value as is if it already contains the unit
+        if (['size', 'piece', 'pack'].includes(variant.variantType)) {
+            return variant.variantValue;
+        }
+        
+        // For weight and volume, combine value with unit
+        return variant.variantUnit 
+            ? `${variant.variantValue} ${variant.variantUnit}` 
+            : variant.variantValue;
+    };
 
     const validateField = (name: string, value: string) => {
         let errorMsg = '';
@@ -209,27 +320,33 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 }
                 break;
             case 'quantity':
-                const qty = Number(value);
-                if (!value) {
-                    errorMsg = 'Quantity is required';
-                } else if (isNaN(qty) || qty < 0) {
-                    errorMsg = 'Quantity must be a positive number';
+                if (!formData.hasVariants) {
+                    const qty = Number(value);
+                    if (!value) {
+                        errorMsg = 'Quantity is required';
+                    } else if (isNaN(qty) || qty < 0) {
+                        errorMsg = 'Quantity must be a positive number';
+                    }
                 }
                 break;
             case 'price':
-                const price = Number(value);
-                if (!value) {
-                    errorMsg = 'Price is required';
-                } else if (isNaN(price) || price < 0) {
-                    errorMsg = 'Price must be a positive number';
+                if (!formData.hasVariants) {
+                    const price = Number(value);
+                    if (!value) {
+                        errorMsg = 'Price is required';
+                    } else if (isNaN(price) || price < 0) {
+                        errorMsg = 'Price must be a positive number';
+                    }
                 }
                 break;
             case 'offerPrice':
-                const offerPrice = Number(value);
-                if (!value) {
-                    errorMsg = 'Offer Price is required';
-                } else if (isNaN(offerPrice) || offerPrice < 0) {
-                    errorMsg = 'Offer Price must be a positive number';
+                if (!formData.hasVariants) {
+                    const offerPrice = Number(value);
+                    if (!value) {
+                        errorMsg = 'Offer Price is required';
+                    } else if (isNaN(offerPrice) || offerPrice < 0) {
+                        errorMsg = 'Offer Price must be a positive number';
+                    }
                 }
                 break;
             case 'category':
@@ -262,20 +379,17 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         
         if (files.length === 0) return;
 
-        // Count existing images that are URLs (from server)
         const existingUrlImages = preview.productImages.filter(img => 
             typeof img === 'string' && (img.startsWith('http') || img.startsWith('data:image'))
         ).length;
 
-        // Validate total number of images (max 5)
         const totalImages = existingUrlImages + formData.productImages.length + files.length;
         if (totalImages > 5) {
             setError(`Maximum 5 product images allowed. You currently have ${existingUrlImages + formData.productImages.length} images.`);
-            e.target.value = ''; // Clear the input
+            e.target.value = '';
             return;
         }
 
-        // Validate each file
         for (const file of files) {
             if (file.size > 5 * 1024 * 1024) {
                 setError('Each image must be less than 5MB');
@@ -291,13 +405,11 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
         setError('');
 
-        // Add files to state
         setFormData(prev => ({
             ...prev,
             productImages: [...prev.productImages, ...files]
         }));
 
-        // Generate previews
         files.forEach(file => {
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -309,10 +421,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             reader.readAsDataURL(file);
         });
 
-        // Clear the input value so same file can be selected again if removed
         e.target.value = '';
 
-        // Clear field errors
         setFieldErrors(prev => ({
             ...prev,
             productImages: ''
@@ -322,20 +432,15 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
     const removeProductImage = (index: number) => {
         const imageToRemove = preview.productImages[index];
         
-        // Check if it's a new file (starts with blob or data:image/png etc from FileReader)
-        // vs existing image from server (starts with http or data:image/jpeg;base64 from server)
         const isExistingServerImage = typeof imageToRemove === 'string' && 
             (imageToRemove.startsWith('http') || imageToRemove.includes(';base64,'));
 
         if (isExistingServerImage) {
-            // Remove from preview only (will be handled in existingImages)
             setPreview(prev => ({
                 ...prev,
                 productImages: prev.productImages.filter((_, i) => i !== index)
             }));
         } else {
-            // It's a newly added file, remove from both formData and preview
-            // Find the index in formData.productImages
             const newFileIndex = preview.productImages
                 .slice(0, index)
                 .filter(img => !((typeof img === 'string') && (img.startsWith('http') || img.includes(';base64,'))))
@@ -394,14 +499,12 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setSuccess('');
         setFieldErrors({});
 
-        // Count existing server images and new files
         const existingServerImages = preview.productImages.filter(img => 
             typeof img === 'string' && (img.startsWith('http') || img.includes(';base64,'))
         );
         
         const totalProductImages = existingServerImages.length + formData.productImages.length;
         
-        // Validate minimum 2 images
         if (totalProductImages < 2) {
             setFieldErrors(prev => ({
                 ...prev,
@@ -411,8 +514,14 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             return;
         }
 
-        // Validate all required fields
-        const requiredFields = ['name', 'descriptionShort', 'quantity', 'price', 'offerPrice', 'category', 'subCategory'];
+        // Validate required fields
+        const requiredFields = ['name', 'descriptionShort', 'category', 'subCategory'];
+        
+        // Add quantity, price, offerPrice validation only if not using variants
+        if (!formData.hasVariants) {
+            requiredFields.push('quantity', 'price', 'offerPrice');
+        }
+        
         let hasErrors = false;
 
         requiredFields.forEach(field => {
@@ -420,6 +529,38 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 hasErrors = true;
             }
         });
+
+        // Validate variants if enabled
+        if (formData.hasVariants) {
+            if (variants.length === 0) {
+                setError('Please add at least one variant');
+                hasErrors = true;
+            } else {
+                // Validate each variant
+                variants.forEach((variant, index) => {
+                    if (!variant.variantValue) {
+                        setError(`Variant ${index + 1}: Value is required`);
+                        hasErrors = true;
+                    }
+                    if (!variant.quantity || Number(variant.quantity) < 0) {
+                        setError(`Variant ${index + 1}: Valid quantity is required`);
+                        hasErrors = true;
+                    }
+                    if (!variant.price || Number(variant.price) < 0) {
+                        setError(`Variant ${index + 1}: Valid price is required`);
+                        hasErrors = true;
+                    }
+                    if (!variant.offerPrice || Number(variant.offerPrice) < 0) {
+                        setError(`Variant ${index + 1}: Valid offer price is required`);
+                        hasErrors = true;
+                    }
+                    if (variant.variantType === 'custom' && !variant.variantUnit) {
+                        setError(`Variant ${index + 1}: Custom unit is required`);
+                        hasErrors = true;
+                    }
+                });
+            }
+        }
 
         if ((formData.category === 'food' || formData.category === 'powder') && !formData.foodType) {
             setFieldErrors(prev => ({
@@ -439,25 +580,37 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         try {
             const formDataToSend = new FormData();
 
-            // Add product images (new files) - IMPORTANT: append each file individually
-            console.log('Adding product images to FormData:', formData.productImages.length);
-            formData.productImages.forEach((file, index) => {
-                console.log(`Appending image ${index + 1}:`, file.name, file.type, file.size);
+            formData.productImages.forEach((file) => {
                 formDataToSend.append('productImages', file);
             });
 
-            // Add existing images when updating
             if (initialData?.productImages) {
                 const existingImages = preview.productImages.filter(img => 
                     typeof img === 'string' && (img.startsWith('http') || img.includes(';base64,'))
                 );
-                console.log('Existing images count:', existingImages.length);
                 formDataToSend.append('existingImages', JSON.stringify(existingImages));
+            }
+
+            // Add variant data
+            formDataToSend.append('hasVariants', formData.hasVariants.toString());
+            
+            if (formData.hasVariants) {
+                // Convert variants to proper format
+                const variantsData = variants.map(v => ({
+                    variantType: v.variantType,
+                    variantUnit: v.variantUnit || undefined,
+                    variantValue: v.variantValue,
+                    displayValue: v.displayValue || generateDisplayValue(v),
+                    quantity: Number(v.quantity),
+                    price: Number(v.price),
+                    offerPrice: Number(v.offerPrice),
+                }));
+                formDataToSend.append('variants', JSON.stringify(variantsData));
             }
 
             // Add other fields
             Object.entries(formData).forEach(([key, value]) => {
-                if (key !== 'productImages' && value !== null && value !== undefined) {
+                if (key !== 'productImages' && key !== 'hasVariants' && value !== null && value !== undefined) {
                     if (value instanceof File) {
                         formDataToSend.append(key, value);
                     } else {
@@ -468,16 +621,6 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
             if (initialData?._id) {
                 formDataToSend.append("productId", initialData._id);
-            }
-
-            // Debug: Log FormData contents
-            console.log('FormData entries:');
-            for (let pair of formDataToSend.entries()) {
-                if (pair[1] instanceof File) {
-                    console.log(pair[0], ':', pair[1].name, pair[1].type, pair[1].size);
-                } else {
-                    console.log(pair[0], ':', pair[1]);
-                }
             }
 
             const res = await fetch('/api/merchant/product', {
@@ -506,7 +649,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 category: "",
                 subCategory: "",
                 foodType: "",
+                hasVariants: false,
             });
+            setVariants([]);
             setPreview({ productImages: [], badges: "" });
 
             if (editor) {
@@ -560,7 +705,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
                     <form onSubmit={handleSubmit}>
                         <div className="row g-4">
-                            {/* Product Images Section - Enhanced UI */}
+                            {/* Product Images Section */}
                             <div className="col-12">
                                 <Box sx={{ 
                                     border: '2px dashed #006d21ff', 
@@ -634,14 +779,13 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                         </Alert>
                                     )}
 
-                                    {/* Image Preview Grid */}
                                     {preview.productImages.length > 0 && (
                                         <Grid container spacing={2} sx={{ mt: 1 }}>
                                             {preview.productImages.map((img, index) => (
                                                 <Grid item xs={6} sm={4} md={3} key={index}>
                                                     <Box sx={{ 
                                                         position: 'relative',
-                                                        paddingTop: '100%', // 1:1 Aspect Ratio
+                                                        paddingTop: '100%',
                                                         borderRadius: 2,
                                                         overflow: 'hidden',
                                                         boxShadow: 2,
@@ -798,47 +942,272 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 </div>
                             </div>
 
-                            <div className="col-md-4">
-                                <TextField
-                                    fullWidth
-                                    label="Quantity"
-                                    name="quantity"
-                                    value={formData.quantity}
-                                    onChange={handleInputChange}
-                                    required
-                                    type='number'
-                                    error={!!fieldErrors.quantity}
-                                    helperText={fieldErrors.quantity}
-                                />
+                            {/* Variant Toggle Section */}
+                            <div className="col-12">
+                                <Divider sx={{ my: 2 }} />
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Box>
+                                        <Typography variant="h6" fontWeight={600}>
+                                            Product Variants
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Enable if your product has multiple size, weight, or volume options
+                                        </Typography>
+                                    </Box>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={formData.hasVariants}
+                                                onChange={handleVariantToggle}
+                                                color="success"
+                                            />
+                                        }
+                                        label={formData.hasVariants ? "Enabled" : "Disabled"}
+                                    />
+                                </Box>
+                                <Divider sx={{ my: 2 }} />
                             </div>
 
-                            <div className="col-md-4">
-                                <TextField
-                                    fullWidth
-                                    label="Price"
-                                    name="price"
-                                    value={formData.price}
-                                    onChange={handleInputChange}
-                                    required
-                                    type='number'
-                                    error={!!fieldErrors.price}
-                                    helperText={fieldErrors.price}
-                                />
-                            </div>
+                            {/* Conditional: Show default fields OR variants */}
+                            {!formData.hasVariants ? (
+                                <>
+                                    <div className="col-md-4">
+                                        <TextField
+                                            fullWidth
+                                            label="Quantity"
+                                            name="quantity"
+                                            value={formData.quantity}
+                                            onChange={handleInputChange}
+                                            required
+                                            type='number'
+                                            error={!!fieldErrors.quantity}
+                                            helperText={fieldErrors.quantity}
+                                        />
+                                    </div>
 
-                            <div className="col-md-4">
-                                <TextField
-                                    fullWidth
-                                    label="Offer Price"
-                                    name="offerPrice"
-                                    value={formData.offerPrice}
-                                    onChange={handleInputChange}
-                                    required
-                                    type='number'
-                                    error={!!fieldErrors.offerPrice}
-                                    helperText={fieldErrors.offerPrice}
-                                />
-                            </div>
+                                    <div className="col-md-4">
+                                        <TextField
+                                            fullWidth
+                                            label="Price"
+                                            name="price"
+                                            value={formData.price}
+                                            onChange={handleInputChange}
+                                            required
+                                            type='number'
+                                            error={!!fieldErrors.price}
+                                            helperText={fieldErrors.price}
+                                        />
+                                    </div>
+
+                                    <div className="col-md-4">
+                                        <TextField
+                                            fullWidth
+                                            label="Offer Price"
+                                            name="offerPrice"
+                                            value={formData.offerPrice}
+                                            onChange={handleInputChange}
+                                            required
+                                            type='number'
+                                            error={!!fieldErrors.offerPrice}
+                                            helperText={fieldErrors.offerPrice}
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="col-12">
+                                    <Box sx={{ mb: 2 }}>
+                                        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                                            Product Variants *
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                                            Add different variants of your product (e.g., 500g, 1kg, 2kg)
+                                        </Typography>
+                                    </Box>
+
+                                    {variants.map((variant, index) => (
+                                        <Card key={variant.id} sx={{ mb: 2, backgroundColor: '#f8f9fa' }}>
+                                            <CardContent>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                                    <Typography variant="subtitle2" fontWeight={600}>
+                                                        Variant {index + 1}
+                                                    </Typography>
+                                                    {variants.length > 1 && (
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => removeVariant(variant.id)}
+                                                            sx={{ color: 'error.main' }}
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </IconButton>
+                                                    )}
+                                                </Box>
+
+                                                <Grid container spacing={2}>
+                                                    <Grid item xs={12} sm={6} md={3}>
+                                                        <FormControl fullWidth size="small">
+                                                            <InputLabel>Variant Type *</InputLabel>
+                                                            <Select
+                                                                value={variant.variantType}
+                                                                label="Variant Type *"
+                                                                onChange={(e) => updateVariant(variant.id, 'variantType', e.target.value)}
+                                                            >
+                                                                {Object.entries(VARIANT_TYPES).map(([key, val]) => (
+                                                                    <MenuItem key={key} value={key}>
+                                                                        {val.label}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </FormControl>
+                                                    </Grid>
+
+                                                    {/* Conditional rendering based on variant type */}
+                                                    {variant.variantType === 'custom' ? (
+                                                        <>
+                                                            <Grid item xs={12} sm={6} md={3}>
+                                                                <TextField
+                                                                    fullWidth
+                                                                    size="small"
+                                                                    label="Value *"
+                                                                    type="text"
+                                                                    value={variant.variantValue}
+                                                                    onChange={(e) => updateVariant(variant.id, 'variantValue', e.target.value)}
+                                                                    placeholder="e.g., 10, 25, 50"
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={6} md={3}>
+                                                                <TextField
+                                                                    fullWidth
+                                                                    size="small"
+                                                                    label="Custom Unit *"
+                                                                    value={variant.variantUnit}
+                                                                    onChange={(e) => updateVariant(variant.id, 'variantUnit', e.target.value)}
+                                                                    placeholder="e.g., meters, boxes"
+                                                                />
+                                                            </Grid>
+                                                        </>
+                                                    ) : ['weight', 'volume'].includes(variant.variantType) ? (
+                                                        <>
+                                                            <Grid item xs={12} sm={6} md={3}>
+                                                                <TextField
+                                                                    fullWidth
+                                                                    size="small"
+                                                                    label="Value *"
+                                                                    type="number"
+                                                                    value={variant.variantValue}
+                                                                    onChange={(e) => updateVariant(variant.id, 'variantValue', e.target.value)}
+                                                                    placeholder="e.g., 500, 1, 2"
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={12} sm={6} md={3} >
+                                                                <FormControl fullWidth size="small"
+                                                                  sx={{ minWidth: 80 }} // Set your minimum width here
+                                                                >
+                                                                    <InputLabel>Unit *</InputLabel>
+                                                                    <Select
+                                                                        value={variant.variantUnit}
+                                                                        label="Unit *"
+                                                                        onChange={(e) => updateVariant(variant.id, 'variantUnit', e.target.value)}
+                                                                    >
+                                                                        {VARIANT_TYPES[variant.variantType as keyof typeof VARIANT_TYPES].units.map((unit) => (
+                                                                            <MenuItem key={unit} value={unit}>
+                                                                                {unit}
+                                                                            </MenuItem>
+                                                                        ))}
+                                                                    </Select>
+                                                                </FormControl>
+                                                            </Grid>
+                                                        </>
+                                                    ) : (
+                                                        <Grid item xs={12} sm={6} md={3}>
+                                                            <FormControl fullWidth size="small">
+                                                                <InputLabel>Value *</InputLabel>
+                                                                <Select
+                                                                    value={variant.variantValue}
+                                                                    label="Value *"
+                                                                    onChange={(e) => updateVariant(variant.id, 'variantValue', e.target.value)}
+                                                                >
+                                                                    {VARIANT_TYPES[variant.variantType as keyof typeof VARIANT_TYPES].units.map((unit) => (
+                                                                        <MenuItem key={unit} value={unit}>
+                                                                            {unit}
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+                                                    )}
+
+                                                    <Grid item xs={12} sm={6} md={3}>
+                                                        <TextField
+                                                            fullWidth
+                                                            size="small"
+                                                            label="Display As"
+                                                            value={variant.displayValue}
+                                                            onChange={(e) => updateVariant(variant.id, 'displayValue', e.target.value)}
+                                                            placeholder="Auto-generated"
+                                                            helperText="Leave blank for auto"
+                                                        />
+                                                    </Grid>
+
+                                                    <Grid item xs={12} sm={4}>
+                                                        <TextField
+                                                            fullWidth
+                                                            size="small"
+                                                            label="Quantity *"
+                                                            type="number"
+                                                            value={variant.quantity}
+                                                            onChange={(e) => updateVariant(variant.id, 'quantity', e.target.value)}
+                                                        />
+                                                    </Grid>
+
+                                                    <Grid item xs={12} sm={4}>
+                                                        <TextField
+                                                            fullWidth
+                                                            size="small"
+                                                            label="Price *"
+                                                            type="number"
+                                                            value={variant.price}
+                                                            onChange={(e) => updateVariant(variant.id, 'price', e.target.value)}
+                                                        />
+                                                    </Grid>
+
+                                                    <Grid item xs={12} sm={4}>
+                                                        <TextField
+                                                            fullWidth
+                                                            size="small"
+                                                            label="Offer Price *"
+                                                            type="number"
+                                                            value={variant.offerPrice}
+                                                            onChange={(e) => updateVariant(variant.id, 'offerPrice', e.target.value)}
+                                                        />
+                                                    </Grid>
+                                                </Grid>
+
+                                                {variant.displayValue && (
+                                                    <Alert severity="info" sx={{ mt: 2 }}>
+                                                        Display: <strong>{variant.displayValue}</strong>
+                                                    </Alert>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<Plus size={18} />}
+                                        onClick={addVariant}
+                                        sx={{
+                                            borderColor: '#006d21ff',
+                                            color: '#006d21ff',
+                                            '&:hover': {
+                                                borderColor: '#00bb38ff',
+                                                backgroundColor: 'rgba(0, 109, 33, 0.04)'
+                                            }
+                                        }}
+                                    >
+                                        Add Another Variant
+                                    </Button>
+                                </div>
+                            )}
 
                             <div className="col-md-6">
                                 <FormControl fullWidth required error={!!fieldErrors.category}>

@@ -1,17 +1,35 @@
 import mongoose, { Schema, models, Document } from 'mongoose';
 import './Company'; 
 
+// Variant interface
+export interface IVariant {
+  variantType: 'weight' | 'volume' | 'size' | 'piece' | 'pack' | 'custom';
+  variantUnit?: string; // For custom types (e.g., "meters", "boxes")
+  variantValue: string; // e.g., "1", "500", "XL"
+  displayValue: string; // e.g., "1 KG", "500 ML", "XL Size"
+  quantity: number;
+  price: number;
+  offerPrice: number;
+}
+
 export interface IProduct extends Document {
   userId: mongoose.Types.ObjectId;
   companyId: mongoose.Types.ObjectId;
-  productImages: string[]; // Changed from single to array
+  productImages: string[];
   badges?: string;
   name: string;
   descriptionShort: string;
   descriptionLong?: string;
+  
+  // Default values (kept for backward compatibility and non-variant products)
   quantity: number;
   price: number;
   offerPrice: number;
+  
+  // New variant fields
+  hasVariants: boolean;
+  variants?: IVariant[];
+  
   category: string;
   subCategory: string;
   foodType?: string;
@@ -19,6 +37,41 @@ export interface IProduct extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+const VariantSchema = new Schema<IVariant>({
+  variantType: {
+    type: String,
+    required: true,
+    enum: ['weight', 'volume', 'size', 'piece', 'pack', 'custom'],
+  },
+  variantUnit: {
+    type: String,
+    // Custom unit label (e.g., "meters", "boxes") - only used when variantType is 'custom'
+  },
+  variantValue: {
+    type: String,
+    required: true,
+  },
+  displayValue: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: [0, 'Quantity cannot be negative'],
+  },
+  price: {
+    type: Number,
+    required: true,
+    min: [0, 'Price cannot be negative'],
+  },
+  offerPrice: {
+    type: Number,
+    required: true,
+    min: [0, 'Offer price cannot be negative'],
+  },
+}, { _id: true });
 
 const ProductSchema = new Schema<IProduct>(
   {
@@ -33,7 +86,7 @@ const ProductSchema = new Schema<IProduct>(
       required: true,
     },
     productImages: {
-      type: [String], // Array of strings
+      type: [String],
       required: [true, 'At least 2 product images are required'],
       validate: {
         validator: function(v: string[]) {
@@ -57,20 +110,44 @@ const ProductSchema = new Schema<IProduct>(
     descriptionLong: {
       type: String,
     },
+    // Default fields for products without variants
     quantity: {
       type: Number,
-      required: [true, 'Quantity is required'],
+      required: function(this: IProduct) {
+        return !this.hasVariants;
+      },
       min: [0, 'Quantity cannot be negative'],
     },
     price: {
       type: Number,
-      required: [true, 'Price is required'],
+      required: function(this: IProduct) {
+        return !this.hasVariants;
+      },
       min: [0, 'Price cannot be negative'],
     },
-    offerPrice:{
-       type: Number,
-      required: [true, 'Offer price is required'],
+    offerPrice: {
+      type: Number,
+      required: function(this: IProduct) {
+        return !this.hasVariants;
+      },
       min: [0, 'Offer price cannot be negative'],
+    },
+    // Variant fields
+    hasVariants: {
+      type: Boolean,
+      default: false,
+    },
+    variants: {
+      type: [VariantSchema],
+      validate: {
+        validator: function(this: IProduct, v: IVariant[]) {
+          if (this.hasVariants) {
+            return v && v.length > 0;
+          }
+          return true;
+        },
+        message: 'At least one variant is required when hasVariants is true'
+      }
     },
     category: {
       type: String,
@@ -92,7 +169,6 @@ const ProductSchema = new Schema<IProduct>(
   },
   {
     timestamps: true,
-    strict: false, // IMPORTANT: Allow fields not defined in schema temporarily
   }
 );
 
