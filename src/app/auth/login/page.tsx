@@ -145,7 +145,7 @@ const LoginPage: React.FC = () => {
                             <div className="text-center mt-3">
                                 <Typography variant="body2">
                                     Don't have an account?{' '}
-                                    <Link href="/auth/signup" underline="hover">
+                                    <Link href="/auth/sign-up" underline="hover">
                                         Sign up
                                     </Link>
                                 </Typography>

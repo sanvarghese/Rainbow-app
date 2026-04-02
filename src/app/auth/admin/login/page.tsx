@@ -156,12 +156,12 @@ const AdminLoginPage = () => {
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            Don't have an account?{' '}
+            {/* Don't have an account?{' '} */}
             <button
               onClick={() => router.push('/auth/admin/signup')}
               className="text-green-600 font-semibold hover:text-green-700"
             >
-              Create admin account
+              Forgot Password?
             </button>
           </p>
         </div>

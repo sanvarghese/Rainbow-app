@@ -370,6 +370,8 @@ export async function POST(req: NextRequest) {
 
       productData.userId = session.user.id;
       productData.companyId = company._id;
+      productData.status = 'inactive'; // Products start as inactive
+
 
       const product = await Product.create(productData);
 
@@ -412,7 +414,7 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
-    const products = await Product.find({ userId: session.user.id });
+    const products = await Product.find({ userId: session.user.id, status:'approved'});
 
     return NextResponse.json({ 
       success: true,
