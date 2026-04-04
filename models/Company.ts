@@ -13,7 +13,7 @@ export interface ICompany extends Document {
   gstNumber?: string;
   instagramLink?: string;
   facebookLink?: string;
-  isApproved: boolean;
+  status: "pending" | "approved" | "rejected" | "removed";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,9 +63,11 @@ const CompanySchema = new Schema<ICompany>(
     facebookLink: {
       type: String,
     },
-    isApproved: {
-      type: Boolean,
-      default: false,
+   status: {
+      type: String,
+      enum: ["pending", "approved", "rejected", "removed"],
+      default: "pending",
+      required: true,
     },
   },
   {
