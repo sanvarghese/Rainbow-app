@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
-    Home, Users, Package, Bell, User, Edit, Lock, LogOut, RefreshCw, TrendingUp, TrendingDown, 
+    Home, Users, Package, Bell, User, Edit, Lock, LogOut, RefreshCw, TrendingUp, TrendingDown,
     CreditCard, Monitor, Calendar, ChevronDown, Menu, X, ShoppingCart, ListOrdered, Plus
 } from 'lucide-react';
 import Image from 'next/image';
@@ -68,48 +68,48 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
     // Stats data
     const statsData = [
         {
-            title: 'Total Employees',
-            value: '4,710',
-            change: '+33%',
-            isPositive: true,
-            icon: Users,
-            iconColor: 'text-green-600',
-            bgColor: 'bg-green-100'
+          title: 'Total Products',
+          value: '128',
+          change: '+8%',
+          isPositive: true,
+          icon: Package,
+          iconColor: 'text-green-600',
+          bgColor: 'bg-green-100'
         },
         {
-            title: 'Total Compensation',
-            value: '3,721',
-            change: '-2%',
-            isPositive: false,
-            icon: CreditCard,
-            iconColor: 'text-yellow-600',
-            bgColor: 'bg-yellow-100'
+          title: 'Total Orders',
+          value: '342',
+          change: '+12%',
+          isPositive: true,
+          icon: ListOrdered,
+          iconColor: 'text-blue-600',
+          bgColor: 'bg-blue-100'
         },
         {
-            title: 'Annual Compensation',
-            value: '2,149',
-            change: '+12%',
-            isPositive: true,
-            icon: Monitor,
-            iconColor: 'text-orange-600',
-            bgColor: 'bg-orange-100'
+          title: 'Today Sales',
+          value: '₹12,450',
+          change: '+5%',
+          isPositive: true,
+          icon: CreditCard,
+          iconColor: 'text-yellow-600',
+          bgColor: 'bg-yellow-100'
         },
         {
-            title: 'Annual Reports',
-            value: '152,040',
-            change: '+22%',
-            isPositive: true,
-            icon: User,
-            iconColor: 'text-blue-600',
-            bgColor: 'bg-blue-100'
+          title: 'Low Stock Items',
+          value: '9',
+          change: '-3%',
+          isPositive: false,
+          icon: TrendingDown,
+          iconColor: 'text-red-600',
+          bgColor: 'bg-red-100'
         }
-    ];
+      ];
 
-    const ageDistribution = [
-        { age: '17 - 30 Years old', percentage: '62%', color: 'bg-green-500' },
-        { age: '31 - 50 Years old', percentage: '33%', color: 'bg-yellow-500' },
-        { age: '>= 50 Years old', percentage: '10%', color: 'bg-orange-500' }
-    ];
+    // const ageDistribution = [
+    //     { age: '17 - 30 Years old', percentage: '62%', color: 'bg-green-500' },
+    //     { age: '31 - 50 Years old', percentage: '33%', color: 'bg-yellow-500' },
+    //     { age: '>= 50 Years old', percentage: '10%', color: 'bg-orange-500' }
+    // ];
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#007F27] to-[#00bb38] px-4 sm:px-6 py-4">
@@ -151,8 +151,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('dashboard')}
                                 className={`flex items-center w-full p-3 rounded-lg font-medium transition-colors ${activeSection === 'dashboard'
-                                        ? 'bg-green-50 text-green-700'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Home className="w-5 h-5 mr-3" />
                                 <span>Dashboard</span>
@@ -170,8 +170,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('company')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'company'
-                                        ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700 font-medium'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Users className="w-5 h-5 mr-3" />
                                 <span>Company</span>
@@ -181,8 +181,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('products')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'products'
-                                        ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700 font-medium'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <Package className="w-5 h-5 mr-3" />
                                 <span>Products</span>
@@ -192,8 +192,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('purchase')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'purchase'
-                                        ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700 font-medium'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <ListOrdered className="w-5 h-5 mr-3" />
                                 <span>Purchase</span>
@@ -203,8 +203,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <button
                                 onClick={() => handleSectionChange('order')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'order'
-                                        ? 'bg-green-50 text-green-700 font-medium'
-                                        : 'hover:bg-gray-100 text-gray-700'
+                                    ? 'bg-green-50 text-green-700 font-medium'
+                                    : 'hover:bg-gray-100 text-gray-700'
                                     }`}>
                                 <ListOrdered className="w-5 h-5 mr-3" />
                                 <span>Order</span>
@@ -249,11 +249,11 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                 {anchorEl && (
                                     <>
                                         {/* Backdrop */}
-                                        <div 
+                                        <div
                                             className="fixed inset-0 z-40"
                                             onClick={handleProfileMenuClose}
                                         ></div>
-                                        
+
                                         {/* Dropdown Menu */}
                                         <div className="absolute right-0 top-12 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                                             <div className="p-3 border-b border-gray-200">
@@ -266,7 +266,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                             </div>
 
                                             <div className="p-1">
-                                                <button 
+                                                <button
                                                     onClick={() => {
                                                         handleProfileMenuClose();
                                                         router.push('/profile');
@@ -275,7 +275,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                     <User className="w-4 h-4 mr-2" />
                                                     Profile
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => {
                                                         handleProfileMenuClose();
                                                         router.push('/profile/edit');
@@ -284,7 +284,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                     <Edit className="w-4 h-4 mr-2" />
                                                     Edit Account
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => {
                                                         handleProfileMenuClose();
                                                         router.push('/profile/password');
@@ -318,8 +318,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                         <div className="space-y-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800">General Report</h2>
-                                <button className="flex items-center gap-2 text-green-700 hover:text-green-800 transition-colors text-sm sm:text-base">
-                                    <RefreshCw className="w-4 h-4" />
+                                <button className="flex items-center gap-2 text-green-700 hover:text-green-800 transition-colors text-sm sm:text-base mb-4">
+                                    <RefreshCw className="w-4 h-4 " />
                                     <span>Reload Data</span>
                                 </button>
                             </div>
@@ -333,8 +333,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                 <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.iconColor}`} />
                                             </div>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${stat.isPositive
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-red-100 text-red-700'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-red-100 text-red-700'
                                                 }`}>
                                                 {stat.isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                                                 {stat.change}
