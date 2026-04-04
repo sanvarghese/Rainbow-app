@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Edit, Plus, Package as PackageIcon, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { Edit, Plus, Package as PackageIcon, ChevronLeft, ChevronRight, Trash2, Eye, XCircle, CheckCircle } from 'lucide-react';
 import CreateProduct from '../BecomeSeller/CreateProduct';
 
 const ProductsSection = () => {
@@ -33,13 +33,36 @@ const ProductsSection = () => {
         }
     };
 
-    // Get the first product image or fallback to the old productImage field
+    // Get status badge color and text
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case 'approved':
+                return {
+                    text: 'Approved',
+                    className: 'bg-green-100 text-green-700',
+                    icon: <CheckCircle className="w-3 h-3 mr-1" />
+                };
+            case 'rejected':
+                return {
+                    text: 'Rejected',
+                    className: 'bg-red-100 text-red-700',
+                    icon: <XCircle className="w-3 h-3 mr-1" />
+                };
+            case 'inactive':
+            default:
+                return {
+                    text: 'Pending',
+                    className: 'bg-yellow-100 text-yellow-700',
+                    icon: <Eye className="w-3 h-3 mr-1" />
+                };
+        }
+    };
+
+    // Get the first product image or fallback
     const getProductImage = (product: any) => {
-        // Check if productImages array exists and has at least one image
         if (product.productImages && product.productImages.length > 0) {
             return product.productImages[0];
         }
-        // Fallback to the old productImage field for backward compatibility
         return product.productImage || null;
     };
 
@@ -74,10 +97,8 @@ const ProductsSection = () => {
                 throw new Error(data.details || data.error || 'Failed to delete product');
             }
 
-            // Refresh products list
             await fetchProducts();
 
-            // Reset to first page if current page becomes empty
             const newTotalPages = Math.ceil((products.length - 1) / itemsPerPage);
             if (currentPage > newTotalPages && newTotalPages > 0) {
                 setCurrentPage(newTotalPages);
@@ -165,7 +186,7 @@ const ProductsSection = () => {
 
             {/* Products Grid */}
             {products.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+                <div className="text-center py-12 bg-white rounded-xl shadow-sm p-5">
                     <PackageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">No Products Yet</h3>
                     <p className="text-gray-600 mb-6">Start adding products to your inventory</p>
@@ -181,6 +202,7 @@ const ProductsSection = () => {
                         {currentProducts.map((product) => {
                             const productImage = getProductImage(product);
                             const imageCount = product.productImages ? product.productImages.length : 0;
+                            const statusInfo = getStatusBadge(product.status || 'inactive');
                             
                             return (
                                 <div key={product._id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -210,6 +232,14 @@ const ProductsSection = () => {
                                                     />
                                                 </div>
                                             )}
+                                            
+                                            {/* Status Badge Overlay */}
+                                            <div className="absolute bottom-2 right-2">
+                                                <span className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusInfo.className}`}>
+                                                    {statusInfo.icon}
+                                                    {statusInfo.text}
+                                                </span>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="h-48 bg-gray-100 flex items-center justify-center">
@@ -275,12 +305,6 @@ const ProductsSection = () => {
                                                 <p className="text-xs text-gray-500">Offer Price</p>
                                                 <p className="font-semibold text-gray-800">₹{product.offerPrice}</p>
                                             </div>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${product.isApproved
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-yellow-100 text-yellow-700'
-                                                }`}>
-                                                {product.isApproved ? 'Approved' : 'Pending'}
-                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -306,10 +330,8 @@ const ProductsSection = () => {
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
 
-                                {/* Page Numbers */}
                                 <div className="flex gap-1">
                                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                                        // Show first page, last page, current page, and pages around current
                                         if (
                                             page === 1 ||
                                             page === totalPages ||
