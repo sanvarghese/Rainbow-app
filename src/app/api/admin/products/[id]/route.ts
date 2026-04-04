@@ -59,6 +59,21 @@ export async function PUT(
     }
 
     await connectDB();
+
+     const { action } = await req.json(); // action: 'approve' or 'reject'
+
+    let status: 'approved' | 'rejected';
+    
+    if (action === 'approve') {
+      status = 'approved';
+    } else if (action === 'reject') {
+      status = 'rejected';
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'Invalid action. Use "approve" or "reject"' },
+        { status: 400 }
+      );
+    }
     
     const body = await req.json();
     const { name, descriptionShort, descriptionLong, quantity, price, offerPrice, category, subCategory, foodType } = body;
@@ -73,6 +88,7 @@ export async function PUT(
 
     const product = await Product.findByIdAndUpdate(
       params.id,
+      
       {
         name,
         descriptionShort,
@@ -84,6 +100,8 @@ export async function PUT(
         subCategory,
         foodType: foodType || null,
       },
+            { status },
+
       { new: true }
     ).populate('companyId', 'name email companyLogo');
 
