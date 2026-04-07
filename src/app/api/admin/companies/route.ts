@@ -181,40 +181,81 @@ export async function POST(req: NextRequest) {
 }
 
 
+// app/api/admin/companies/route.ts - Update the GET method
 
 export async function GET(req: NextRequest) {
-  try {
-    const admin = await verifyAdminToken();
+    try {
+        const admin = await verifyAdminToken(req);
+        if (!admin) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
 
-    if (!admin) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+        await connectDB();
+
+        const { searchParams } = new URL(req.url);
+        const statusParam = searchParams.get('status');
+
+        let query: any = {};
+
+        if (statusParam === 'approved') {
+            query = { status: 'approved' };
+        } else if (statusParam === 'rejected') {
+            query = { status: 'rejected' };
+        } else if (statusParam === 'removed') {
+            query = { status: 'removed' };
+        } else if (statusParam === 'pending') {
+            query = { status: 'pending' };
+        } else if (statusParam === 'all') {
+            query = {};
+        } else {
+            // Default: show pending companies for approval
+            query = { status: 'all' };
+        }
+
+        const companies = await Company.find(query)
+            .populate('userId', 'name email') // Make sure this matches your User model
+            .sort({ createdAt: -1 });
+
+        return NextResponse.json({ success: true, companies });
+    } catch (error: any) {
+        console.error('Error fetching companies:', error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
-
-    await connectDB();
-
-    const companies = await Company.find()
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 });
-
-    return NextResponse.json({
-      success: true,
-      companies,
-    });
-  } catch (error: any) {
-    console.error('Fetch all companies error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Server error',
-        details: error.message,
-      },
-      { status: 500 }
-    );
-  }
 }
+
+// export async function GET(req: NextRequest) {
+//   try {
+//     const admin = await verifyAdminToken();
+
+//     if (!admin) {
+//       return NextResponse.json(
+//         { success: false, error: 'Unauthorized' },
+//         { status: 401 }
+//       );
+//     }
+
+//     await connectDB();
+
+//     const companies = await Company.find()
+//       .populate('userId', 'name email')
+//       .sort({ createdAt: -1 });
+
+//     return NextResponse.json({
+//       success: true,
+//       companies,
+//     });
+//   } catch (error: any) {
+//     console.error('Fetch all companies error:', error);
+//     return NextResponse.json(
+//       {
+//         success: false,
+//         error: 'Server error',
+//         details: error.message,
+//       },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 
 // GET - Fetch company (for editing)

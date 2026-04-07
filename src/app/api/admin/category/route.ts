@@ -22,40 +22,23 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST - Create new category
 export async function POST(req: NextRequest) {
   try {
     const admin = await verifyAdminToken(req);
-
-    if (!admin) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    if (!admin) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
     await connectDB();
     const body = await req.json();
 
-    const { name, image, hasSubCategories, subCategories } = body;
+    const { name, image, hasSubCategories, subCategories = [] } = body;
 
     if (!name) {
-      return NextResponse.json(
-        { success: false, error: 'Category name is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Category name is required' }, { status: 400 });
     }
 
-    // Check if category already exists
-    const existingCategory = await Category.findOne({
-      name: { $regex: new RegExp(`^${name}$`, 'i') }
-    });
-
+    const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
     if (existingCategory) {
-      return NextResponse.json(
-        { success: false, error: 'Category already exists' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Category already exists' }, { status: 400 });
     }
 
     const category = await Category.create({
@@ -65,40 +48,24 @@ export async function POST(req: NextRequest) {
       subCategories: hasSubCategories ? subCategories : [],
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Category created successfully',
-      category,
-    });
+    return NextResponse.json({ success: true, message: 'Category created successfully', category });
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-// PUT - Update category
 export async function PUT(req: NextRequest) {
   try {
     const admin = await verifyAdminToken(req);
-    if (!admin) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    if (!admin) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
     await connectDB();
     const body = await req.json();
 
-    const { id, name, image, hasSubCategories, subCategories } = body;
+    const { id, name, image, hasSubCategories, subCategories = [] } = body;
 
     if (!id || !name) {
-      return NextResponse.json(
-        { success: false, error: 'Category ID and name are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Category ID and name are required' }, { status: 400 });
     }
 
     const category = await Category.findByIdAndUpdate(
@@ -113,22 +80,12 @@ export async function PUT(req: NextRequest) {
     );
 
     if (!category) {
-      return NextResponse.json(
-        { success: false, error: 'Category not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Category not found' }, { status: 404 });
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Category updated successfully',
-      category,
-    });
+    return NextResponse.json({ success: true, message: 'Category updated successfully', category });
   } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 

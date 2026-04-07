@@ -1,4 +1,6 @@
-"use client";
+// components/Admin/AdminCreateCompanyForm.tsx
+
+'use client';
 
 import React, { useState, useEffect } from "react";
 import {
@@ -8,10 +10,11 @@ import { Upload, X } from 'lucide-react';
 
 interface AdminCreateCompanyProps {
     onSuccess?: () => void;
+    onCancel?: () => void;  // Add this prop
     initialData?: any;
 }
 
-const AdminCreateCompany: React.FC<AdminCreateCompanyProps> = ({ onSuccess, initialData }) => {
+const AdminCreateCompany: React.FC<AdminCreateCompanyProps> = ({ onSuccess, onCancel, initialData }) => {
     const [formData, setFormData] = useState({
         companyLogo: null as File | null,
         badges: null as File | null,
@@ -138,6 +141,12 @@ const AdminCreateCompany: React.FC<AdminCreateCompanyProps> = ({ onSuccess, init
         setPreview((prev) => ({ ...prev, [field]: "" }));
     };
 
+    const handleCancel = () => {
+        if (onCancel) {
+            onCancel();
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -190,8 +199,14 @@ const AdminCreateCompany: React.FC<AdminCreateCompanyProps> = ({ onSuccess, init
                 }
             }
 
-            const res = await fetch('/api/admin/companies', {
-                method: 'POST',
+            const url = initialData?._id 
+                ? `/api/admin/companies/${initialData._id}`
+                : '/api/admin/companies';
+            
+            const method = initialData?._id ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
                 body: formDataToSend,
             });
 
@@ -508,7 +523,7 @@ const AdminCreateCompany: React.FC<AdminCreateCompanyProps> = ({ onSuccess, init
                                     <Box sx={{ display: 'flex', gap: 2 }}>
                                         <Button
                                             variant="outlined"
-                                            className="cancel-btn"
+                                            onClick={handleCancel}  // Use the handleCancel function
                                             disabled={loading}
                                             sx={{
                                                 borderColor: '#006d21ff',
@@ -524,7 +539,6 @@ const AdminCreateCompany: React.FC<AdminCreateCompanyProps> = ({ onSuccess, init
                                         <Button
                                             type="submit"
                                             variant="contained"
-                                            className="create-btn"
                                             disabled={loading}
                                             sx={{
                                                 backgroundColor: '#006d21ff',

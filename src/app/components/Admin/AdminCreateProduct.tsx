@@ -1,968 +1,760 @@
-"use client"
+// components/Admin/AdminCreateProduct.tsx
+'use client';
 
-import React, { useEffect, useState } from 'react'
-import {
-    Box, Button, Container, Paper, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Radio, RadioGroup, FormControlLabel, Alert, CircularProgress, IconButton, Grid,
-} from "@mui/material";
-import { SelectChangeEvent } from "@mui/material";
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Underline from '@tiptap/extension-underline'
-import TextAlign from '@tiptap/extension-text-align'
-import Placeholder from '@tiptap/extension-placeholder'
-import {
-    Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
-    AlignLeft, AlignCenter, AlignRight, Undo, Redo, X, Upload, Image as ImageIcon
-} from 'lucide-react'
-import '../BecomeSeller/BecomeSeller.css'
-import '../../components/BecomeSeller/CreateProduct.css'
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Plus, Trash2, Image, Eye, Code, AlertCircle, Check, Upload, Bold, Italic, List, Link, Heading, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 
-interface CreateProductProps {
-    onSuccess?: () => void;
-    initialData?: any;
+interface Variant {
+  variantType: string;
+  variantUnit?: string;
+  variantValue: string;
+  displayValue: string;
+  quantity: number;
+  price: number;
+  offerPrice: number;
 }
 
-const MenuBar = ({ editor }: any) => {
-    if (!editor) {
-        return null
+interface ProductData {
+  _id?: string;
+  name: string;
+  descriptionShort: string;
+  descriptionLong?: string;
+  category: string;
+  subCategory: string;
+  foodType?: string;
+  productImages: string[];
+  badges?: string;
+  hasVariants: boolean;
+  quantity?: number;
+  price?: number;
+  offerPrice?: number;
+  variants?: Variant[];
+}
+
+interface AdminCreateProductProps {
+  initialData?: any;
+  onSuccess: () => void;
+}
+
+const AdminCreateProduct = ({ initialData, onSuccess }: AdminCreateProductProps) => {
+  const [formData, setFormData] = useState<ProductData>({
+    name: '',
+    descriptionShort: '',
+    descriptionLong: '',
+    category: '',
+    subCategory: '',
+    foodType: '',
+    productImages: ['', ''],
+    badges: '',
+    hasVariants: false,
+    quantity: 0,
+    price: 0,
+    offerPrice: 0,
+    variants: [],
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>(['', '']);
+  const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
+  const [showHtmlSource, setShowHtmlSource] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || '',
+        descriptionShort: initialData.descriptionShort || '',
+        descriptionLong: initialData.descriptionLong || '',
+        category: initialData.category || '',
+        subCategory: initialData.subCategory || '',
+        foodType: initialData.foodType || '',
+        productImages: initialData.productImages || ['', ''],
+        badges: initialData.badges || '',
+        hasVariants: initialData.hasVariants || false,
+        quantity: initialData.quantity || 0,
+        price: initialData.price || 0,
+        offerPrice: initialData.offerPrice || 0,
+        variants: initialData.variants || [],
+      });
+      setImageUrls(initialData.productImages || ['', '']);
     }
+  }, [initialData]);
 
-    return (
-        <div className="flex flex-wrap gap-1 p-2 border-b border-gray-300 bg-gray-50">
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().toggleBold().run()}
-                disabled={!editor.can().chain().focus().toggleBold().run()}
-                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bold') ? 'bg-gray-300' : ''}`}
-                title="Bold">
-                <Bold size={18} />
-            </button>
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().toggleItalic().run()}
-                disabled={!editor.can().chain().focus().toggleItalic().run()}
-                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('italic') ? 'bg-gray-300' : ''}`}
-                title="Italic">
-                <Italic size={18} />
-            </button>
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().toggleUnderline().run()}
-                disabled={!editor.can().chain().focus().toggleUnderline().run()}
-                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('underline') ? 'bg-gray-300' : ''}`}
-                title="Underline">
-                <UnderlineIcon size={18} />
-            </button>
+  // Initialize editor content
+  useEffect(() => {
+    if (editorRef.current && !showHtmlSource) {
+      editorRef.current.innerHTML = formData.descriptionLong || '';
+    }
+  }, [formData.descriptionLong, showHtmlSource]);
 
-            <div className="w-px h-8 bg-gray-300 mx-1"></div>
+  const handleImageUrlChange = (index: number, value: string) => {
+    const newUrls = [...imageUrls];
+    newUrls[index] = value;
+    setImageUrls(newUrls);
+    setFormData({ ...formData, productImages: newUrls.filter(url => url.trim() !== '') });
+    if (imageErrors[index]) {
+      setImageErrors({ ...imageErrors, [index]: false });
+    }
+  };
 
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().toggleBulletList().run()}
-                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bulletList') ? 'bg-gray-300' : ''}`}
-                title="Bullet List">
-                <List size={18} />
-            </button>
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('orderedList') ? 'bg-gray-300' : ''}`}
-                title="Numbered List">
-                <ListOrdered size={18} />
-            </button>
+  const addImageField = () => {
+    setImageUrls([...imageUrls, '']);
+  };
 
-            <div className="w-px h-8 bg-gray-300 mx-1"></div>
+  const removeImageField = (index: number) => {
+    const newUrls = imageUrls.filter((_, i) => i !== index);
+    setImageUrls(newUrls);
+    setFormData({ ...formData, productImages: newUrls.filter(url => url.trim() !== '') });
+  };
 
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().setTextAlign('left').run()}
-                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-300' : ''}`}
-                title="Align Left">
-                <AlignLeft size={18} />
-            </button>
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().setTextAlign('center').run()}
-                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-300' : ''}`}
-                title="Align Center">
-                <AlignCenter size={18} />
-            </button>
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().setTextAlign('right').run()}
-                className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-300' : ''}`}
-                title="Align Right">
-                <AlignRight size={18} />
-            </button>
+  const handleImageError = (index: number) => {
+    setImageErrors({ ...imageErrors, [index]: true });
+  };
 
-            <div className="w-px h-8 bg-gray-300 mx-1"></div>
+  // Rich text editor commands
+  const execCommand = (command: string, value: string = '') => {
+    document.execCommand(command, false, value);
+    if (editorRef.current) {
+      setFormData({ ...formData, descriptionLong: editorRef.current.innerHTML });
+    }
+  };
 
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().undo().run()}
-                disabled={!editor.can().chain().focus().undo().run()}
-                className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
-                title="Undo">
-                <Undo size={18} />
-            </button>
-            <button
-                type="button"
-                onClick={() => editor.chain().focus().redo().run()}
-                disabled={!editor.can().chain().focus().redo().run()}
-                className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
-                title="Redo">
-                <Redo size={18} />
-            </button>
-        </div>
-    )
-}
+  const handleEditorInput = () => {
+    if (editorRef.current) {
+      setFormData({ ...formData, descriptionLong: editorRef.current.innerHTML });
+    }
+  };
 
-const AdminCreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData }) => {
-    const [formData, setFormData] = useState({
-        productImages: [] as File[],
-        badges: null as File | null,
-        name: "",
-        descriptionShort: "",
-        descriptionLong: "",
-        quantity: "",
-        price: "",
-        offerPrice: "",
-        category: "",
-        subCategory: "",
-        foodType: "",
+  const handleHtmlChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const html = e.target.value;
+    setFormData({ ...formData, descriptionLong: html });
+    if (editorRef.current && showHtmlSource) {
+      editorRef.current.innerHTML = html;
+    }
+  };
+
+  const handleVariantChange = (index: number, field: keyof Variant, value: any) => {
+    const newVariants = [...(formData.variants || [])];
+    newVariants[index] = { ...newVariants[index], [field]: value };
+    setFormData({ ...formData, variants: newVariants });
+  };
+
+  const addVariant = () => {
+    const newVariants = [...(formData.variants || [])];
+    newVariants.push({
+      variantType: 'weight',
+      variantValue: '',
+      displayValue: '',
+      quantity: 0,
+      price: 0,
+      offerPrice: 0,
     });
+    setFormData({ ...formData, variants: newVariants });
+  };
 
-    const [preview, setPreview] = useState({
-        productImages: [] as string[],
-        badges: ""
-    });
+  const removeVariant = (index: number) => {
+    const newVariants = (formData.variants || []).filter((_, i) => i !== index);
+    setFormData({ ...formData, variants: newVariants });
+  };
 
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-    // Initialize Tiptap editor
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Underline,
-            TextAlign.configure({
-                types: ['heading', 'paragraph'],
-            }),
-            Placeholder.configure({
-                placeholder: 'Write a detailed description of your product...',
-            }),
-        ],
-        content: formData.descriptionLong,
-        immediatelyRender: false,
-        onUpdate: ({ editor }) => {
-            const html = editor.getHTML()
-            setFormData((prev) => ({ ...prev, descriptionLong: html }))
+    try {
+      const submitData: any = {
+        name: formData.name.trim(),
+        descriptionShort: formData.descriptionShort.trim(),
+        descriptionLong: formData.descriptionLong || '',
+        category: formData.category,
+        subCategory: formData.subCategory,
+        foodType: formData.foodType || null,
+        productImages: formData.productImages.filter(url => url.trim() !== ''),
+        badges: formData.badges || null,
+        hasVariants: formData.hasVariants,
+      };
+
+      if (formData.hasVariants) {
+        submitData.variants = (formData.variants || []).map(v => ({
+          variantType: v.variantType,
+          variantUnit: v.variantUnit || '',
+          variantValue: String(v.variantValue),
+          displayValue: v.displayValue,
+          quantity: Number(v.quantity) || 0,
+          price: Number(v.price) || 0,
+          offerPrice: Number(v.offerPrice) || 0,
+        }));
+      } else {
+        submitData.quantity = Number(formData.quantity) || 0;
+        submitData.price = Number(formData.price) || 0;
+        submitData.offerPrice = Number(formData.offerPrice) || 0;
+      }
+
+      if (!submitData.name || !submitData.descriptionShort || !submitData.category || !submitData.subCategory) {
+        throw new Error('Please fill in all required fields');
+      }
+
+      if (submitData.productImages.length < 2) {
+        throw new Error('Please provide at least 2 product images');
+      }
+
+      const url = initialData?._id 
+        ? `/api/admin/products/${initialData._id}`
+        : '/api/admin/products/create';
+      
+      const method = initialData?._id ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
         },
-        editorProps: {
-            attributes: {
-                class: 'prose prose-sm max-w-none focus:outline-none min-h-[150px] p-3',
-            },
-        },
-    })
+        body: JSON.stringify(submitData),
+      });
 
-    // Load initial data when editing
-    useEffect(() => {
-        if (initialData) {
-            setFormData({
-                productImages: [],
-                badges: null,
-                name: initialData.name || "",
-                descriptionShort: initialData.descriptionShort || "",
-                descriptionLong: initialData.descriptionLong || "",
-                quantity: initialData.quantity?.toString() || "",
-                price: initialData.price?.toString() || "",
-                offerPrice: initialData.offerPrice?.toString() || "",
-                category: initialData.category || "",
-                subCategory: initialData.subCategory || "",
-                foodType: initialData.foodType || "",
-            });
-            setPreview({
-                productImages: initialData.productImages || [],
-                badges: initialData.badges || ""
-            });
+      const data = await response.json();
 
-            if (editor && initialData.descriptionLong) {
-                editor.commands.setContent(initialData.descriptionLong)
-            }
-        }
-    }, [initialData, editor]);
+      if (data.success) {
+        alert(initialData?._id ? 'Product updated successfully!' : 'Product created successfully!');
+        onSuccess();
+      } else {
+        throw new Error(data.error || 'Failed to save product');
+      }
+    } catch (error: any) {
+      console.error('Error saving product:', error);
+      alert(error.message || 'Failed to save product');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const validateField = (name: string, value: string) => {
-        let errorMsg = '';
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        {initialData?._id ? 'Edit Product' : 'Create New Product'}
+      </h2>
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Basic Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Product Name *
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+            />
+          </div>
 
-        switch (name) {
-            case 'name':
-                if (!value.trim()) errorMsg = 'Product name is required';
-                break;
-            case 'descriptionShort':
-                if (!value.trim()) {
-                    errorMsg = 'Description is required';
-                } else if (value.length < 50) {
-                    errorMsg = `Description must be at least 50 characters (current: ${value.length})`;
-                }
-                break;
-            case 'quantity':
-                const qty = Number(value);
-                if (!value) {
-                    errorMsg = 'Quantity is required';
-                } else if (isNaN(qty) || qty < 0) {
-                    errorMsg = 'Quantity must be a positive number';
-                }
-                break;
-            case 'price':
-                const price = Number(value);
-                if (!value) {
-                    errorMsg = 'Price is required';
-                } else if (isNaN(price) || price < 0) {
-                    errorMsg = 'Price must be a positive number';
-                }
-                break;
-            case 'offerPrice':
-                const offerPrice = Number(value);
-                if (!value) {
-                    errorMsg = 'Offer Price is required';
-                } else if (isNaN(offerPrice) || offerPrice < 0) {
-                    errorMsg = 'Offer Price must be a positive number';
-                }
-                break;
-            case 'category':
-                if (!value) errorMsg = 'Please select a category';
-                break;
-            case 'subCategory':
-                if (!value) errorMsg = 'Please select a subcategory';
-                break;
-        }
-
-        setFieldErrors(prev => ({
-            ...prev,
-            [name]: errorMsg
-        }));
-
-        return !errorMsg;
-    };
-
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }>
-    ) => {
-        const { name, value } = e.target as HTMLInputElement;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        setError('');
-        validateField(name, value);
-    };
-
-    const handleMultipleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
-        
-        if (files.length === 0) return;
-
-        // Count existing images that are URLs (from server)
-        const existingUrlImages = preview.productImages.filter(img => 
-            typeof img === 'string' && (img.startsWith('http') || img.startsWith('data:image'))
-        ).length;
-
-        // Validate total number of images (max 5)
-        const totalImages = existingUrlImages + formData.productImages.length + files.length;
-        if (totalImages > 5) {
-            setError(`Maximum 5 product images allowed. You currently have ${existingUrlImages + formData.productImages.length} images.`);
-            e.target.value = ''; // Clear the input
-            return;
-        }
-
-        // Validate each file
-        for (const file of files) {
-            if (file.size > 5 * 1024 * 1024) {
-                setError('Each image must be less than 5MB');
-                e.target.value = '';
-                return;
-            }
-            if (!file.type.startsWith('image/')) {
-                setError('Only image files are allowed');
-                e.target.value = '';
-                return;
-            }
-        }
-
-        setError('');
-
-        // Add files to state
-        setFormData(prev => ({
-            ...prev,
-            productImages: [...prev.productImages, ...files]
-        }));
-
-        // Generate previews
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview(prev => ({
-                    ...prev,
-                    productImages: [...prev.productImages, reader.result as string]
-                }));
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // Clear the input value so same file can be selected again if removed
-        e.target.value = '';
-
-        // Clear field errors
-        setFieldErrors(prev => ({
-            ...prev,
-            productImages: ''
-        }));
-    };
-
-    const removeProductImage = (index: number) => {
-        const imageToRemove = preview.productImages[index];
-        
-        // Check if it's a new file (starts with blob or data:image/png etc from FileReader)
-        // vs existing image from server (starts with http or data:image/jpeg;base64 from server)
-        const isExistingServerImage = typeof imageToRemove === 'string' && 
-            (imageToRemove.startsWith('http') || imageToRemove.includes(';base64,'));
-
-        if (isExistingServerImage) {
-            // Remove from preview only (will be handled in existingImages)
-            setPreview(prev => ({
-                ...prev,
-                productImages: prev.productImages.filter((_, i) => i !== index)
-            }));
-        } else {
-            // It's a newly added file, remove from both formData and preview
-            // Find the index in formData.productImages
-            const newFileIndex = preview.productImages
-                .slice(0, index)
-                .filter(img => !((typeof img === 'string') && (img.startsWith('http') || img.includes(';base64,'))))
-                .length;
-
-            setFormData(prev => ({
-                ...prev,
-                productImages: prev.productImages.filter((_, i) => i !== newFileIndex)
-            }));
-
-            setPreview(prev => ({
-                ...prev,
-                productImages: prev.productImages.filter((_, i) => i !== index)
-            }));
-        }
-    };
-
-    const handleFileChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
-        field: "badges"
-    ) => {
-        const file = e.target.files?.[0];
-
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                setError(`${field} file size must be less than 5MB`);
-                return;
-            }
-
-            if (!file.type.startsWith('image/')) {
-                setError(`${field} must be an image file`);
-                return;
-            }
-
-            setFormData((prev) => ({ ...prev, [field]: file }));
-            setError('');
-
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreview((prev) => ({ ...prev, [field]: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleSelectChange = (e: SelectChangeEvent<string>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        setError('');
-        validateField(name, value);
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
-        setFieldErrors({});
-
-        // Count existing server images and new files
-        const existingServerImages = preview.productImages.filter(img => 
-            typeof img === 'string' && (img.startsWith('http') || img.includes(';base64,'))
-        );
-        
-        const totalProductImages = existingServerImages.length + formData.productImages.length;
-        
-        // Validate minimum 2 images
-        if (totalProductImages < 2) {
-            setFieldErrors(prev => ({
-                ...prev,
-                productImages: 'At least 2 product images are required'
-            }));
-            setError(`Please add at least 2 product images. You currently have ${totalProductImages} image(s).`);
-            return;
-        }
-
-        // Validate all required fields
-        const requiredFields = ['name', 'descriptionShort', 'quantity', 'price', 'offerPrice', 'category', 'subCategory'];
-        let hasErrors = false;
-
-        requiredFields.forEach(field => {
-            if (!validateField(field, formData[field as keyof typeof formData] as string)) {
-                hasErrors = true;
-            }
-        });
-
-        if ((formData.category === 'food' || formData.category === 'powder') && !formData.foodType) {
-            setFieldErrors(prev => ({
-                ...prev,
-                foodType: 'Food type is required for food and powder categories'
-            }));
-            hasErrors = true;
-        }
-
-        if (hasErrors) {
-            setError('Please fix the errors above');
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const formDataToSend = new FormData();
-
-            // Add product images (new files) - IMPORTANT: append each file individually
-            console.log('Adding product images to FormData:', formData.productImages.length);
-            formData.productImages.forEach((file, index) => {
-                console.log(`Appending image ${index + 1}:`, file.name, file.type, file.size);
-                formDataToSend.append('productImages', file);
-            });
-
-            // Add existing images when updating
-            if (initialData?.productImages) {
-                const existingImages = preview.productImages.filter(img => 
-                    typeof img === 'string' && (img.startsWith('http') || img.includes(';base64,'))
-                );
-                console.log('Existing images count:', existingImages.length);
-                formDataToSend.append('existingImages', JSON.stringify(existingImages));
-            }
-
-            // Add other fields
-            Object.entries(formData).forEach(([key, value]) => {
-                if (key !== 'productImages' && value !== null && value !== undefined) {
-                    if (value instanceof File) {
-                        formDataToSend.append(key, value);
-                    } else {
-                        formDataToSend.append(key, value.toString());
-                    }
-                }
-            });
-
-            if (initialData?._id) {
-                formDataToSend.append("productId", initialData._id);
-            }
-
-            // Debug: Log FormData contents
-            console.log('FormData entries:');
-            for (let pair of formDataToSend.entries()) {
-                if (pair[1] instanceof File) {
-                    console.log(pair[0], ':', pair[1].name, pair[1].type, pair[1].size);
-                } else {
-                    console.log(pair[0], ':', pair[1]);
-                }
-            }
-
-            const res = await fetch('/api/admin/products', {
-                method: 'POST',
-                body: formDataToSend,
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.details || data.error || 'Something went wrong');
-            }
-
-            setSuccess(data.message);
-
-            // Reset form
-            setFormData({
-                productImages: [],
-                badges: null,
-                name: "",
-                descriptionShort: "",
-                descriptionLong: "",
-                quantity: "",
-                price: "",
-                offerPrice: "",
-                category: "",
-                subCategory: "",
-                foodType: "",
-            });
-            setPreview({ productImages: [], badges: "" });
-
-            if (editor) {
-                editor.commands.clearContent()
-            }
-
-            if (onSuccess) {
-                setTimeout(() => onSuccess(), 1500);
-            }
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="create-product-section min-vh-100 bg-light">
-            <Box
-                sx={{
-                    background: "linear-gradient(135deg, #006d21ff 0%, #00bb38ff 100%)",
-                    color: "white",
-                    py: 6,
-                    my: 6,
-                    textAlign: "center",
-                }}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category *
+            </label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              required
             >
-                <Container>
-                    <Typography variant="h3" fontWeight="bold">
-                        {initialData ? 'Edit Product' : 'Create Your Product'}
-                    </Typography>
-                    <Typography variant="h6" sx={{ opacity: 0.9, mt: 1 }}>
-                        {initialData ? 'Update product details' : 'Step 3 of 3: Add Product Details'}
-                    </Typography>
-                </Container>
-            </Box>
+              <option value="">Select Category</option>
+              <option value="food">🍔 Food</option>
+              <option value="powder">⚡ Powder</option>
+              <option value="paste">🥫 Paste</option>
+              <option value="accessories">🎯 Accessories</option>
+            </select>
+          </div>
 
-            <Container className="mt-n4 mb-5">
-                <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-                    {error && (
-                        <Alert severity="error" sx={{ mb: 3 }}>
-                            {error}
-                        </Alert>
-                    )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Sub Category *
+            </label>
+            <input
+              type="text"
+              value={formData.subCategory}
+              onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+            />
+          </div>
 
-                    {success && (
-                        <Alert severity="success" sx={{ mb: 3 }}>
-                            {success}
-                        </Alert>
-                    )}
-
-                    <form onSubmit={handleSubmit}>
-                        <div className="row g-4">
-                            {/* Product Images Section - Enhanced UI */}
-                            <div className="col-12">
-                                <Box sx={{ 
-                                    border: '2px dashed #006d21ff', 
-                                    borderRadius: 2, 
-                                    p: 3,
-                                    backgroundColor: '#f8f9fa',
-                                    transition: 'all 0.3s ease',
-                                    '&:hover': {
-                                        backgroundColor: '#e9f7ef',
-                                        borderColor: '#00bb38ff'
-                                    }
-                                }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                        <ImageIcon size={24} style={{ color: '#006d21ff', marginRight: '8px' }} />
-                                        <Typography variant="h6" fontWeight={600} sx={{ color: '#006d21ff' }}>
-                                            Product Images *
-                                        </Typography>
-                                    </Box>
-                                    
-                                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                                        Upload minimum 2 and maximum 5 high-quality product images. First image will be the main display image.
-                                    </Typography>
-
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                                        <Button
-                                            component="label"
-                                            variant="contained"
-                                            startIcon={<Upload />}
-                                            disabled={preview.productImages.length >= 5}
-                                            sx={{
-                                                backgroundColor: '#006d21ff',
-                                                '&:hover': { backgroundColor: '#00bb38ff' },
-                                                '&:disabled': { backgroundColor: '#ccc' }
-                                            }}
-                                        >
-                                            {preview.productImages.length === 0 ? 'Upload Images' : 'Add More Images'}
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                multiple
-                                                hidden
-                                                onChange={handleMultipleFileChange}
-                                                disabled={preview.productImages.length >= 5}
-                                            />
-                                        </Button>
-                                        
-                                        <Box sx={{ 
-                                            display: 'flex', 
-                                            alignItems: 'center', 
-                                            gap: 1,
-                                            px: 2,
-                                            py: 1,
-                                            backgroundColor: preview.productImages.length >= 2 ? '#d4edda' : '#fff3cd',
-                                            borderRadius: 1,
-                                            border: `1px solid ${preview.productImages.length >= 2 ? '#c3e6cb' : '#ffeaa7'}`
-                                        }}>
-                                            <Typography variant="body2" fontWeight={600}>
-                                                {preview.productImages.length}/5 images
-                                            </Typography>
-                                            {preview.productImages.length < 2 && (
-                                                <Typography variant="caption" color="error" sx={{ ml: 1 }}>
-                                                    (Need {2 - preview.productImages.length} more)
-                                                </Typography>
-                                            )}
-                                        </Box>
-                                    </Box>
-
-                                    {fieldErrors.productImages && (
-                                        <Alert severity="error" sx={{ mb: 2 }}>
-                                            {fieldErrors.productImages}
-                                        </Alert>
-                                    )}
-
-                                    {/* Image Preview Grid */}
-                                    {preview.productImages.length > 0 && (
-                                        <Grid container spacing={2} sx={{ mt: 1 }}>
-                                            {preview.productImages.map((img, index) => (
-                                                <Grid item xs={6} sm={4} md={3} key={index}>
-                                                    <Box sx={{ 
-                                                        position: 'relative',
-                                                        paddingTop: '100%', // 1:1 Aspect Ratio
-                                                        borderRadius: 2,
-                                                        overflow: 'hidden',
-                                                        boxShadow: 2,
-                                                        border: index === 0 ? '3px solid #006d21ff' : '2px solid #e0e0e0',
-                                                        transition: 'all 0.3s ease',
-                                                        '&:hover': {
-                                                            transform: 'scale(1.05)',
-                                                            boxShadow: 4
-                                                        }
-                                                    }}>
-                                                        {index === 0 && (
-                                                            <Box sx={{
-                                                                position: 'absolute',
-                                                                top: 8,
-                                                                left: 8,
-                                                                backgroundColor: '#006d21ff',
-                                                                color: 'white',
-                                                                px: 1,
-                                                                py: 0.5,
-                                                                borderRadius: 1,
-                                                                fontSize: '0.75rem',
-                                                                fontWeight: 'bold',
-                                                                zIndex: 2
-                                                            }}>
-                                                                MAIN
-                                                            </Box>
-                                                        )}
-                                                        <img
-                                                            src={img}
-                                                            alt={`Product ${index + 1}`}
-                                                            style={{
-                                                                position: 'absolute',
-                                                                top: 0,
-                                                                left: 0,
-                                                                width: '100%',
-                                                                height: '100%',
-                                                                objectFit: 'cover'
-                                                            }}
-                                                        />
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() => removeProductImage(index)}
-                                                            sx={{
-                                                                position: 'absolute',
-                                                                top: 8,
-                                                                right: 8,
-                                                                backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                                                                color: 'white',
-                                                                zIndex: 2,
-                                                                '&:hover': { 
-                                                                    backgroundColor: 'rgba(200, 0, 0, 1)' 
-                                                                }
-                                                            }}
-                                                        >
-                                                            <X size={16} />
-                                                        </IconButton>
-                                                        <Typography
-                                                            variant="caption"
-                                                            sx={{
-                                                                position: 'absolute',
-                                                                bottom: 8,
-                                                                left: '50%',
-                                                                transform: 'translateX(-50%)',
-                                                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                                                color: 'white',
-                                                                px: 1,
-                                                                py: 0.5,
-                                                                borderRadius: 1,
-                                                                fontSize: '0.7rem'
-                                                            }}
-                                                        >
-                                                            Image {index + 1}
-                                                        </Typography>
-                                                    </Box>
-                                                </Grid>
-                                            ))}
-                                        </Grid>
-                                    )}
-
-                                    {preview.productImages.length === 0 && (
-                                        <Box sx={{ 
-                                            textAlign: 'center', 
-                                            py: 4,
-                                            border: '1px dashed #ccc',
-                                            borderRadius: 2,
-                                            backgroundColor: 'white'
-                                        }}>
-                                            <ImageIcon size={48} style={{ color: '#ccc', marginBottom: '16px' }} />
-                                            <Typography variant="body2" color="textSecondary">
-                                                No images uploaded yet
-                                            </Typography>
-                                            <Typography variant="caption" color="textSecondary">
-                                                Click "Upload Images" button above to add product images
-                                            </Typography>
-                                        </Box>
-                                    )}
-                                </Box>
-                            </div>
-
-                            <div className="col-md-6">
-                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                    Badges (Optional)
-                                </Typography>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => handleFileChange(e, "badges")}
-                                />
-                                {preview.badges && (
-                                    <img
-                                        src={preview.badges}
-                                        alt="Badges"
-                                        style={{ maxWidth: "200px", marginTop: "10px", borderRadius: "8px" }}
-                                    />
-                                )}
-                            </div>
-
-                            <div className="col-md-6">
-                                <TextField
-                                    fullWidth
-                                    label="Product Name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    required
-                                    type='text'
-                                    error={!!fieldErrors.name}
-                                    helperText={fieldErrors.name}
-                                />
-                            </div>
-
-                            <div className="col-12">
-                                <TextField
-                                    fullWidth
-                                    label="Short Description (At least 50 characters)"
-                                    name="descriptionShort"
-                                    value={formData.descriptionShort}
-                                    onChange={handleInputChange}
-                                    required
-                                    multiline
-                                    rows={3}
-                                    error={!!fieldErrors.descriptionShort}
-                                    helperText={fieldErrors.descriptionShort || `${formData.descriptionShort.length}/50 characters`}
-                                />
-                            </div>
-
-                            <div className="col-12">
-                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                    Long Description (Optional)
-                                </Typography>
-                                <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
-                                    <MenuBar editor={editor} />
-                                    <EditorContent editor={editor} />
-                                </div>
-                            </div>
-
-                            <div className="col-md-4">
-                                <TextField
-                                    fullWidth
-                                    label="Quantity"
-                                    name="quantity"
-                                    value={formData.quantity}
-                                    onChange={handleInputChange}
-                                    required
-                                    type='number'
-                                    error={!!fieldErrors.quantity}
-                                    helperText={fieldErrors.quantity}
-                                />
-                            </div>
-
-                            <div className="col-md-4">
-                                <TextField
-                                    fullWidth
-                                    label="Price"
-                                    name="price"
-                                    value={formData.price}
-                                    onChange={handleInputChange}
-                                    required
-                                    type='number'
-                                    error={!!fieldErrors.price}
-                                    helperText={fieldErrors.price}
-                                />
-                            </div>
-
-                            <div className="col-md-4">
-                                <TextField
-                                    fullWidth
-                                    label="Offer Price"
-                                    name="offerPrice"
-                                    value={formData.offerPrice}
-                                    onChange={handleInputChange}
-                                    required
-                                    type='number'
-                                    error={!!fieldErrors.offerPrice}
-                                    helperText={fieldErrors.offerPrice}
-                                />
-                            </div>
-
-                            <div className="col-md-6">
-                                <FormControl fullWidth required error={!!fieldErrors.category}>
-                                    <InputLabel>Category</InputLabel>
-                                    <Select
-                                        name="category"
-                                        value={formData.category}
-                                        onChange={handleSelectChange}
-                                    >
-                                        <MenuItem value="food">Food</MenuItem>
-                                        <MenuItem value="powder">Powder</MenuItem>
-                                        <MenuItem value="paste">Paste</MenuItem>
-                                        <MenuItem value="accessories">Accessories</MenuItem>
-                                    </Select>
-                                    {fieldErrors.category && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
-                                            {fieldErrors.category}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </div>
-
-                            <div className="col-md-6">
-                                <FormControl fullWidth required error={!!fieldErrors.subCategory}>
-                                    <InputLabel>Subcategory</InputLabel>
-                                    <Select
-                                        name="subCategory"
-                                        value={formData.subCategory}
-                                        onChange={handleSelectChange}>
-                                        <MenuItem value="pickle">Pickle</MenuItem>
-                                        <MenuItem value="spices">Spices</MenuItem>
-                                        <MenuItem value="snacks">Snacks</MenuItem>
-                                    </Select>
-                                    {fieldErrors.subCategory && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
-                                            {fieldErrors.subCategory}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </div>
-
-                            {(formData.category === "food" || formData.category === "powder") && (
-                                <div className="col-12">
-                                    <FormControl required error={!!fieldErrors.foodType}>
-                                        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                            Food Type
-                                        </Typography>
-                                        <RadioGroup
-                                            row
-                                            name="foodType"
-                                            value={formData.foodType}
-                                            onChange={handleInputChange}
-                                        >
-                                            <FormControlLabel value="veg" control={<Radio />} label="Veg" />
-                                            <FormControlLabel value="non-veg" control={<Radio />} label="Non-Veg" />
-                                        </RadioGroup>
-                                        {fieldErrors.foodType && (
-                                            <Typography variant="caption" color="error">
-                                                {fieldErrors.foodType}
-                                            </Typography>
-                                        )}
-                                    </FormControl>
-                                </div>
-                            )}
-
-                            <div className="col-12">
-                                <Box sx={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
-                                    alignItems: 'center',
-                                    pt: 2,
-                                    borderTop: '2px solid #e0e0e0'
-                                }}>
-                                    <Typography variant="body2" color="textSecondary">
-                                        * Required fields
-                                    </Typography>
-                                    <Box sx={{ display: 'flex', gap: 2 }}>
-                                        <Button
-                                            variant="outlined"
-                                            className="cancel-btn"
-                                            disabled={loading}
-                                            sx={{
-                                                borderColor: '#006d21ff',
-                                                color: '#006d21ff',
-                                                '&:hover': {
-                                                    borderColor: '#00bb38ff',
-                                                    backgroundColor: 'rgba(0, 109, 33, 0.04)'
-                                                }
-                                            }}
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            variant="contained"
-                                            className="create-btn"
-                                            disabled={loading}
-                                            sx={{
-                                                backgroundColor: '#006d21ff',
-                                                minWidth: '160px',
-                                                '&:hover': { backgroundColor: '#00bb38ff' },
-                                                '&:disabled': { backgroundColor: '#ccc' }
-                                            }}
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
-                                                    {initialData ? 'Updating...' : 'Creating...'}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {initialData ? 'Update Product' : 'Create Product'}
-                                                </>
-                                            )}
-                                        </Button>
-                                    </Box>
-                                </Box>
-                            </div>
-                        </div>
-                    </form>
-                </Paper>
-            </Container>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Food Type
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="veg"
+                  checked={formData.foodType === 'veg'}
+                  onChange={(e) => setFormData({ ...formData, foodType: e.target.value })}
+                  className="w-4 h-4 text-green-600"
+                />
+                <span className="text-sm">🟢 Veg</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="non-veg"
+                  checked={formData.foodType === 'non-veg'}
+                  onChange={(e) => setFormData({ ...formData, foodType: e.target.value })}
+                  className="w-4 h-4 text-red-600"
+                />
+                <span className="text-sm">🔴 Non-Veg</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value=""
+                  checked={!formData.foodType}
+                  onChange={() => setFormData({ ...formData, foodType: '' })}
+                  className="w-4 h-4 text-gray-600"
+                />
+                <span className="text-sm">Not Specified</span>
+              </label>
+            </div>
+          </div>
         </div>
-    )
-}
 
-export default AdminCreateProduct
+        {/* Short Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Short Description * (Minimum 50 characters)
+          </label>
+          <textarea
+            value={formData.descriptionShort}
+            onChange={(e) => setFormData({ ...formData, descriptionShort: e.target.value })}
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            required
+            minLength={50}
+          />
+          <div className="mt-1 flex justify-between items-center">
+            <p className="text-xs text-gray-500">
+              {formData.descriptionShort.length}/50 characters minimum
+            </p>
+            {formData.descriptionShort.length >= 50 && (
+              <span className="text-xs text-green-600 flex items-center gap-1">
+                <Check className="w-3 h-3" /> Good length
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* WYSIWYG Long Description Editor */}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Long Description
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowHtmlSource(!showHtmlSource)}
+              className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+            >
+              <Code className="w-3 h-3" />
+              {showHtmlSource ? 'Visual Editor' : 'HTML Source'}
+            </button>
+          </div>
+
+          {!showHtmlSource ? (
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
+              {/* Toolbar */}
+              <div className="flex flex-wrap gap-1 p-2 bg-gray-50 border-b border-gray-300">
+                <button
+                  type="button"
+                  onClick={() => execCommand('bold')}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Bold"
+                >
+                  <Bold className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execCommand('italic')}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Italic"
+                >
+                  <Italic className="w-4 h-4" />
+                </button>
+                <div className="w-px h-6 bg-gray-300 mx-1" />
+                <button
+                  type="button"
+                  onClick={() => execCommand('insertUnorderedList')}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Bullet List"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <div className="w-px h-6 bg-gray-300 mx-1" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = prompt('Enter link URL:', 'https://');
+                    if (url) execCommand('createLink', url);
+                  }}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Insert Link"
+                >
+                  <Link className="w-4 h-4" />
+                </button>
+                <div className="w-px h-6 bg-gray-300 mx-1" />
+                <button
+                  type="button"
+                  onClick={() => execCommand('formatBlock', '<h3>')}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Heading"
+                >
+                  <Heading className="w-4 h-4" />
+                </button>
+                <div className="w-px h-6 bg-gray-300 mx-1" />
+                <button
+                  type="button"
+                  onClick={() => execCommand('justifyLeft')}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Align Left"
+                >
+                  <AlignLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execCommand('justifyCenter')}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Align Center"
+                >
+                  <AlignCenter className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => execCommand('justifyRight')}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Align Right"
+                >
+                  <AlignRight className="w-4 h-4" />
+                </button>
+              </div>
+              
+              {/* Editor Content */}
+              <div
+                ref={editorRef}
+                contentEditable
+                onInput={handleEditorInput}
+                className="min-h-[300px] p-4 focus:outline-none prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: formData.descriptionLong || '' }}
+              />
+            </div>
+          ) : (
+            <textarea
+              value={formData.descriptionLong}
+              onChange={handleHtmlChange}
+              rows={12}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-sm"
+              placeholder="Enter HTML content here..."
+            />
+          )}
+          
+          <p className="text-xs text-gray-500 mt-2">
+            💡 Use the toolbar to format your content. You can create rich text with headings, lists, links, and more.
+          </p>
+        </div>
+
+        {/* Product Images */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Product Images * (Minimum 2 images)
+          </label>
+          <div className="space-y-3">
+            {imageUrls.map((url, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Image className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={url}
+                        onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                        placeholder={`Image URL ${index + 1}`}
+                        className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                          imageErrors[index] ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        }`}
+                        required={index < 2}
+                      />
+                    </div>
+                    {imageErrors[index] && url && (
+                      <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        Invalid image URL or image failed to load
+                      </p>
+                    )}
+                  </div>
+                  {index >= 2 && (
+                    <button
+                      type="button"
+                      onClick={() => removeImageField(index)}
+                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+                
+                {/* Image Preview */}
+                {url && !imageErrors[index] && (
+                  <div className="mt-3">
+                    <img
+                      src={url}
+                      alt={`Preview ${index + 1}`}
+                      className="h-20 w-20 object-cover rounded-lg border border-gray-200"
+                      onError={() => handleImageError(index)}
+                      onLoad={() => setImageErrors({ ...imageErrors, [index]: false })}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            <button
+              type="button"
+              onClick={addImageField}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-green-600 hover:border-green-400 hover:bg-green-50 transition-colors font-medium"
+            >
+              <Upload className="w-4 h-4" />
+              Add another image
+            </button>
+          </div>
+        </div>
+
+        {/* Badge URL */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Badge Image URL (Optional)
+          </label>
+          <input
+            type="text"
+            value={formData.badges}
+            onChange={(e) => setFormData({ ...formData, badges: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            placeholder="https://example.com/badge.png"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Add a badge image (e.g., "Best Seller", "New Arrival") that will appear on the product card
+          </p>
+        </div>
+
+        {/* Variant Toggle */}
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="hasVariants"
+            checked={formData.hasVariants}
+            onChange={(e) => setFormData({ ...formData, hasVariants: e.target.checked })}
+            className="w-4 h-4 text-green-600 focus:ring-green-500"
+          />
+          <label htmlFor="hasVariants" className="text-sm font-medium text-gray-700">
+            This product has variants (different sizes/weights)
+          </label>
+        </div>
+
+        {/* Regular Product Fields */}
+        {!formData.hasVariants && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quantity *
+              </label>
+              <input
+                type="number"
+                value={formData.quantity}
+                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                required
+                min="0"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Original Price *
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  required
+                  min="0"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Offer Price *
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                <input
+                  type="number"
+                  value={formData.offerPrice}
+                  onChange={(e) => setFormData({ ...formData, offerPrice: parseInt(e.target.value) || 0 })}
+                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  required
+                  min="0"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Variants Section */}
+        {formData.hasVariants && (
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Product Variants *
+              </label>
+              <button
+                type="button"
+                onClick={addVariant}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Variant
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {(formData.variants || []).map((variant, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <h4 className="font-medium text-gray-800">Variant {index + 1}</h4>
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(index)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Variant Type
+                      </label>
+                      <select
+                        value={variant.variantType}
+                        onChange={(e) => handleVariantChange(index, 'variantType', e.target.value)}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg"
+                      >
+                        <option value="weight">Weight</option>
+                        <option value="volume">Volume</option>
+                        <option value="size">Size</option>
+                        <option value="piece">Piece</option>
+                        <option value="pack">Pack</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Variant Value
+                      </label>
+                      <input
+                        type="text"
+                        value={variant.variantValue}
+                        onChange={(e) => handleVariantChange(index, 'variantValue', e.target.value)}
+                        placeholder="e.g., 1, 500, XL"
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Display Value
+                      </label>
+                      <input
+                        type="text"
+                        value={variant.displayValue}
+                        onChange={(e) => handleVariantChange(index, 'displayValue', e.target.value)}
+                        placeholder="e.g., 1 KG, 500 ML, XL Size"
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Quantity
+                      </label>
+                      <input
+                        type="number"
+                        value={variant.quantity}
+                        onChange={(e) => handleVariantChange(index, 'quantity', parseInt(e.target.value) || 0)}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Original Price
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs">₹</span>
+                        <input
+                          type="number"
+                          value={variant.price}
+                          onChange={(e) => handleVariantChange(index, 'price', parseInt(e.target.value) || 0)}
+                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Offer Price
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs">₹</span>
+                        <input
+                          type="number"
+                          value={variant.offerPrice}
+                          onChange={(e) => handleVariantChange(index, 'offerPrice', parseInt(e.target.value) || 0)}
+                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Submit Buttons */}
+        <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-medium shadow-md disabled:opacity-50"
+          >
+            {loading ? 'Saving...' : (initialData?._id ? 'Update Product' : 'Create Product')}
+          </button>
+          <button
+            type="button"
+            onClick={onSuccess}
+            className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default AdminCreateProduct;
