@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '../../../../../auth';
 import connectDB from '../../../../../lib/mongodb';
 import Company from '../../../../../models/Company';
+import Category from '../../../../../models/Category'; // Import Category model
 import mongoose from 'mongoose';
 
 // Clear cached model to ensure we use the latest schema
@@ -43,6 +44,48 @@ async function parseForm(req: NextRequest): Promise<{ fields: any; files: any }>
   return { fields, files };
 }
 
+// Helper function to validate category hierarchy
+async function validateCategoryHierarchy(categoryName: string, subCategoryName: string, childSubCategoryName?: string): Promise<{ valid: boolean; error?: string }> {
+  // Find the category in the database
+  const category = await Category.findOne({ name: categoryName });
+  
+  if (!category) {
+    return { valid: false, error: `Category "${categoryName}" does not exist` };
+  }
+
+  // If no subcategory is required and none provided
+  if (!subCategoryName) {
+    if (category.hasSubCategories) {
+      return { valid: false, error: `Category "${categoryName}" requires a subcategory` };
+    }
+    return { valid: true };
+  }
+
+  // Find the subcategory
+  const subCategory = category.subCategories.find((sub: any) => sub.name === subCategoryName);
+  
+  if (!subCategory) {
+    return { valid: false, error: `Subcategory "${subCategoryName}" does not exist in category "${categoryName}"` };
+  }
+
+  // If child subcategory is provided or required
+  if (childSubCategoryName) {
+    if (!subCategory.hasChildSubCategories) {
+      return { valid: false, error: `Subcategory "${subCategoryName}" does not have child subcategories` };
+    }
+    
+    const childSubCategory = subCategory.childSubCategories.find((child: any) => child.name === childSubCategoryName);
+    
+    if (!childSubCategory) {
+      return { valid: false, error: `Child subcategory "${childSubCategoryName}" does not exist in subcategory "${subCategoryName}"` };
+    }
+  } else if (subCategory.hasChildSubCategories) {
+    return { valid: false, error: `Subcategory "${subCategoryName}" requires a child subcategory` };
+  }
+
+  return { valid: true };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
@@ -72,6 +115,9 @@ export async function POST(req: NextRequest) {
     console.log('Files received - productImages count:', files.productImages?.length || 0);
     console.log('Has variants:', fields.hasVariants);
     console.log('Variants data:', fields.variants);
+    console.log('Category:', fields.category);
+    console.log('SubCategory:', fields.subCategory);
+    console.log('ChildSubCategory:', fields.childSubCategory);
 
     const isUpdate = !!fields.productId;
 
@@ -95,6 +141,23 @@ export async function POST(req: NextRequest) {
         { 
           error: 'Validation failed',
           details: 'Short description must be at least 50 characters'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate category hierarchy dynamically
+    const categoryValidation = await validateCategoryHierarchy(
+      fields.category,
+      fields.subCategory,
+      fields.childSubCategory
+    );
+
+    if (!categoryValidation.valid) {
+      return NextResponse.json(
+        { 
+          error: 'Validation failed',
+          details: categoryValidation.error
         },
         { status: 400 }
       );
@@ -230,17 +293,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Validate category
-    const validCategories = ['food', 'powder', 'paste', 'accessories'];
-    if (!validCategories.includes(fields.category)) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: 'Invalid category selected' },
-        { status: 400 }
-      );
-    }
+    // Note: The hardcoded category validation has been REMOVED
+    // Categories are now validated dynamically through validateCategoryHierarchy
 
     // Validate food type for food/powder categories
-    if ((fields.category === 'food' || fields.category === 'powder') && !fields.foodType) {
+    // You can determine food/powder categories based on your category names
+    const categoryDoc = await Category.findOne({ name: fields.category });
+    const isFoodOrPowderCategory = ['food', 'powder'].includes(fields.category.toLowerCase());
+    
+    if (isFoodOrPowderCategory && !fields.foodType) {
       return NextResponse.json(
         { error: 'Validation failed', details: 'Food type is required for food and powder categories' },
         { status: 400 }
@@ -256,6 +317,11 @@ export async function POST(req: NextRequest) {
       foodType: fields.foodType || null,
       hasVariants: hasVariants,
     };
+
+    // Add child subcategory if provided
+    if (fields.childSubCategory) {
+      productData.childSubCategory = fields.childSubCategory;
+    }
 
     // Add variant or standard data
     if (hasVariants) {
@@ -370,8 +436,7 @@ export async function POST(req: NextRequest) {
 
       productData.userId = session.user.id;
       productData.companyId = company._id;
-      productData.status = 'inactive'; // Products start as inactive
-
+      productData.status = 'pending'; // Products start as pending for admin approval
 
       const product = await Product.create(productData);
 
@@ -414,7 +479,7 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
-    const products = await Product.find({ userId: session.user.id, status:'approved'});
+    const products = await Product.find({ userId: session.user.id }).sort({ createdAt: -1 });
 
     return NextResponse.json({ 
       success: true,

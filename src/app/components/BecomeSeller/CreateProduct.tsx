@@ -33,6 +33,26 @@ interface CreateProductProps {
     initialData?: any;
 }
 
+interface Category {
+    _id: string;
+    name: string;
+    image?: string;
+    hasSubCategories: boolean;
+    subCategories: SubCategory[];
+}
+
+interface SubCategory {
+    name: string;
+    image?: string;
+    hasChildSubCategories: boolean;
+    childSubCategories: ChildSubCategory[];
+}
+
+interface ChildSubCategory {
+    name: string;
+    image?: string;
+}
+
 // Variant type options with their default units
 const VARIANT_TYPES = {
     weight: { label: 'Weight', units: ['g', 'kg', 'mg', 'lb', 'oz'] },
@@ -139,6 +159,9 @@ const MenuBar = ({ editor }: any) => {
 }
 
 const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData }) => {
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loadingCategories, setLoadingCategories] = useState(true);
+    
     const [formData, setFormData] = useState({
         productImages: [] as File[],
         badges: null as File | null,
@@ -150,12 +173,12 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         offerPrice: "",
         category: "",
         subCategory: "",
+        childSubCategory: "", // Add child subcategory field
         foodType: "",
         hasVariants: false,
     });
 
     const [variants, setVariants] = useState<Variant[]>([]);
-
     const [preview, setPreview] = useState({
         productImages: [] as string[],
         badges: ""
@@ -165,6 +188,30 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+    // Get available subcategories based on selected category
+    const availableSubCategories = React.useMemo(() => {
+        const selectedCategory = categories.find(cat => cat.name === formData.category);
+        return selectedCategory?.subCategories || [];
+    }, [categories, formData.category]);
+
+    // Get available child subcategories based on selected subcategory
+    const availableChildSubCategories = React.useMemo(() => {
+        const selectedCategory = categories.find(cat => cat.name === formData.category);
+        const selectedSubCategory = selectedCategory?.subCategories.find(sub => sub.name === formData.subCategory);
+        
+        if (selectedSubCategory?.hasChildSubCategories) {
+            return selectedSubCategory.childSubCategories;
+        }
+        return [];
+    }, [categories, formData.category, formData.subCategory]);
+
+    // Check if selected subcategory has child subcategories
+    const hasChildSubCategories = React.useMemo(() => {
+        const selectedCategory = categories.find(cat => cat.name === formData.category);
+        const selectedSubCategory = selectedCategory?.subCategories.find(sub => sub.name === formData.subCategory);
+        return selectedSubCategory?.hasChildSubCategories || false;
+    }, [categories, formData.category, formData.subCategory]);
 
     // Initialize Tiptap editor
     const editor = useEditor({
@@ -191,6 +238,31 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         },
     })
 
+    // Fetch categories on component mount
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+
+    const fetchCategories = async () => {
+        try {
+            setLoadingCategories(true);
+            const response = await fetch('/api/merchant/categories');
+            const data = await response.json();
+            
+            if (data.success) {
+                setCategories(data.categories);
+            } else {
+                console.error('Failed to fetch categories:', data.error);
+                setError('Failed to load categories. Please refresh the page.');
+            }
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            setError('Failed to load categories. Please check your connection.');
+        } finally {
+            setLoadingCategories(false);
+        }
+    };
+
     // Load initial data when editing
     useEffect(() => {
         if (initialData) {
@@ -205,6 +277,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 offerPrice: initialData.offerPrice?.toString() || "",
                 category: initialData.category || "",
                 subCategory: initialData.subCategory || "",
+                childSubCategory: initialData.childSubCategory || "",
                 foodType: initialData.foodType || "",
                 hasVariants: initialData.hasVariants || false,
             });
@@ -239,7 +312,6 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setFormData(prev => ({ ...prev, hasVariants: checked }));
         
         if (checked && variants.length === 0) {
-            // Add first variant automatically
             addVariant();
         }
     };
@@ -270,9 +342,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             if (v.id === id) {
                 const updated = { ...v, [field]: value };
                 
-                // Auto-generate display value when type, value, or unit changes
                 if (field === 'variantType' || field === 'variantValue' || field === 'variantUnit') {
-                    // Only auto-generate if displayValue is empty or was auto-generated before
                     if (!v.displayValue || v.displayValue === generateDisplayValue(v)) {
                         updated.displayValue = generateDisplayValue(updated);
                     }
@@ -294,12 +364,10 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 : variant.variantValue;
         }
         
-        // For predefined types like size, piece, pack - use value as is if it already contains the unit
         if (['size', 'piece', 'pack'].includes(variant.variantType)) {
             return variant.variantValue;
         }
         
-        // For weight and volume, combine value with unit
         return variant.variantUnit 
             ? `${variant.variantValue} ${variant.variantUnit}` 
             : variant.variantValue;
@@ -355,6 +423,11 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             case 'subCategory':
                 if (!value) errorMsg = 'Please select a subcategory';
                 break;
+            case 'childSubCategory':
+                if (hasChildSubCategories && !value) {
+                    errorMsg = 'Please select a child subcategory';
+                }
+                break;
         }
 
         setFieldErrors(prev => ({
@@ -372,6 +445,14 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setFormData((prev) => ({ ...prev, [name]: value }));
         setError('');
         validateField(name, value);
+        
+        // Reset dependent fields when parent category changes
+        if (name === 'category') {
+            setFormData(prev => ({ ...prev, subCategory: '', childSubCategory: '' }));
+        }
+        if (name === 'subCategory') {
+            setFormData(prev => ({ ...prev, childSubCategory: '' }));
+        }
     };
 
     const handleMultipleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -491,6 +572,14 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setFormData((prev) => ({ ...prev, [name]: value }));
         setError('');
         validateField(name, value);
+        
+        // Reset dependent fields
+        if (name === 'category') {
+            setFormData(prev => ({ ...prev, subCategory: '', childSubCategory: '' }));
+        }
+        if (name === 'subCategory') {
+            setFormData(prev => ({ ...prev, childSubCategory: '' }));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -514,10 +603,13 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             return;
         }
 
-        // Validate required fields
         const requiredFields = ['name', 'descriptionShort', 'category', 'subCategory'];
         
-        // Add quantity, price, offerPrice validation only if not using variants
+        // Add childSubCategory validation if the selected subcategory has child subcategories
+        if (hasChildSubCategories) {
+            requiredFields.push('childSubCategory');
+        }
+        
         if (!formData.hasVariants) {
             requiredFields.push('quantity', 'price', 'offerPrice');
         }
@@ -530,13 +622,11 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             }
         });
 
-        // Validate variants if enabled
         if (formData.hasVariants) {
             if (variants.length === 0) {
                 setError('Please add at least one variant');
                 hasErrors = true;
             } else {
-                // Validate each variant
                 variants.forEach((variant, index) => {
                     if (!variant.variantValue) {
                         setError(`Variant ${index + 1}: Value is required`);
@@ -591,11 +681,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 formDataToSend.append('existingImages', JSON.stringify(existingImages));
             }
 
-            // Add variant data
             formDataToSend.append('hasVariants', formData.hasVariants.toString());
             
             if (formData.hasVariants) {
-                // Convert variants to proper format
                 const variantsData = variants.map(v => ({
                     variantType: v.variantType,
                     variantUnit: v.variantUnit || undefined,
@@ -608,7 +696,6 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 formDataToSend.append('variants', JSON.stringify(variantsData));
             }
 
-            // Add other fields
             Object.entries(formData).forEach(([key, value]) => {
                 if (key !== 'productImages' && key !== 'hasVariants' && value !== null && value !== undefined) {
                     if (value instanceof File) {
@@ -636,7 +723,6 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
             setSuccess(data.message);
 
-            // Reset form
             setFormData({
                 productImages: [],
                 badges: null,
@@ -648,6 +734,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                 offerPrice: "",
                 category: "",
                 subCategory: "",
+                childSubCategory: "",
                 foodType: "",
                 hasVariants: false,
             });
@@ -667,6 +754,14 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             setLoading(false);
         }
     };
+
+    if (loadingCategories) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <div className="create-product-section min-vh-100 bg-light">
@@ -705,7 +800,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
                     <form onSubmit={handleSubmit}>
                         <div className="row g-4">
-                            {/* Product Images Section */}
+                            {/* Product Images Section (same as before) */}
                             <div className="col-12">
                                 <Box sx={{ 
                                     border: '2px dashed #006d21ff', 
@@ -942,6 +1037,78 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                 </div>
                             </div>
 
+                            {/* Dynamic Category Selection Section */}
+                            <div className="col-md-6">
+                                <FormControl fullWidth required error={!!fieldErrors.category}>
+                                    <InputLabel>Category</InputLabel>
+                                    <Select
+                                        name="category"
+                                        value={formData.category}
+                                        onChange={handleSelectChange}
+                                        disabled={loadingCategories}
+                                    >
+                                        {categories.map((category) => (
+                                            <MenuItem key={category._id} value={category.name}>
+                                                {category.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    {fieldErrors.category && (
+                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                                            {fieldErrors.category}
+                                        </Typography>
+                                    )}
+                                </FormControl>
+                            </div>
+
+                            {formData.category && availableSubCategories.length > 0 && (
+                                <div className="col-md-6">
+                                    <FormControl fullWidth required error={!!fieldErrors.subCategory}>
+                                        <InputLabel>Subcategory</InputLabel>
+                                        <Select
+                                            name="subCategory"
+                                            value={formData.subCategory}
+                                            onChange={handleSelectChange}
+                                        >
+                                            {availableSubCategories.map((subCategory, index) => (
+                                                <MenuItem key={index} value={subCategory.name}>
+                                                    {subCategory.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                        {fieldErrors.subCategory && (
+                                            <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                                                {fieldErrors.subCategory}
+                                            </Typography>
+                                        )}
+                                    </FormControl>
+                                </div>
+                            )}
+
+                            {formData.subCategory && hasChildSubCategories && availableChildSubCategories.length > 0 && (
+                                <div className="col-md-6">
+                                    <FormControl fullWidth required error={!!fieldErrors.childSubCategory}>
+                                        <InputLabel>Child Subcategory</InputLabel>
+                                        <Select
+                                            name="childSubCategory"
+                                            value={formData.childSubCategory}
+                                            onChange={handleSelectChange}
+                                        >
+                                            {availableChildSubCategories.map((child, index) => (
+                                                <MenuItem key={index} value={child.name}>
+                                                    {child.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                        {fieldErrors.childSubCategory && (
+                                            <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                                                {fieldErrors.childSubCategory}
+                                            </Typography>
+                                        )}
+                                    </FormControl>
+                                </div>
+                            )}
+
                             {/* Variant Toggle Section */}
                             <div className="col-12">
                                 <Divider sx={{ my: 2 }} />
@@ -1060,7 +1227,6 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                         </FormControl>
                                                     </Grid>
 
-                                                    {/* Conditional rendering based on variant type */}
                                                     {variant.variantType === 'custom' ? (
                                                         <>
                                                             <Grid item xs={12} sm={6} md={3}>
@@ -1098,10 +1264,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                                     placeholder="e.g., 500, 1, 2"
                                                                 />
                                                             </Grid>
-                                                            <Grid item xs={12} sm={6} md={3} >
-                                                                <FormControl fullWidth size="small"
-                                                                  sx={{ minWidth: 80 }} // Set your minimum width here
-                                                                >
+                                                            <Grid item xs={12} sm={6} md={3}>
+                                                                <FormControl fullWidth size="small">
                                                                     <InputLabel>Unit *</InputLabel>
                                                                     <Select
                                                                         value={variant.variantUnit}
@@ -1208,46 +1372,6 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                     </Button>
                                 </div>
                             )}
-
-                            <div className="col-md-6">
-                                <FormControl fullWidth required error={!!fieldErrors.category}>
-                                    <InputLabel>Category</InputLabel>
-                                    <Select
-                                        name="category"
-                                        value={formData.category}
-                                        onChange={handleSelectChange}
-                                    >
-                                        <MenuItem value="food">Food</MenuItem>
-                                        <MenuItem value="powder">Powder</MenuItem>
-                                        <MenuItem value="paste">Paste</MenuItem>
-                                        <MenuItem value="accessories">Accessories</MenuItem>
-                                    </Select>
-                                    {fieldErrors.category && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
-                                            {fieldErrors.category}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </div>
-
-                            <div className="col-md-6">
-                                <FormControl fullWidth required error={!!fieldErrors.subCategory}>
-                                    <InputLabel>Subcategory</InputLabel>
-                                    <Select
-                                        name="subCategory"
-                                        value={formData.subCategory}
-                                        onChange={handleSelectChange}>
-                                        <MenuItem value="pickle">Pickle</MenuItem>
-                                        <MenuItem value="spices">Spices</MenuItem>
-                                        <MenuItem value="snacks">Snacks</MenuItem>
-                                    </Select>
-                                    {fieldErrors.subCategory && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
-                                            {fieldErrors.subCategory}
-                                        </Typography>
-                                    )}
-                                </FormControl>
-                            </div>
 
                             {(formData.category === "food" || formData.category === "powder") && (
                                 <div className="col-12">

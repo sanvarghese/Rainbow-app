@@ -32,6 +32,7 @@ export interface IProduct extends Document {
 
   category: string;
   subCategory: string;
+  childSubCategory?: string; // For child subcategories
   foodType?: string;
   status: "pending" | "approved" | "rejected" | "removed";
   createdAt: Date;
@@ -73,7 +74,7 @@ const VariantSchema = new Schema<IVariant>(
       min: [0, "Offer price cannot be negative"],
     },
   },
-  { _id: true },
+  { _id: true }
 );
 
 const ProductSchema = new Schema<IProduct>(
@@ -93,9 +94,9 @@ const ProductSchema = new Schema<IProduct>(
       required: [true, "At least 2 product images are required"],
       validate: {
         validator: function (v: string[]) {
-          return v && v.length >= 2;
+          return v && v.length >= 2 && v.length <= 5;
         },
-        message: "At least 2 product images are required",
+        message: "At least 2 and maximum 5 product images are required",
       },
     },
     badges: {
@@ -104,6 +105,7 @@ const ProductSchema = new Schema<IProduct>(
     name: {
       type: String,
       required: [true, "Product name is required"],
+      trim: true,
     },
     descriptionShort: {
       type: String,
@@ -112,6 +114,7 @@ const ProductSchema = new Schema<IProduct>(
     },
     descriptionLong: {
       type: String,
+      default: "",
     },
     // Default fields for products without variants
     quantity: {
@@ -120,6 +123,7 @@ const ProductSchema = new Schema<IProduct>(
         return !this.hasVariants;
       },
       min: [0, "Quantity cannot be negative"],
+      default: 0,
     },
     price: {
       type: Number,
@@ -127,6 +131,7 @@ const ProductSchema = new Schema<IProduct>(
         return !this.hasVariants;
       },
       min: [0, "Price cannot be negative"],
+      default: 0,
     },
     offerPrice: {
       type: Number,
@@ -134,6 +139,7 @@ const ProductSchema = new Schema<IProduct>(
         return !this.hasVariants;
       },
       min: [0, "Offer price cannot be negative"],
+      default: 0,
     },
     // Variant fields
     hasVariants: {
@@ -151,19 +157,27 @@ const ProductSchema = new Schema<IProduct>(
         },
         message: "At least one variant is required when hasVariants is true",
       },
+      default: [],
     },
     category: {
       type: String,
       required: [true, "Category is required"],
-      enum: ["food", "powder", "paste", "accessories"],
+      trim: true,
     },
     subCategory: {
       type: String,
       required: [true, "Subcategory is required"],
+      trim: true,
+    },
+    childSubCategory: {
+      type: String,
+      trim: true,
+      default: null,
     },
     foodType: {
       type: String,
       enum: ["veg", "non-veg", null],
+      default: null,
     },
     status: {
       type: String,
@@ -174,8 +188,14 @@ const ProductSchema = new Schema<IProduct>(
   },
   {
     timestamps: true,
-  },
+  }
 );
+
+// Add indexes for better query performance
+ProductSchema.index({ userId: 1, status: 1 });
+ProductSchema.index({ companyId: 1 });
+ProductSchema.index({ category: 1, subCategory: 1 });
+ProductSchema.index({ createdAt: -1 });
 
 // Clear any existing model to avoid caching issues
 if (models.Product) {
