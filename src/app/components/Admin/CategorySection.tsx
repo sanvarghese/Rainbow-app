@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, FolderTree, Image as ImageIcon, X } from 'lucide-react';
+import { Plus, Edit, Trash2, FolderTree, Image as ImageIcon, X, Eye, EyeOff, Trash, RotateCcw } from 'lucide-react';
 
 interface ChildSubCategory {
   name: string;
@@ -21,6 +21,7 @@ interface Category {
   image?: string;
   hasSubCategories: boolean;
   subCategories: SubCategory[];
+  status: 'pending' | 'approved' | 'removed';
   createdAt: string;
 }
 
@@ -29,12 +30,14 @@ const CategorySection = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all'); // 'all', 'pending', 'approved', 'removed'
   
   const [formData, setFormData] = useState({
     name: '',
     image: '',
     hasSubCategories: false,
     subCategories: [] as SubCategory[],
+    status: 'pending' as 'pending' | 'approved' | 'removed',
   });
 
   const [newSubCategory, setNewSubCategory] = useState({
@@ -50,11 +53,16 @@ const CategorySection = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [statusFilter]);
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/admin/category');
+      setLoading(true);
+      let url = '/api/admin/category';
+      if (statusFilter !== 'all') {
+        url += `?status=${statusFilter}`;
+      }
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success) setCategories(data.categories);
     } catch (error) {
@@ -128,7 +136,7 @@ const CategorySection = () => {
     }
 
     try {
-      const url = editingCategory ? '/api/admin/category' : '/api/admin/category';
+      const url = '/api/admin/category';
       const method = editingCategory ? 'PUT' : 'POST';
 
       const payload = editingCategory
@@ -153,17 +161,50 @@ const CategorySection = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+  const handleDelete = async (id: string, hardDelete: boolean = false) => {
+    const message = hardDelete 
+      ? 'Are you sure you want to permanently delete this category? This action cannot be undone!' 
+      : 'Are you sure you want to move this category to trash?';
+    
+    if (!confirm(message)) return;
 
     try {
-      const res = await fetch(`/api/admin/category?id=${id}`, { method: 'DELETE' });
+      const url = hardDelete 
+        ? `/api/admin/category?id=${id}&hardDelete=true`
+        : `/api/admin/category?id=${id}`;
+      
+      const res = await fetch(url, { method: 'DELETE' });
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.error || 'Delete failed');
 
       fetchCategories();
       alert(data.message);
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+  const handleRestore = async (id: string) => {
+    if (!confirm('Are you sure you want to restore this category?')) return;
+
+    try {
+      const res = await fetch('/api/admin/category', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          name: categories.find(c => c._id === id)?.name,
+          status: 'pending', // Restore as pending for admin review
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Restore failed');
+
+      fetchCategories();
+      alert('Category restored successfully');
     } catch (error: any) {
       alert(error.message);
     }
@@ -181,6 +222,7 @@ const CategorySection = () => {
         hasChildSubCategories: sub.hasChildSubCategories || false,
         childSubCategories: sub.childSubCategories || [],
       })),
+      status: category.status,
     });
     setShowForm(true);
   };
@@ -231,7 +273,6 @@ const CategorySection = () => {
     const updatedSubCategories = [...formData.subCategories];
     updatedSubCategories[subIndex].childSubCategories.splice(childIndex, 1);
 
-    // If no more children, set flag to false
     if (updatedSubCategories[subIndex].childSubCategories.length === 0) {
       updatedSubCategories[subIndex].hasChildSubCategories = false;
     }
@@ -245,6 +286,7 @@ const CategorySection = () => {
       image: '',
       hasSubCategories: false,
       subCategories: [],
+      status: 'pending',
     });
     setNewSubCategory({
       name: '',
@@ -257,22 +299,51 @@ const CategorySection = () => {
     setShowForm(false);
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Approved</span>;
+      case 'pending':
+        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>;
+      case 'removed':
+        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Removed</span>;
+      default:
+        return null;
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-12">Loading categories...</div>;
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+      {/* Header with Filters */}
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <h2 className="text-2xl font-bold text-gray-800">Category Management</h2>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Category
-        </button>
+        <div className="flex gap-3">
+          {/* Status Filter */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+          >
+            <option value="all">All Categories</option>
+            <option value="approved">Approved</option>
+            <option value="pending">Pending</option>
+            <option value="removed">Removed</option>
+          </select>
+          
+          {statusFilter !== 'removed' && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add Category
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Form Modal */}
@@ -299,6 +370,20 @@ const CategorySection = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                   placeholder="Enter category name"
                 />
+              </div>
+
+              {/* Category Status */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="removed">Removed</option>
+                </select>
               </div>
 
               {/* Category Image */}
@@ -497,25 +582,85 @@ const CategorySection = () => {
       {/* Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {categories.map((category) => (
-          <div key={category._id} className="bg-white rounded-xl shadow-sm p-6">
+          <div key={category._id} className="bg-white rounded-xl shadow-sm p-6 relative">
+            {/* Status Badge - Top Right Corner */}
+            <div className="absolute top-4 right-4">
+              {getStatusBadge(category.status)}
+            </div>
+
+            {/* Created Date - Optional (shows when category was created) */}
+            <div className="absolute top-4 left-4">
+              <span className="text-xs text-gray-400">
+                {new Date(category.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+
             {category.image && (
               <img
                 src={category.image}
                 alt={category.name}
-                className="w-full h-32 object-cover rounded-lg mb-4"
+                className="w-full h-32 object-cover rounded-lg mb-4 mt-6"
               />
             )}
 
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="text-lg font-semibold text-gray-800">{category.name}</h3>
-              <div className="flex gap-2">
-                <button onClick={() => handleEdit(category)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                  <Edit className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleDelete(category._id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+            {!category.image && (
+              <div className="w-full h-32 bg-gray-100 rounded-lg mb-4 mt-6 flex items-center justify-center">
+                <ImageIcon className="w-12 h-12 text-gray-400" />
               </div>
+            )}
+
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-800">{category.name}</h3>
+              </div>
+              <div className="flex gap-2">
+                {category.status !== 'removed' ? (
+                  <>
+                    <button 
+                      onClick={() => handleEdit(category)} 
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit category"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(category._id, false)} 
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Move to trash"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => handleRestore(category._id)} 
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Restore category"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(category._id, true)} 
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Permanently delete"
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Status info text for better visibility */}
+            <div className="mb-3">
+              <p className="text-xs text-gray-500">
+                Status: <span className="font-medium">
+                  {category.status === 'approved' && '✓ Approved'}
+                  {category.status === 'pending' && '⏳ Pending Approval'}
+                  {category.status === 'removed' && '🗑️ In Trash'}
+                </span>
+              </p>
             </div>
 
             {category.hasSubCategories && category.subCategories.length > 0 && (
@@ -545,6 +690,13 @@ const CategorySection = () => {
                 </div>
               </div>
             )}
+
+            {/* No subcategories message */}
+            {!category.hasSubCategories && (
+              <div className="border-t pt-3">
+                <p className="text-xs text-gray-400">No subcategories</p>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -552,7 +704,15 @@ const CategorySection = () => {
       {categories.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl">
           <FolderTree className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No categories yet. Create your first category!</p>
+          <p className="text-gray-600">
+            {statusFilter === 'removed' 
+              ? 'No categories in trash' 
+              : statusFilter === 'pending'
+              ? 'No pending categories'
+              : statusFilter === 'approved'
+              ? 'No approved categories'
+              : 'No categories yet. Create your first category!'}
+          </p>
         </div>
       )}
     </div>

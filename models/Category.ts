@@ -1,4 +1,3 @@
-// models/Category.ts
 import mongoose, { Schema, models, Document } from 'mongoose';
 
 export interface IChildSubCategory {
@@ -18,6 +17,7 @@ export interface ICategory extends Document {
   image?: string;
   hasSubCategories: boolean;
   subCategories: ISubCategory[];
+  status: 'pending' | 'approved' | 'removed'; // Added status field
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,9 +44,18 @@ const CategorySchema = new Schema<ICategory>(
     image: { type: String },
     hasSubCategories: { type: Boolean, default: false },
     subCategories: [SubCategorySchema],
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'removed'],
+      default: 'pending',
+      required: true,
+    },
   },
   { timestamps: true }
 );
+
+// Add index for status queries
+CategorySchema.index({ status: 1 });
 
 const Category = models.Category || mongoose.model<ICategory>('Category', CategorySchema);
 

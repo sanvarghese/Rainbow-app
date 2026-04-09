@@ -31,6 +31,18 @@
     transform: scale(1.2);
 }
 
+.cat-list-scroll .container-fluid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cat-list-scroll .swiper {
+  width: 100%;
+  max-width: 1400px; /* Adjust as needed */
+  margin: 0 auto;
+}
+
 @media (max-width: 1700px) and (min-width: 1200px) {
     .category-box {
         width: 120px;
