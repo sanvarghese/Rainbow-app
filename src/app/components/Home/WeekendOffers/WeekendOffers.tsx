@@ -1,87 +1,105 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../WeekendOffers/WeekendOffers.css";
-import bigSale from "../../../../assets/images/bigsal.png";
-import megaOffer from "../../../../assets/images/offer.png";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image"; 
 
-// ✅ Define Offer type
-interface Offer {
-  id: number;
-  image: StaticImageData;
+interface WeekendOffer {
+  _id: string;
   title: string;
+  images: string[];
 }
 
 const WeekendOffers: React.FC = () => {
-  const [offers, setOffers] = useState<Offer[]>([]);
+  const [offers, setOffers] = useState<WeekendOffer[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchOffers = async (): Promise<void> => {
-    await new Promise((res) => setTimeout(res, 500));
+  const fetchOffers = async () => {
+    try {
+      const res = await fetch('/api/offers/weekend');
+      const data = await res.json();
 
-    const data: Offer[] = [
-      { id: 1, image: bigSale, title: "Big Sale" },
-      { id: 2, image: megaOffer, title: "Mega Offer" },
-      { id: 3, image: bigSale, title: "Big Sale Again" },
-      { id: 4, image: megaOffer, title: "Mega Deal" },
-      { id: 5, image: bigSale, title: "Final Sale" },
-      { id: 6, image: megaOffer, title: "Last Minute Offer" },
-    ];
-
-    setOffers(data);
+      if (data.success) {
+        setOffers(data.offers);
+      }
+    } catch (error) {
+      console.error("Failed to fetch weekend offers:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  // Example if you fetch from API instead:
-  // const fetchOffers = async (): Promise<void> => {
-  //   const response = await fetch("https://your-backend.com/api/weekend-offers");
-  //   const data: Offer[] = await response.json();
-  //   setOffers(data);
-  // };
 
   useEffect(() => {
     fetchOffers();
   }, []);
 
-  const settings: Slider["props"] = {
-    infinite: true,
+  // Create a flat array of all images from all offers
+  const allImages = offers.flatMap(offer => 
+    offer.images.map((imageUrl, index) => ({
+      id: `${offer._id}-${index}`,
+      title: offer.title,
+      imageUrl: imageUrl
+    }))
+  );
+
+  const settings = {
+    infinite: allImages.length > 1,
     speed: 800,
-    autoplay: true,
+    autoplay: allImages.length > 1,
     autoplaySpeed: 3000,
-    slidesToShow: 2,
+    slidesToShow: Math.min(2, allImages.length),
     slidesToScroll: 1,
     responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
+      { breakpoint: 1024, settings: { slidesToShow: Math.min(2, allImages.length) } },
+      { breakpoint: 768,  settings: { slidesToShow: 1 } },
     ],
   };
+
+  if (loading) {
+    return (
+      <section className="weekend-offers-banner">
+        <div className="container-fluid" id="week">
+          <div className="offer-wrapper">
+            <h2 className="offer-title">Weekend Offers</h2>
+            <div className="h-80 flex items-center justify-center text-gray-500">
+              Loading offers...
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (allImages.length === 0) {
+    return null;
+  }
 
   return (
     <section className="weekend-offers-banner">
       <div className="container-fluid" id="week">
         <div className="offer-wrapper">
           <h2 className="offer-title">Weekend Offers</h2>
+          
           <Slider {...settings} className="slider-container">
-            {offers.map((offer) => (
-              <div className="slide img-influid" key={offer.id}>
+            {allImages.map((image) => (
+              <div className="slide img-influid" key={image.id}>
                 <Image
-                  src={offer.image}
-                  alt={offer.title}
+                  src={image.imageUrl}
+                  alt={image.title}
+                  width={800}
+                  height={400}
                   className="offer-image"
                   priority
                 />
+                
+                {image.title && (
+                  <div className="absolute bottom-4 left-4 bg-black/60 text-white px-4 py-1 rounded">
+                    {image.title}
+                  </div>
+                )}
               </div>
             ))}
           </Slider>
@@ -89,6 +107,6 @@ const WeekendOffers: React.FC = () => {
       </div>
     </section>
   );
-};  
+};
 
 export default WeekendOffers;

@@ -13,8 +13,9 @@ import CompanyApprovalSection from '@/app/components/Admin/CompanyApprovalSectio
 import AdminCompanySection from '@/app/components/Admin/AdminCompanySection';
 import ProductApprovalSection from '@/app/components/Admin/ProductApprovalSection';
 import AdminProductSection from '@/app/components/Admin/AdminProductsSection';
+import WeekendOffersSection from '@/app/components/Admin/WeekendOffersSection';
 
-type SectionType = 'dashboard' | 'companies' | 'products' | 'approvals-companies' | 'approvals-products' | 'categories';
+type SectionType = 'dashboard' | 'companies' | 'products' | 'approvals-companies' | 'approvals-products' | 'categories' |'weekend-offers';  ;
 
 const AdminDashboardView = () => {
   const router = useRouter();
@@ -149,11 +150,10 @@ const AdminDashboardView = () => {
             <li>
               <button
                 onClick={() => handleSectionChange('dashboard')}
-                className={`flex items-center w-full p-3 rounded-lg font-medium transition-colors ${
-                  activeSection === 'dashboard'
+                className={`flex items-center w-full p-3 rounded-lg font-medium transition-colors ${activeSection === 'dashboard'
                     ? 'bg-green-50 text-green-700'
                     : 'hover:bg-gray-100 text-gray-700'
-                }`}
+                  }`}
               >
                 <Home className="w-5 h-5 mr-3" />
                 <span>Dashboard</span>
@@ -166,12 +166,24 @@ const AdminDashboardView = () => {
 
             <li>
               <button
-                onClick={() => handleSectionChange('categories')}
-                className={`flex items-center w-full p-3 rounded-lg transition-colors ${
-                  activeSection === 'categories'
+                onClick={() => handleSectionChange('weekend-offers')}
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'weekend-offers'
                     ? 'bg-green-50 text-green-700 font-medium'
                     : 'hover:bg-gray-100 text-gray-700'
-                }`}
+                  }`}
+              >
+                <FolderTree className="w-5 h-5 mr-3" />   {/* or use a lucide icon like Gift or Percent */}
+                <span>Weekend Offers</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                onClick={() => handleSectionChange('categories')}
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'categories'
+                    ? 'bg-green-50 text-green-700 font-medium'
+                    : 'hover:bg-gray-100 text-gray-700'
+                  }`}
               >
                 <FolderTree className="w-5 h-5 mr-3" />
                 <span>Categories</span>
@@ -181,11 +193,10 @@ const AdminDashboardView = () => {
             <li>
               <button
                 onClick={() => handleSectionChange('companies')}
-                className={`flex items-center w-full p-3 rounded-lg transition-colors ${
-                  activeSection === 'companies'
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'companies'
                     ? 'bg-green-50 text-green-700 font-medium'
                     : 'hover:bg-gray-100 text-gray-700'
-                }`}
+                  }`}
               >
                 <Building className="w-5 h-5 mr-3" />
                 <span>Companies</span>
@@ -195,11 +206,10 @@ const AdminDashboardView = () => {
             <li>
               <button
                 onClick={() => handleSectionChange('products')}
-                className={`flex items-center w-full p-3 rounded-lg transition-colors ${
-                  activeSection === 'products'
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'products'
                     ? 'bg-green-50 text-green-700 font-medium'
                     : 'hover:bg-gray-100 text-gray-700'
-                }`}
+                  }`}
               >
                 <Package className="w-5 h-5 mr-3" />
                 <span>Products</span>
@@ -213,14 +223,13 @@ const AdminDashboardView = () => {
             <li>
               <button
                 onClick={() => handleSectionChange('approvals-companies')}
-                className={`flex items-center w-full p-3 rounded-lg transition-colors ${
-                  activeSection === 'approvals-companies'
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'approvals-companies'
                     ? 'bg-green-50 text-green-700 font-medium'
                     : 'hover:bg-gray-100 text-gray-700'
-                }`}
+                  }`}
               >
                 <CheckSquare className="w-5 h-5 mr-3" />
-                <span className="flex-1 text-left">Company Approvals</span>
+                <span className="flex-1 text-left">Company Approvals </span>
                 {stats.pendingCompanies > 0 && (
                   <span className="px-2 py-0.5 bg-yellow-500 text-white text-xs rounded-full">
                     {stats.pendingCompanies}
@@ -232,11 +241,10 @@ const AdminDashboardView = () => {
             <li>
               <button
                 onClick={() => handleSectionChange('approvals-products')}
-                className={`flex items-center w-full p-3 rounded-lg transition-colors ${
-                  activeSection === 'approvals-products'
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'approvals-products'
                     ? 'bg-green-50 text-green-700 font-medium'
                     : 'hover:bg-gray-100 text-gray-700'
-                }`}
+                  }`}
               >
                 <CheckSquare className="w-5 h-5 mr-3" />
                 <span className="flex-1 text-left">Product Approvals</span>
@@ -289,7 +297,7 @@ const AdminDashboardView = () => {
                 {anchorEl && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={handleProfileMenuClose}></div>
-                    
+
                     <div className="absolute right-0 top-12 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                       <div className="p-3 border-b border-gray-200">
                         <div className="font-semibold text-gray-800">
@@ -355,7 +363,7 @@ const AdminDashboardView = () => {
           {activeSection === 'dashboard' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-800">Admin Overview</h2>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white rounded-xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
@@ -416,7 +424,7 @@ const AdminDashboardView = () => {
                     className="p-4 border-2 border-gray-200 rounded-lg hover:border-yellow-500 hover:bg-yellow-50 transition-all"
                   >
                     <Building className="w-8 h-8 text-yellow-600 mb-2" />
-                    <p className="font-semibold text-gray-800">Company Approvals</p>
+                    <p className="font-semibold text-gray-800">Company Approvals </p>
                     <p className="text-sm text-gray-600 mt-1">{stats.pendingCompanies} pending approval</p>
                   </button>
 
@@ -434,10 +442,11 @@ const AdminDashboardView = () => {
           )}
 
           {activeSection === 'categories' && <CategorySection />}
-          {activeSection === 'companies' && <AdminCompanySection/>}
+          {activeSection === 'companies' && <AdminCompanySection />}
           {activeSection === 'products' && <AdminProductSection />}
           {activeSection === 'approvals-companies' && <CompanyApprovalSection />}
           {activeSection === 'approvals-products' && <ProductApprovalSection />}
+          {activeSection === 'weekend-offers' && <WeekendOffersSection />}
         </div>
       </div>
 

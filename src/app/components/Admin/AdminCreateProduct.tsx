@@ -384,7 +384,7 @@ const AdminCreateProduct = ({ initialData, onSuccess }: AdminCreateProductProps)
             </div>
           )}
 
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Food Type</label>
             <div className="flex gap-4">
               {['veg', 'non-veg'].map(type => (
@@ -412,7 +412,7 @@ const AdminCreateProduct = ({ initialData, onSuccess }: AdminCreateProductProps)
                 <span className="text-sm">Not Specified</span>
               </label>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Short Description */}

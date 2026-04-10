@@ -29,7 +29,7 @@ const HomePage = () => {
       <TopSelling />
       <OrderBanner />
       <TopVendors />
-      <SpecialOffer />
+      {/* <SpecialOffer /> */}
       <CustomerServices />
       <WeeklyTopVenders />
       <Footer />
