@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Home, Users, Package, Bell, User, Edit, Lock, LogOut, Menu, X,
-  Building, CheckSquare, FolderTree, ShieldCheck
+  Building, CheckSquare, FolderTree, ShieldCheck,
+  ImageIcon
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -14,8 +15,9 @@ import AdminCompanySection from '@/app/components/Admin/AdminCompanySection';
 import ProductApprovalSection from '@/app/components/Admin/ProductApprovalSection';
 import AdminProductSection from '@/app/components/Admin/AdminProductsSection';
 import WeekendOffersSection from '@/app/components/Admin/WeekendOffersSection';
+import BannerSection from '@/app/components/Admin/BannerSection';
 
-type SectionType = 'dashboard' | 'companies' | 'products' | 'approvals-companies' | 'approvals-products' | 'categories' |'weekend-offers';  ;
+type SectionType = 'dashboard' | 'companies' | 'products' | 'approvals-companies' | 'approvals-products' | 'categories' | 'weekend-offers' | 'banners';;
 
 const AdminDashboardView = () => {
   const router = useRouter();
@@ -151,12 +153,39 @@ const AdminDashboardView = () => {
               <button
                 onClick={() => handleSectionChange('dashboard')}
                 className={`flex items-center w-full p-3 rounded-lg font-medium transition-colors ${activeSection === 'dashboard'
-                    ? 'bg-green-50 text-green-700'
-                    : 'hover:bg-gray-100 text-gray-700'
+                  ? 'bg-green-50 text-green-700'
+                  : 'hover:bg-gray-100 text-gray-700'
                   }`}
               >
                 <Home className="w-5 h-5 mr-3" />
                 <span>Dashboard</span>
+              </button>
+            </li>
+            <div className="pt-4 pb-2">
+              <p className="text-xs font-semibold text-gray-500 px-3">Settings</p>
+            </div>
+            <li>
+              <button
+                onClick={() => handleSectionChange('weekend-offers')}
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'weekend-offers'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+              >
+                <FolderTree className="w-5 h-5 mr-3" />   {/* or use a lucide icon like Gift or Percent */}
+                <span>Weekend Offers</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleSectionChange('banners')}
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'banners'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+              >
+                <ImageIcon className="w-5 h-5 mr-3" />
+                <span>Banners</span>
               </button>
             </li>
 
@@ -166,23 +195,10 @@ const AdminDashboardView = () => {
 
             <li>
               <button
-                onClick={() => handleSectionChange('weekend-offers')}
-                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'weekend-offers'
-                    ? 'bg-green-50 text-green-700 font-medium'
-                    : 'hover:bg-gray-100 text-gray-700'
-                  }`}
-              >
-                <FolderTree className="w-5 h-5 mr-3" />   {/* or use a lucide icon like Gift or Percent */}
-                <span>Weekend Offers</span>
-              </button>
-            </li>
-
-            <li>
-              <button
                 onClick={() => handleSectionChange('categories')}
                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'categories'
-                    ? 'bg-green-50 text-green-700 font-medium'
-                    : 'hover:bg-gray-100 text-gray-700'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
                   }`}
               >
                 <FolderTree className="w-5 h-5 mr-3" />
@@ -194,8 +210,8 @@ const AdminDashboardView = () => {
               <button
                 onClick={() => handleSectionChange('companies')}
                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'companies'
-                    ? 'bg-green-50 text-green-700 font-medium'
-                    : 'hover:bg-gray-100 text-gray-700'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
                   }`}
               >
                 <Building className="w-5 h-5 mr-3" />
@@ -203,18 +219,19 @@ const AdminDashboardView = () => {
               </button>
             </li>
 
-            <li>
+
+            {/* <li>
               <button
                 onClick={() => handleSectionChange('products')}
                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'products'
-                    ? 'bg-green-50 text-green-700 font-medium'
-                    : 'hover:bg-gray-100 text-gray-700'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
                   }`}
               >
                 <Package className="w-5 h-5 mr-3" />
                 <span>Products</span>
               </button>
-            </li>
+            </li> */}
 
             <div className="pt-4 pb-2">
               <p className="text-xs font-semibold text-gray-500 px-3">APPROVALS</p>
@@ -224,8 +241,8 @@ const AdminDashboardView = () => {
               <button
                 onClick={() => handleSectionChange('approvals-companies')}
                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'approvals-companies'
-                    ? 'bg-green-50 text-green-700 font-medium'
-                    : 'hover:bg-gray-100 text-gray-700'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
                   }`}
               >
                 <CheckSquare className="w-5 h-5 mr-3" />
@@ -242,8 +259,8 @@ const AdminDashboardView = () => {
               <button
                 onClick={() => handleSectionChange('approvals-products')}
                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'approvals-products'
-                    ? 'bg-green-50 text-green-700 font-medium'
-                    : 'hover:bg-gray-100 text-gray-700'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
                   }`}
               >
                 <CheckSquare className="w-5 h-5 mr-3" />
@@ -447,6 +464,8 @@ const AdminDashboardView = () => {
           {activeSection === 'approvals-companies' && <CompanyApprovalSection />}
           {activeSection === 'approvals-products' && <ProductApprovalSection />}
           {activeSection === 'weekend-offers' && <WeekendOffersSection />}
+          {activeSection === 'banners' && <BannerSection />}
+
         </div>
       </div>
 

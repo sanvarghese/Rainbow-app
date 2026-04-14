@@ -16,6 +16,7 @@ import TopVendors from './components/Home/TopVendors/TopVendors';
 import SpecialOffer from './components/Home/SpecialOffer/SpecialOffer';
 import WeeklyTopVenders from './components/Home/WeeklyTopVenders/WeeklyTopVenders';
 import CustomerServices from './components/Home/CustomerServices/CustomerServices';
+import SubCategory from './components/Home/SubCategory/SubCategory';
 
 const HomePage = () => {
   return (
@@ -24,7 +25,8 @@ const HomePage = () => {
       <Banner />
       <Advantages />
       <Category />
-      <Products />
+      {/* <Products /> */}
+      <SubCategory/>
       <WeekendOffers />
       <TopSelling />
       <OrderBanner />

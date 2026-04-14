@@ -1,20 +1,23 @@
-import type { NextConfig } from "next";
-
+// next.config.js
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    domains: ['localhost'],
     remotePatterns: [
       {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
         protocol: 'https',
-        hostname: 'www.dreamstime.com',   // Keep if you still use it
+        hostname: '**',
       },
     ],
-    // Allow local uploaded images (important!)
-    domains: ['localhost'],   // For development
-    // OR use remotePatterns for more control:
-    // remotePatterns: [
-    //   { protocol: 'http', hostname: 'localhost' },
-    // ],
   },
-};
+  // Allow uploading files
+  experimental: {
+    serverComponentsExternalPackages: ['sharp', 'multer'],
+  },
+}
 
-export default nextConfig;
+module.exports = nextConfig
