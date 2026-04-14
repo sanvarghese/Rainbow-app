@@ -95,11 +95,11 @@ const WeekendOffers: React.FC = () => {
                   priority
                 />
                 
-                {image.title && (
+                {/* {image.title && (
                   <div className="absolute bottom-4 left-4 bg-black/60 text-white px-4 py-1 rounded">
                     {image.title}
                   </div>
-                )}
+                )} */}
               </div>
             ))}
           </Slider>
