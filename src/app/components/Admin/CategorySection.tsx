@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, FolderTree, Image as ImageIcon, X, Eye, EyeOff, Trash, RotateCcw } from 'lucide-react';
+import { Plus, Edit, Trash2, FolderTree, Image as ImageIcon, X, Eye, EyeOff, Trash, RotateCcw, Save } from 'lucide-react';
 
 interface ChildSubCategory {
   name: string;
@@ -30,8 +30,8 @@ const CategorySection = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all'); // 'all', 'pending', 'approved', 'removed'
-  
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
   const [formData, setFormData] = useState({
     name: '',
     image: '',
@@ -50,6 +50,12 @@ const CategorySection = () => {
   const [newChildSubCategory, setNewChildSubCategory] = useState({ name: '', image: '' });
   const [uploading, setUploading] = useState(false);
   const [uploadingChildForIndex, setUploadingChildForIndex] = useState<number | null>(null);
+
+  // State for editing subcategories
+  const [editingSubCategoryIndex, setEditingSubCategoryIndex] = useState<number | null>(null);
+  const [editingSubCategoryData, setEditingSubCategoryData] = useState<SubCategory | null>(null);
+  const [editingChildSubCategory, setEditingChildSubCategory] = useState<{ subIndex: number; childIndex: number } | null>(null);
+  const [editingChildData, setEditingChildData] = useState<ChildSubCategory | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -72,22 +78,30 @@ const CategorySection = () => {
     }
   };
 
-  // Image Upload Function
   const uploadImage = async (file: File): Promise<string> => {
     setUploading(true);
     const formDataUpload = new FormData();
     formDataUpload.append('image', file);
 
-    const res = await fetch('/api/admin/upload', {
-      method: 'POST',
-      body: formDataUpload,
-    });
+    try {
+      const res = await fetch('/api/admin/category/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      });
 
-    const data = await res.json();
-    setUploading(false);
+      const data = await res.json();
 
-    if (!data.success) throw new Error(data.error || 'Upload failed');
-    return data.url;
+      if (!data.success) {
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      return data.url;
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      throw error;
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleCategoryImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,6 +143,83 @@ const CategorySection = () => {
     }
   };
 
+  // Edit Subcategory Handlers
+  const startEditSubCategory = (index: number) => {
+    setEditingSubCategoryIndex(index);
+    setEditingSubCategoryData({ ...formData.subCategories[index] });
+  };
+
+  const saveSubCategoryEdit = () => {
+    if (!editingSubCategoryData || editingSubCategoryIndex === null) return;
+    
+    if (!editingSubCategoryData.name) {
+      alert('Subcategory name is required');
+      return;
+    }
+
+    const updatedSubCategories = [...formData.subCategories];
+    updatedSubCategories[editingSubCategoryIndex] = editingSubCategoryData;
+    
+    setFormData({ ...formData, subCategories: updatedSubCategories });
+    cancelSubCategoryEdit();
+  };
+
+  const cancelSubCategoryEdit = () => {
+    setEditingSubCategoryIndex(null);
+    setEditingSubCategoryData(null);
+  };
+
+  const handleEditSubCategoryImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingSubCategoryData) return;
+
+    try {
+      const imageUrl = await uploadImage(file);
+      setEditingSubCategoryData({ ...editingSubCategoryData, image: imageUrl });
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+  // Edit Child Subcategory Handlers
+  const startEditChildSubCategory = (subIndex: number, childIndex: number) => {
+    setEditingChildSubCategory({ subIndex, childIndex });
+    setEditingChildData({ ...formData.subCategories[subIndex].childSubCategories[childIndex] });
+  };
+
+  const saveChildSubCategoryEdit = () => {
+    if (!editingChildSubCategory || !editingChildData) return;
+    
+    if (!editingChildData.name) {
+      alert('Child subcategory name is required');
+      return;
+    }
+
+    const { subIndex, childIndex } = editingChildSubCategory;
+    const updatedSubCategories = [...formData.subCategories];
+    updatedSubCategories[subIndex].childSubCategories[childIndex] = editingChildData;
+    
+    setFormData({ ...formData, subCategories: updatedSubCategories });
+    cancelChildSubCategoryEdit();
+  };
+
+  const cancelChildSubCategoryEdit = () => {
+    setEditingChildSubCategory(null);
+    setEditingChildData(null);
+  };
+
+  const handleEditChildImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingChildData) return;
+
+    try {
+      const imageUrl = await uploadImage(file);
+      setEditingChildData({ ...editingChildData, image: imageUrl });
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.name) {
       alert('Category name is required');
@@ -162,17 +253,17 @@ const CategorySection = () => {
   };
 
   const handleDelete = async (id: string, hardDelete: boolean = false) => {
-    const message = hardDelete 
-      ? 'Are you sure you want to permanently delete this category? This action cannot be undone!' 
+    const message = hardDelete
+      ? 'Are you sure you want to permanently delete this category? This action cannot be undone!'
       : 'Are you sure you want to move this category to trash?';
-    
+
     if (!confirm(message)) return;
 
     try {
-      const url = hardDelete 
+      const url = hardDelete
         ? `/api/admin/category?id=${id}&hardDelete=true`
         : `/api/admin/category?id=${id}`;
-      
+
       const res = await fetch(url, { method: 'DELETE' });
       const data = await res.json();
 
@@ -195,7 +286,7 @@ const CategorySection = () => {
         body: JSON.stringify({
           id,
           name: categories.find(c => c._id === id)?.name,
-          status: 'pending', // Restore as pending for admin review
+          status: 'pending',
         }),
       });
 
@@ -297,6 +388,10 @@ const CategorySection = () => {
     setNewChildSubCategory({ name: '', image: '' });
     setEditingCategory(null);
     setShowForm(false);
+    setEditingSubCategoryIndex(null);
+    setEditingSubCategoryData(null);
+    setEditingChildSubCategory(null);
+    setEditingChildData(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -322,7 +417,6 @@ const CategorySection = () => {
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h2 className="text-2xl font-bold text-gray-800">Category Management</h2>
         <div className="flex gap-3">
-          {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -333,7 +427,7 @@ const CategorySection = () => {
             <option value="pending">Pending</option>
             <option value="removed">Removed</option>
           </select>
-          
+
           {statusFilter !== 'removed' && (
             <button
               onClick={() => setShowForm(true)}
@@ -446,78 +540,196 @@ const CategorySection = () => {
                   {/* Existing Subcategories */}
                   {formData.subCategories.map((sub, subIndex) => (
                     <div key={subIndex} className="mb-6 p-4 border border-gray-200 rounded-xl bg-gray-50">
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-3">
-                          {sub.image && <img src={sub.image} className="w-12 h-12 object-cover rounded-lg" />}
-                          <div>
-                            <p className="font-medium text-gray-800">{sub.name}</p>
-                            {sub.hasChildSubCategories && (
-                              <p className="text-xs text-blue-600">Has child subcategories ({sub.childSubCategories.length})</p>
+                      {editingSubCategoryIndex === subIndex ? (
+                        // Edit Mode for Subcategory
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center mb-3">
+                            <h5 className="font-medium text-blue-600">Editing Subcategory</h5>
+                            <button onClick={cancelSubCategoryEdit} className="text-gray-500 hover:text-gray-700">
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                          
+                          <input
+                            type="text"
+                            value={editingSubCategoryData?.name || ''}
+                            onChange={(e) => setEditingSubCategoryData({ ...editingSubCategoryData!, name: e.target.value })}
+                            className="w-full px-4 py-2 border rounded-lg"
+                            placeholder="Subcategory name"
+                          />
+                          
+                          <div className="flex items-center gap-3">
+                            {editingSubCategoryData?.image && (
+                              <img src={editingSubCategoryData.image} className="w-16 h-16 object-cover rounded-lg" />
                             )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleEditSubCategoryImageChange}
+                              className="hidden"
+                              id={`edit-sub-image-${subIndex}`}
+                            />
+                            <label
+                              htmlFor={`edit-sub-image-${subIndex}`}
+                              className="cursor-pointer px-4 py-2 border rounded-lg text-sm hover:bg-gray-50"
+                            >
+                              {uploading ? 'Uploading...' : 'Change Image'}
+                            </label>
+                            <button
+                              onClick={saveSubCategoryEdit}
+                              className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                            >
+                              <Save className="w-4 h-4" /> Save Changes
+                            </button>
                           </div>
                         </div>
-                        <button onClick={() => removeSubCategory(subIndex)} className="text-red-600 hover:text-red-700">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      {/* Child Subcategories */}
-                      {sub.hasChildSubCategories && sub.childSubCategories.length > 0 && (
-                        <div className="ml-8 mt-3 space-y-2">
-                          {sub.childSubCategories.map((child, childIndex) => (
-                            <div key={childIndex} className="flex items-center justify-between bg-white p-3 rounded-lg border">
-                              <div className="flex items-center gap-3">
-                                {child.image && <img src={child.image} className="w-8 h-8 object-cover rounded" />}
-                                <span className="text-sm">{child.name}</span>
+                      ) : (
+                        // View Mode for Subcategory
+                        <>
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center gap-3 flex-1">
+                              {sub.image && <img src={sub.image} className="w-12 h-12 object-cover rounded-lg" />}
+                              <div>
+                                <p className="font-medium text-gray-800">{sub.name}</p>
+                                {sub.hasChildSubCategories && (
+                                  <p className="text-xs text-blue-600">Has child subcategories ({sub.childSubCategories.length})</p>
+                                )}
                               </div>
-                              <button
-                                onClick={() => removeChildSubCategory(subIndex, childIndex)}
-                                className="text-red-600 hover:text-red-700"
+                            </div>
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => startEditSubCategory(subIndex)} 
+                                className="text-blue-600 hover:text-blue-700 p-1"
+                                title="Edit subcategory"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Edit className="w-5 h-5" />
+                              </button>
+                              <button 
+                                onClick={() => removeSubCategory(subIndex)} 
+                                className="text-red-600 hover:text-red-700 p-1"
+                                title="Remove subcategory"
+                              >
+                                <Trash2 className="w-5 h-5" />
                               </button>
                             </div>
-                          ))}
-                        </div>
-                      )}
+                          </div>
 
-                      {/* Add Child Subcategory */}
-                      <div className="ml-8 mt-4 p-4 bg-white border rounded-lg">
-                        <p className="text-sm font-medium mb-3 text-gray-700">Add Child Subcategory (Optional)</p>
-                        <input
-                          type="text"
-                          value={newChildSubCategory.name}
-                          onChange={(e) => setNewChildSubCategory({ ...newChildSubCategory, name: e.target.value })}
-                          placeholder="Child subcategory name"
-                          className="w-full px-4 py-2 border rounded-lg mb-3"
-                        />
-
-                        <div className="flex items-center gap-3">
-                          {newChildSubCategory.image && (
-                            <img src={newChildSubCategory.image} className="w-10 h-10 object-cover rounded" />
+                          {/* Child Subcategories */}
+                          {sub.hasChildSubCategories && sub.childSubCategories.length > 0 && (
+                            <div className="ml-8 mt-3 space-y-2">
+                              {sub.childSubCategories.map((child, childIndex) => (
+                                <div key={childIndex} className="flex items-center justify-between bg-white p-3 rounded-lg border">
+                                  {editingChildSubCategory?.subIndex === subIndex && 
+                                   editingChildSubCategory?.childIndex === childIndex ? (
+                                    // Edit Mode for Child
+                                    <div className="flex-1 space-y-3">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-sm font-medium text-blue-600">Editing Child</span>
+                                        <button onClick={cancelChildSubCategoryEdit} className="text-gray-500">
+                                          <X className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                      <input
+                                        type="text"
+                                        value={editingChildData?.name || ''}
+                                        onChange={(e) => setEditingChildData({ ...editingChildData!, name: e.target.value })}
+                                        className="w-full px-3 py-2 border rounded-lg text-sm"
+                                        placeholder="Child name"
+                                      />
+                                      <div className="flex items-center gap-2">
+                                        {editingChildData?.image && (
+                                          <img src={editingChildData.image} className="w-10 h-10 object-cover rounded" />
+                                        )}
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          onChange={handleEditChildImageChange}
+                                          className="hidden"
+                                          id={`edit-child-image-${subIndex}-${childIndex}`}
+                                        />
+                                        <label
+                                          htmlFor={`edit-child-image-${subIndex}-${childIndex}`}
+                                          className="cursor-pointer px-3 py-1 border rounded text-sm hover:bg-gray-50"
+                                        >
+                                          {uploading ? 'Uploading...' : 'Change Image'}
+                                        </label>
+                                        <button
+                                          onClick={saveChildSubCategoryEdit}
+                                          className="px-3 py-1 bg-green-600 text-white rounded text-sm flex items-center gap-1"
+                                        >
+                                          <Save className="w-3 h-3" /> Save
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    // View Mode for Child
+                                    <>
+                                      <div className="flex items-center gap-3">
+                                        {child.image && <img src={child.image} className="w-8 h-8 object-cover rounded" />}
+                                        <span className="text-sm">{child.name}</span>
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => startEditChildSubCategory(subIndex, childIndex)}
+                                          className="text-blue-600 hover:text-blue-700"
+                                          title="Edit child"
+                                        >
+                                          <Edit className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                          onClick={() => removeChildSubCategory(subIndex, childIndex)}
+                                          className="text-red-600 hover:text-red-700"
+                                          title="Remove child"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
                           )}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleChildSubCategoryImageChange(e, subIndex)}
-                            className="hidden"
-                            id={`child-image-${subIndex}`}
-                          />
-                          <label
-                            htmlFor={`child-image-${subIndex}`}
-                            className="cursor-pointer px-4 py-2 border rounded-lg text-sm hover:bg-gray-50"
-                          >
-                            {uploadingChildForIndex === subIndex ? 'Uploading...' : 'Upload Image'}
-                          </label>
 
-                          <button
-                            onClick={() => addChildSubCategory(subIndex)}
-                            className="px-5 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
-                          >
-                            Add Child
-                          </button>
-                        </div>
-                      </div>
+                          {/* Add Child Subcategory */}
+                          <div className="ml-8 mt-4 p-4 bg-white border rounded-lg">
+                            <p className="text-sm font-medium mb-3 text-gray-700">Add Child Subcategory (Optional)</p>
+                            <input
+                              type="text"
+                              value={newChildSubCategory.name}
+                              onChange={(e) => setNewChildSubCategory({ ...newChildSubCategory, name: e.target.value })}
+                              placeholder="Child subcategory name"
+                              className="w-full px-4 py-2 border rounded-lg mb-3"
+                            />
+
+                            <div className="flex items-center gap-3">
+                              {newChildSubCategory.image && (
+                                <img src={newChildSubCategory.image} className="w-10 h-10 object-cover rounded" />
+                              )}
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleChildSubCategoryImageChange(e, subIndex)}
+                                className="hidden"
+                                id={`child-image-${subIndex}`}
+                              />
+                              <label
+                                htmlFor={`child-image-${subIndex}`}
+                                className="cursor-pointer px-4 py-2 border rounded-lg text-sm hover:bg-gray-50"
+                              >
+                                {uploadingChildForIndex === subIndex ? 'Uploading...' : 'Upload Image'}
+                              </label>
+
+                              <button
+                                onClick={() => addChildSubCategory(subIndex)}
+                                className="px-5 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                              >
+                                Add Child
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
 
@@ -545,7 +757,7 @@ const CategorySection = () => {
                         htmlFor="sub-image"
                         className="cursor-pointer px-4 py-2 mt-2 border rounded-lg text-sm hover:bg-gray-50"
                       >
-                        Upload Sub Image (optional)
+                        {uploading ? 'Uploading...' : 'Upload Sub Image (optional)'}
                       </label>
                     </div>
 
@@ -588,7 +800,7 @@ const CategorySection = () => {
               {getStatusBadge(category.status)}
             </div>
 
-            {/* Created Date - Optional (shows when category was created) */}
+            {/* Created Date */}
             <div className="absolute top-4 left-4">
               <span className="text-xs text-gray-400">
                 {new Date(category.createdAt).toLocaleDateString()}
@@ -616,15 +828,15 @@ const CategorySection = () => {
               <div className="flex gap-2">
                 {category.status !== 'removed' ? (
                   <>
-                    <button 
-                      onClick={() => handleEdit(category)} 
+                    <button
+                      onClick={() => handleEdit(category)}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Edit category"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button 
-                      onClick={() => handleDelete(category._id, false)} 
+                    <button
+                      onClick={() => handleDelete(category._id, false)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Move to trash"
                     >
@@ -633,15 +845,15 @@ const CategorySection = () => {
                   </>
                 ) : (
                   <>
-                    <button 
-                      onClick={() => handleRestore(category._id)} 
+                    <button
+                      onClick={() => handleRestore(category._id)}
                       className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                       title="Restore category"
                     >
                       <RotateCcw className="w-4 h-4" />
                     </button>
-                    <button 
-                      onClick={() => handleDelete(category._id, true)} 
+                    <button
+                      onClick={() => handleDelete(category._id, true)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Permanently delete"
                     >
@@ -652,7 +864,7 @@ const CategorySection = () => {
               </div>
             </div>
 
-            {/* Status info text for better visibility */}
+            {/* Status info text */}
             <div className="mb-3">
               <p className="text-xs text-gray-500">
                 Status: <span className="font-medium">
@@ -705,13 +917,13 @@ const CategorySection = () => {
         <div className="text-center py-12 bg-white rounded-xl">
           <FolderTree className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600">
-            {statusFilter === 'removed' 
-              ? 'No categories in trash' 
+            {statusFilter === 'removed'
+              ? 'No categories in trash'
               : statusFilter === 'pending'
-              ? 'No pending categories'
-              : statusFilter === 'approved'
-              ? 'No approved categories'
-              : 'No categories yet. Create your first category!'}
+                ? 'No pending categories'
+                : statusFilter === 'approved'
+                  ? 'No approved categories'
+                  : 'No categories yet. Create your first category!'}
           </p>
         </div>
       )}
