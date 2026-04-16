@@ -180,7 +180,7 @@ const ProductList = () => {
                                         }
                                     </h4>
 
-                                    <div className="sort-section">
+                                    {/* <div className="sort-section">
                                         <span className="sort-label">Sort by:</span>
                                         <select
                                             className="sort-dropdown box-wrapper"
@@ -194,7 +194,7 @@ const ProductList = () => {
                                                 </option>
                                             ))}
                                         </select>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 {/* Loading State */}

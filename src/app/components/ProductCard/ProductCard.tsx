@@ -172,7 +172,7 @@ const handleAddToCart = async (e: React.MouseEvent) => {
             <button
               onClick={toggleWishlist}
               style={{
-                background: isWishlisted ? '#ff4444' : 'rgba(255, 255, 255, 0.8)',
+                background: isWishlisted ? '#ff4444' : 'rgb(0, 127, 39)',
                 border: 'none',
                 borderRadius: '50%',
                 width: '32px',
@@ -207,7 +207,7 @@ const handleAddToCart = async (e: React.MouseEvent) => {
               onClick={handleAddToCart}
               disabled={isAddingToCart}
               style={{
-                background: 'rgba(255, 255, 255, 0.8)',
+                background: 'rgb(0, 127, 39)',
                 border: 'none',
                 borderRadius: '50%',
                 width: '32px',
@@ -226,7 +226,7 @@ const handleAddToCart = async (e: React.MouseEvent) => {
               }}
               onMouseLeave={(e) => {
                 if (!isAddingToCart) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)';
+                  e.currentTarget.style.background = 'rgb(0, 127, 39)';
                 }
               }}
             >

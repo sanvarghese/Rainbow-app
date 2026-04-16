@@ -107,7 +107,7 @@ const SearchBar = () => {
                   </button>
                 </div>
 
-                <div className="ms-2" style={{ maxWidth: "150px" }}>
+                {/* <div className="ms-2" style={{ maxWidth: "150px" }}>
                   <select
                     className="form-select"
                     value={selectedLocation}
@@ -118,7 +118,7 @@ const SearchBar = () => {
                     <option value="Suburbs">Suburbs</option>
                     <option value="Online">Online</option>
                   </select>
-                </div>
+                </div> */}
               </div>
             </form>
           )}

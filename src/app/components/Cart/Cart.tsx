@@ -97,7 +97,7 @@ const Cart = () => {
                     Sold by: {item.companyId.name}
                   </h6>
                   <div className="amount">
-                    ₹{item.price}{" "}
+                    ₹{item.offerPrice}{" "}
                     {item.productId.offerPrice < item.productId.price && (
                       <span className="text-muted text-decoration-line-through">
                         ₹{item.productId.price}
