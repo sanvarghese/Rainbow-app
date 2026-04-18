@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './globals.css';
 import SessionProvider from '../../components/SessionProvider';
 import { CartProvider } from '@/context/CartContext';
+import { WishlistProvider } from '@/context/WishlistContext';
 
 export const metadata: Metadata = {
   title: 'Your App Name',
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <CartProvider>
+          <WishlistProvider>
           <SessionProvider>{children}</SessionProvider>
+          </WishlistProvider>
         </CartProvider>
 
       </body>

@@ -1,25 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import DefaultProductImage from "../../../assets/images/defaultProduct.jpg";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 interface ProductCardProps {
   id: string;
-  img: string;
+  img?: string;
   title: string;
   subtitle: string;
-  rating: string;
-  reviews: string;
-  oldPrice: string;
+  rating?: string;
+  reviews?: string;
+  oldPrice?: string;
   newPrice: string;
   discount?: number;
-  // Additional props for cart functionality
   productId: string;
   price: number;
   offerPrice: number;
-  companyId: string;
+  companyId?: string;
   productImage?: string;
 }
 
@@ -28,101 +28,154 @@ const ProductCard: React.FC<ProductCardProps> = ({
   img,
   title,
   subtitle,
-  rating,
-  reviews,
+  rating = "4.7",
+  reviews = "120",
   oldPrice,
   newPrice,
   discount,
-  // Cart props
   productId,
   price,
   offerPrice,
   companyId,
   productImage,
-
-  
 }) => {
   const [imageSrc, setImageSrc] = useState(img || productImage || DefaultProductImage.src);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  
+  const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const { addToCart } = useCart();
+  const { wishlist, addToWishlist, isInWishlist, fetchWishlist } = useWishlist();
 
-  console.log(productId,"product id..!",id,'id..!')
+  const actualProductId = String(productId || id);
+  const hasMounted = useRef(false);
 
-const handleAddToCart = async (e: React.MouseEvent) => {
-  e.stopPropagation();
-  setIsAddingToCart(true);
-  try {
-    console.log("=== ADD TO CART CLICKED ===");
-    console.log("Product ID from props:", productId);
-    console.log("Product ID from id prop:", id);
-    console.log("All props:", { id, productId, price, offerPrice, companyId });
-    
-    // Use productId if available, otherwise fall back to id
-    const actualProductId = productId || id;
-    console.log("Using product ID:", actualProductId);
-    
-    if (!actualProductId) {
-      throw new Error("No product ID available");
+  console.log(wishlist,"wishlist from product card..!")
+  // Add this useEffect temporarily to debug
+useEffect(() => {
+  console.log('=== Wishlist Debug ===');
+  console.log('Product ID:', actualProductId);
+  console.log('Wishlist items:', wishlist.items);
+  console.log('Is in wishlist function result:', isInWishlist(actualProductId));
+  console.log('Wishlist loading:', wishlist.loading);
+  console.log('Current isWishlisted state:', isWishlisted);
+}, [actualProductId, wishlist.items, isInWishlist, wishlist.loading]);
+
+  // Fetch wishlist on mount if needed
+  useEffect(() => {
+    if (!hasMounted.current && wishlist.items.length === 0 && !wishlist.loading) {
+      fetchWishlist();
     }
-    
-    await addToCart(actualProductId, 1);
-    console.log("✅ Product added to cart successfully!");
-    
-    // Optional: Show success message
-    // You can add a toast notification here
-    
-  } catch (error: any) {
-    console.error("Error details:", {
-      message: error.message,
-      stack: error.stack
-    });
-    
-    // Show user-friendly error message
-    console.log(error.message, "error message.!")
-  } finally {
-    setIsAddingToCart(false);
-  }
-};
+    hasMounted.current = true;
+  }, []);
 
-  const handleBuyNow = async (e: React.MouseEvent) => {
+  // Sync wishlist status - THIS IS THE CRITICAL PART
+  useEffect(() => {
+    if (!actualProductId) return;
+    
+    // Don't update while loading
+    if (wishlist.loading) {
+      setIsLoading(true);
+      return;
+    }
+
+    // Check if product is in wishlist
+    const inWishlist = isInWishlist(actualProductId);
+    
+    console.log(`🔍 Product ${actualProductId} - In wishlist: ${inWishlist}`);
+    console.log(`📋 Current wishlist items:`, wishlist.items.map(item => String(item.productId)));
+    
+    setIsWishlisted(inWishlist);
+    setIsLoading(false);
+  }, [actualProductId, wishlist.items, wishlist.loading, isInWishlist]);
+
+  const toggleWishlist = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!actualProductId || isTogglingWishlist || wishlist.loading) return;
+
+    setIsTogglingWishlist(true);
+    const previousState = isWishlisted;
+    
+    // Optimistic update
+    setIsWishlisted(!previousState);
+
+    try {
+      await addToWishlist(actualProductId);
+      
+      // Force a refresh of the wishlist to ensure consistency
+      await fetchWishlist();
+      
+      // After refresh, sync again
+      setTimeout(() => {
+        const newState = isInWishlist(actualProductId);
+        setIsWishlisted(newState);
+      }, 100);
+      
+    } catch (error: any) {
+      console.error("Wishlist toggle error:", error);
+      // Revert on error
+      setIsWishlisted(previousState);
+      alert(error.message || "Failed to update wishlist");
+    } finally {
+      setIsTogglingWishlist(false);
+    }
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!actualProductId) return;
     setIsAddingToCart(true);
     try {
-      await addToCart(id, 1);
-      // Redirect to cart page after adding
-      window.location.href = '/cart';
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
+      await addToCart(actualProductId, 1);
+    } catch (error: any) {
+      alert(error.message || "Failed to add to cart");
     } finally {
       setIsAddingToCart(false);
     }
   };
 
-  const toggleWishlist = (e: React.MouseEvent) => {
+  const handleBuyNow = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-    // You can add API call to update wishlist here
-    console.log(`${isWishlisted ? 'Removed from' : 'Added to'} wishlist:`, id);
+    if (!actualProductId) return;
+    setIsAddingToCart(true);
+    try {
+      await addToCart(actualProductId, 1);
+      window.location.href = '/cart';
+    } catch (error: any) {
+      alert("Failed to add to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   const handleCardClick = () => {
-    // Navigate to product detail page
     window.location.href = `/shop/${id}`;
   };
 
-  // Calculate actual discount percentage
-  const actualPrice = parseFloat(oldPrice.replace('₹', '')) || price;
-  const discountedPrice = parseFloat(newPrice.replace('₹', '')) || offerPrice;
-  const calculatedDiscount = actualPrice > discountedPrice 
-    ? Math.round(((actualPrice - discountedPrice) / actualPrice) * 100)
-    : discount || 0;
+  const actualOldPrice = oldPrice ? parseFloat(oldPrice.replace('₹', '')) : price;
+  const actualNewPrice = parseFloat(newPrice.replace('₹', '')) || offerPrice;
+  const calculatedDiscount = actualOldPrice > actualNewPrice
+    ? Math.round(((actualOldPrice - actualNewPrice) / actualOldPrice) * 100)
+    : (discount || 0);
+
+  // Show loading state while checking wishlist
+  if (isLoading) {
+    return (
+      <div className="youmightlikecard" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+        <div className="card topcard3">
+          <div className="cardimgdiv3" style={{ position: 'relative', height: '200px', background: '#f0f0f0' }} />
+          <div className="card-body">
+            <div style={{ height: '60px', background: '#f0f0f0' }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="youmightlikecard" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       <div className="card topcard3">
-        {/* Product Image */}
         <div className="cardimgdiv3" style={{ position: 'relative' }}>
           <Image
             className="topimg3"
@@ -134,45 +187,27 @@ const handleAddToCart = async (e: React.MouseEvent) => {
             onError={() => setImageSrc(DefaultProductImage.src)}
           />
 
-          {/* Discount Badge */}
           {calculatedDiscount > 0 && (
-            <div 
-              className="discount-badge" 
-              style={{
-                position: 'absolute',
-                top: '10px',
-                left: '10px',
-                backgroundColor: '#007F27',
-                color: 'white',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                zIndex: 2
-              }}
-            >
+            <div className="discount-badge" style={{
+              position: 'absolute', top: '10px', left: '10px',
+              backgroundColor: '#007F27', color: 'white',
+              padding: '4px 8px', borderRadius: '4px',
+              fontSize: '12px', fontWeight: 'bold', zIndex: 2
+            }}>
               {calculatedDiscount}% OFF
             </div>
           )}
 
-          {/* Wishlist & Cart icons */}
-          <div 
-            className="icons" 
-            style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-              zIndex: 2
-            }}
-          >
-            {/* Wishlist Icon */}
+          <div className="icons" style={{
+            position: 'absolute', top: '10px', right: '10px',
+            display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 2
+          }}>
+            {/* Wishlist Button - RED when active, GREEN when not */}
             <button
               onClick={toggleWishlist}
+              disabled={isTogglingWishlist || wishlist.loading}
               style={{
-                background: isWishlisted ? '#ff4444' : 'rgb(0, 127, 39)',
+                background: isWishlisted ? '#ff4444' : '#007F27',
                 border: 'none',
                 borderRadius: '50%',
                 width: '32px',
@@ -180,34 +215,27 @@ const handleAddToCart = async (e: React.MouseEvent) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
+                cursor: (isTogglingWishlist || wishlist.loading) ? 'not-allowed' : 'pointer',
+                opacity: (isTogglingWishlist || wishlist.loading) ? 0.7 : 1,
+                transition: 'all 0.2s ease',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = isWishlisted ? '#ff4444' : 'rgba(255, 255, 255, 1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = isWishlisted ? '#ff4444' : 'rgba(255, 255, 255, 0.8)';
-              }}
+              title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill={isWishlisted ? "white" : "currentColor"}
-                className="wishlisttop bi bi-suit-heart-fill"
-                viewBox="0 0 16 16"
-              >
-                <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1" />
-              </svg>
+              {(isTogglingWishlist || wishlist.loading) ? (
+                <div style={{ width: '16px', height: '16px', border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
+                  <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1" />
+                </svg>
+              )}
             </button>
 
-            {/* Cart Icon */}
+            {/* Cart Button */}
             <button
               onClick={handleAddToCart}
               disabled={isAddingToCart}
               style={{
-                background: 'rgb(0, 127, 39)',
+                background: '#007F27',
                 border: 'none',
                 borderRadius: '50%',
                 width: '32px',
@@ -217,40 +245,13 @@ const handleAddToCart = async (e: React.MouseEvent) => {
                 justifyContent: 'center',
                 cursor: isAddingToCart ? 'not-allowed' : 'pointer',
                 opacity: isAddingToCart ? 0.6 : 1,
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                if (!isAddingToCart) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 1)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isAddingToCart) {
-                  e.currentTarget.style.background = 'rgb(0, 127, 39)';
-                }
               }}
             >
               {isAddingToCart ? (
-                <div 
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    border: '2px solid #ccc',
-                    borderTop: '2px solid #007bff',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}
-                />
+                <div style={{ width: '16px', height: '16px', border: '2px solid #ccc', borderTop: '2px solid #007bff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="carttop bi bi-cart-fill"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
+                  <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 4 1 1 0 0 1 0-4m7 0a1 1 0 1 1 0 4 1 1 0 0 1 0-4" />
                 </svg>
               )}
             </button>
@@ -266,24 +267,29 @@ const handleAddToCart = async (e: React.MouseEvent) => {
             {title}
           </h6>
           <h5 className="card-text" style={{ fontSize: '14px', marginBottom: '12px' }}>
-            {rating} <span className="star3" style={{ color: '#ffc107' }}>★</span> ({reviews})
+            {rating} ★ ({reviews})
           </h5>
+
           <div className="row row-2" style={{ alignItems: 'center' }}>
             <div className="col-6">
-              {oldPrice && parseFloat(oldPrice.replace('₹', '')) > parseFloat(newPrice.replace('₹', '')) && (
+              {oldPrice && actualOldPrice > actualNewPrice ? (
                 <>
                   <span style={{ textDecoration: 'line-through', color: '#6c757d', fontSize: '14px' }}>
                     {oldPrice}
                   </span>{' '}
-                  <span style={{ color: '#007F27', fontWeight: 'bold', fontSize: '16px' }}>{newPrice}</span>
+                  <span style={{ color: '#007F27', fontWeight: 'bold', fontSize: '16px' }}>
+                    {newPrice}
+                  </span>
                 </>
-              )}
-              {(!oldPrice || parseFloat(oldPrice.replace('₹', '')) <= parseFloat(newPrice.replace('₹', ''))) && (
-                <span style={{ color: '#007F27', fontWeight: 'bold', fontSize: '16px' }}>{newPrice}</span>
+              ) : (
+                <span style={{ color: '#007F27', fontWeight: 'bold', fontSize: '16px' }}>
+                  {newPrice}
+                </span>
               )}
             </div>
+
             <div className="col-6 d-flex justify-content-end">
-              <button 
+              <button
                 className="btn topbtn3"
                 onClick={handleBuyNow}
                 disabled={isAddingToCart}
@@ -291,7 +297,7 @@ const handleAddToCart = async (e: React.MouseEvent) => {
                   backgroundColor: '#007F27',
                   color: 'white',
                   border: 'none',
-                  padding: '8px 0',
+                  padding: '8px 12px',
                   borderRadius: '4px',
                   fontSize: '14px',
                   opacity: isAddingToCart ? 0.6 : 1,
