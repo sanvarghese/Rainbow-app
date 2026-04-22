@@ -5,6 +5,8 @@ import './globals.css';
 import SessionProvider from '../../components/SessionProvider';
 import { CartProvider } from '@/context/CartContext';
 import { WishlistProvider } from '@/context/WishlistContext';
+import { OrderProvider } from '@/context/OrderContext';
+import { BuyNowProvider } from '@/context/BuyNowContext';
 
 export const metadata: Metadata = {
   title: 'Your App Name',
@@ -21,11 +23,14 @@ export default function RootLayout({
       <body>
         <CartProvider>
           <WishlistProvider>
-          <SessionProvider>{children}</SessionProvider>
+            <OrderProvider>
+               <BuyNowProvider> 
+              <SessionProvider>{children}</SessionProvider>
+              </BuyNowProvider>
+            </OrderProvider>
           </WishlistProvider>
         </CartProvider>
-
       </body>
-    </html>
+    </html >
   );
 }
