@@ -1,3 +1,4 @@
+// components/ProductCard.tsx (Fixed)
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -41,81 +42,50 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [imageSrc, setImageSrc] = useState(img || productImage || DefaultProductImage.src);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { addToCart } = useCart();
+  const { addToCart, cart } = useCart();
   const { wishlist, addToWishlist, isInWishlist, fetchWishlist } = useWishlist();
 
   const actualProductId = String(productId || id);
   const hasMounted = useRef(false);
+  
+  // Check if product is in wishlist
+  const isWishlisted = !wishlist.loading && isInWishlist(actualProductId);
 
-  console.log(wishlist,"wishlist from product card..!")
-  // Add this useEffect temporarily to debug
-useEffect(() => {
-  console.log('=== Wishlist Debug ===');
-  console.log('Product ID:', actualProductId);
-  console.log('Wishlist items:', wishlist.items);
-  console.log('Is in wishlist function result:', isInWishlist(actualProductId));
-  console.log('Wishlist loading:', wishlist.loading);
-  console.log('Current isWishlisted state:', isWishlisted);
-}, [actualProductId, wishlist.items, isInWishlist, wishlist.loading]);
+  // Check if product is in cart
+  const isInCart = cart.items.some(item => item.productId._id === actualProductId);
 
-  // Fetch wishlist on mount if needed
   useEffect(() => {
+    // Fetch wishlist on mount if needed
     if (!hasMounted.current && wishlist.items.length === 0 && !wishlist.loading) {
       fetchWishlist();
     }
     hasMounted.current = true;
   }, []);
 
-  // Sync wishlist status - THIS IS THE CRITICAL PART
+  // Sync loading state
   useEffect(() => {
     if (!actualProductId) return;
-    
-    // Don't update while loading
+
     if (wishlist.loading) {
       setIsLoading(true);
       return;
     }
-
-    // Check if product is in wishlist
-    const inWishlist = isInWishlist(actualProductId);
     
-    console.log(`🔍 Product ${actualProductId} - In wishlist: ${inWishlist}`);
-    console.log(`📋 Current wishlist items:`, wishlist.items.map(item => String(item.productId)));
-    
-    setIsWishlisted(inWishlist);
     setIsLoading(false);
-  }, [actualProductId, wishlist.items, wishlist.loading, isInWishlist]);
+  }, [actualProductId, wishlist.loading]);
 
   const toggleWishlist = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!actualProductId || isTogglingWishlist || wishlist.loading) return;
+    if (!actualProductId || isTogglingWishlist) return;
 
     setIsTogglingWishlist(true);
-    const previousState = isWishlisted;
-    
-    // Optimistic update
-    setIsWishlisted(!previousState);
-
     try {
       await addToWishlist(actualProductId);
-      
-      // Force a refresh of the wishlist to ensure consistency
-      await fetchWishlist();
-      
-      // After refresh, sync again
-      setTimeout(() => {
-        const newState = isInWishlist(actualProductId);
-        setIsWishlisted(newState);
-      }, 100);
-      
     } catch (error: any) {
-      console.error("Wishlist toggle error:", error);
-      // Revert on error
-      setIsWishlisted(previousState);
       alert(error.message || "Failed to update wishlist");
     } finally {
       setIsTogglingWishlist(false);
@@ -125,9 +95,16 @@ useEffect(() => {
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!actualProductId) return;
+    
     setIsAddingToCart(true);
     try {
       await addToCart(actualProductId, 1);
+      // Show success feedback
+      const button = e.currentTarget;
+      button.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        button.style.transform = 'scale(1)';
+      }, 200);
     } catch (error: any) {
       alert(error.message || "Failed to add to cart");
     } finally {
@@ -138,14 +115,16 @@ useEffect(() => {
   const handleBuyNow = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!actualProductId) return;
-    setIsAddingToCart(true);
+    
+    setIsBuyingNow(true);
     try {
+      // First add the product to cart
       await addToCart(actualProductId, 1);
-      window.location.href = '/cart';
+      // Then redirect to checkout page
+      window.location.href = '/checkout';
     } catch (error: any) {
-      alert("Failed to add to cart");
-    } finally {
-      setIsAddingToCart(false);
+      alert("Failed to process. Please try again.");
+      setIsBuyingNow(false);
     }
   };
 
@@ -202,7 +181,7 @@ useEffect(() => {
             position: 'absolute', top: '10px', right: '10px',
             display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 2
           }}>
-            {/* Wishlist Button - RED when active, GREEN when not */}
+            {/* Wishlist Button */}
             <button
               onClick={toggleWishlist}
               disabled={isTogglingWishlist || wishlist.loading}
@@ -230,12 +209,12 @@ useEffect(() => {
               )}
             </button>
 
-            {/* Cart Button */}
+            {/* Cart Button - Add to Cart */}
             <button
               onClick={handleAddToCart}
               disabled={isAddingToCart}
               style={{
-                background: '#007F27',
+                background: isInCart ? '#28a745' : '#007F27',
                 border: 'none',
                 borderRadius: '50%',
                 width: '32px',
@@ -245,10 +224,16 @@ useEffect(() => {
                 justifyContent: 'center',
                 cursor: isAddingToCart ? 'not-allowed' : 'pointer',
                 opacity: isAddingToCart ? 0.6 : 1,
+                transition: 'all 0.2s ease',
               }}
+              title={isInCart ? "Added to cart" : "Add to cart"}
             >
               {isAddingToCart ? (
-                <div style={{ width: '16px', height: '16px', border: '2px solid #ccc', borderTop: '2px solid #007bff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <div style={{ width: '16px', height: '16px', border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              ) : isInCart ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
+                  <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                </svg>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
                   <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 4 1 1 0 0 1 0-4m7 0a1 1 0 1 1 0 4 1 1 0 0 1 0-4" />
@@ -292,19 +277,28 @@ useEffect(() => {
               <button
                 className="btn topbtn3"
                 onClick={handleBuyNow}
-                disabled={isAddingToCart}
+                disabled={isBuyingNow}
                 style={{
-                  backgroundColor: '#007F27',
+                  backgroundColor: '#FF5722',
                   color: 'white',
                   border: 'none',
                   padding: '8px 12px',
                   borderRadius: '4px',
                   fontSize: '14px',
-                  opacity: isAddingToCart ? 0.6 : 1,
-                  cursor: isAddingToCart ? 'not-allowed' : 'pointer'
+                  fontWeight: 'bold',
+                  opacity: isBuyingNow ? 0.6 : 1,
+                  cursor: isBuyingNow ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
                 }}
               >
-                <b>{isAddingToCart ? 'Adding...' : 'Buy Now'}</b>
+                {isBuyingNow ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '14px', height: '14px', border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                    Processing...
+                  </span>
+                ) : (
+                  'Buy Now'
+                )}
               </button>
             </div>
           </div>
