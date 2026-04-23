@@ -32,6 +32,17 @@ interface PaymentMethod {
   type: 'cod' | 'card' | 'upi' | 'netbanking';
 }
 
+interface BuyNowItem {
+  productId: string;
+  name: string;
+  subtitle?: string;
+  quantity: number;
+  price: number;
+  offerPrice: number;
+  productImage?: string;
+  totalAmount: number;
+}
+
 interface OrderContextType {
   currentStep: number;
   setCurrentStep: (step: number) => void;
@@ -44,7 +55,7 @@ interface OrderContextType {
   deleteAddress: (id: string) => Promise<void>;
   orderSummary: OrderSummary;
   isPlacingOrder: boolean;
-  placeOrder: () => Promise<void>;
+  placeOrder: (buyNowItem?: BuyNowItem | null, isBuyNowMode?: boolean) => Promise<void>;
   paymentMethods: PaymentMethod[];
   selectedPaymentMethod: PaymentMethod | null;
   setSelectedPaymentMethod: (method: PaymentMethod | null) => void;
@@ -80,7 +91,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const calculateOrderSummary = (): OrderSummary => {
     const subtotal = cart.totalAmount;
     const deliveryFee = subtotal > 500 ? 0 : 40;
-    const tax = subtotal * 0.05; // 5% tax
+    const tax = subtotal * 0.05;
     const discount = cart.totalSavings;
     const total = subtotal + deliveryFee + tax - discount;
 
@@ -95,11 +106,9 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const orderSummary = calculateOrderSummary();
 
-  // In OrderContext.tsx - Update these API endpoints
-
   const fetchAddresses = async () => {
     try {
-      const response = await fetch('/api/user/addresses'); // Changed from '/api/delivery-address'
+      const response = await fetch('/api/user/addresses');
       const data = await response.json();
 
       if (data.success) {
@@ -116,7 +125,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const addAddress = async (address: Partial<DeliveryAddress>) => {
     try {
-      const response = await fetch('/api/user/addresses', { // Changed from '/api/delivery-address'
+      const response = await fetch('/api/user/addresses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,7 +148,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const updateAddress = async (id: string, address: Partial<DeliveryAddress>) => {
     try {
-      const response = await fetch(`/api/user/addresses/${id}`, { // Changed from `/api/delivery-address/${id}`
+      const response = await fetch(`/api/user/addresses/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -162,7 +171,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteAddress = async (id: string) => {
     try {
-      const response = await fetch(`/api/user/addresses/${id}`, { // Changed from `/api/delivery-address/${id}`
+      const response = await fetch(`/api/user/addresses/${id}`, {
         method: 'DELETE',
       });
 
@@ -182,41 +191,78 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const placeOrder = async () => {
+  const placeOrder = async (buyNowItem?: BuyNowItem | null, isBuyNowMode?: boolean) => {
     if (!selectedAddress) {
       throw new Error('Please select a delivery address');
     }
     if (!selectedPaymentMethod) {
       throw new Error('Please select a payment method');
     }
-    if (cart.items.length === 0) {
+
+    // For Buy Now mode, we don't need cart items
+    if (!isBuyNowMode && cart.items.length === 0) {
       throw new Error('Your cart is empty');
     }
 
     setIsPlacingOrder(true);
     try {
-      // Transform cart items to match order format
-      const orderItems = cart.items.map(item => ({
-        productId: item.productId._id,
-        name: item.productId.name,
-        subtitle: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        offerPrice: item.offerPrice,
-        image: item.productImage || '',
-      }));
+      let orderItems;
+      let orderSummaryData;
 
-      const orderData = {
-        addressId: selectedAddress._id,
-        paymentMethod: selectedPaymentMethod.type,
-        items: orderItems,
-        orderSummary: {
+      if (isBuyNowMode && buyNowItem) {
+        // Create order from buy now item
+        orderItems = [{
+          productId: buyNowItem.productId,
+          name: buyNowItem.name,
+          subtitle: buyNowItem.subtitle || '',
+          quantity: buyNowItem.quantity,
+          price: buyNowItem.price,
+          offerPrice: buyNowItem.offerPrice,
+          image: buyNowItem.productImage || '',
+        }];
+
+        // Calculate order summary for buy now
+        const subtotal = buyNowItem.offerPrice * buyNowItem.quantity;
+        const deliveryFee = 40;
+        const tax = subtotal * 0.05;
+        const discount = buyNowItem.price > buyNowItem.offerPrice
+          ? (buyNowItem.price - buyNowItem.offerPrice) * buyNowItem.quantity
+          : 0;
+        const total = subtotal + deliveryFee + tax - discount;
+
+        orderSummaryData = {
+          subtotal,
+          deliveryFee,
+          tax,
+          discount,
+          total,
+        };
+      } else {
+        // Use cart order
+        orderItems = cart.items.map(item => ({
+          productId: item.productId._id,
+          name: item.productId.name,
+          subtitle: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          offerPrice: item.offerPrice,
+          image: item.productImage || '',
+        }));
+
+        orderSummaryData = {
           subtotal: orderSummary.subtotal,
           deliveryFee: orderSummary.deliveryFee,
           tax: orderSummary.tax,
           discount: orderSummary.discount,
           total: orderSummary.total,
-        },
+        };
+      }
+
+      const orderData = {
+        addressId: selectedAddress._id,
+        paymentMethod: selectedPaymentMethod.type,
+        items: orderItems,
+        orderSummary: orderSummaryData,
       };
 
       const response = await fetch('/api/orders', {
@@ -230,8 +276,13 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const data = await response.json();
 
       if (data.success) {
-        // Redirect to order confirmation
-        window.location.href = `/order-confirmation/${data.order._id}`;
+        // Clear buy now item after successful order
+        if (isBuyNowMode) {
+          localStorage.removeItem('buyNowItem');
+          sessionStorage.removeItem('buyNowItem');
+        }
+        
+        return { success: true, order: data.order };
       } else {
         throw new Error(data.error || 'Failed to place order');
       }

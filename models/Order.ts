@@ -35,6 +35,7 @@ export interface IOrder extends Document {
   };
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   paymentStatus: 'pending' | 'paid' | 'failed';
+  deliveryDate: Date; // Added delivery date field
   createdAt: Date;
   updatedAt: Date;
 }
@@ -91,6 +92,14 @@ const OrderSchema = new Schema<IOrder>(
       type: String,
       enum: ['pending', 'paid', 'failed'],
       default: 'pending',
+    },
+    deliveryDate: {
+      type: Date,
+      default: () => {
+        const date = new Date();
+        date.setDate(date.getDate() + 14); // Default 14 days from now
+        return date;
+      },
     },
   },
   {
