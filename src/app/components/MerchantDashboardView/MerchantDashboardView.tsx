@@ -12,6 +12,7 @@ import logo from "../../../assets/images/mazhavillu_logo.png"
 import '../MerchantDashboardView/main.css'
 import CompanySection from './CompanySection';
 import ProductsSection from './ProductsSection';
+import OrderSection from './OrderSection';
 
 interface MerchantDashboardViewProps {
     onBackToPreview?: () => void;
@@ -359,12 +360,15 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                             <p className="text-gray-600">Coming soon...</p>
                         </div>
                     )}
-                    {activeSection === 'order' && (
+                    {/* {activeSection === 'order' && (
                         <div className="text-center py-12">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Order Section</h2>
+                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Order Section</h2>    
                             <p className="text-gray-600">Coming soon...</p>
                         </div>
-                    )}
+                    )} */}
+
+                    {activeSection === 'order' && <OrderSection />}
+
                 </div>
             </div>
 
