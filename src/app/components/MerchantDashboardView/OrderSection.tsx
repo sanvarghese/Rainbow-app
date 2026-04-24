@@ -1,11 +1,11 @@
 // app/components/merchant/OrderSection.tsx
 import React, { useState, useEffect } from 'react';
-import { 
-  Package, 
-  CheckCircle, 
-  XCircle, 
-  Calendar, 
-  Truck, 
+import {
+  Package,
+  CheckCircle,
+  XCircle,
+  Calendar,
+  Truck,
   Clock,
   Search,
   Filter,
@@ -83,19 +83,72 @@ const OrderSection: React.FC = () => {
     }
   };
 
+  // const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
+  //   setUpdatingOrder(orderId);
+  //   try {
+  //     const res = await fetch(`/api/merchant/orders/${orderId}`, {
+  //       method: 'PATCH',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ status: newStatus }),
+  //     });
+
+  //     if (res.ok) {
+  //       await fetchOrders();
+  //     } else {
+  //       const error = await res.json();
+  //       alert(error.error || 'Failed to update order status');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating order:', error);
+  //     alert('Failed to update order status');
+  //   } finally {
+  //     setUpdatingOrder(null);
+  //   }
+  // };
+
+  // In OrderSection.tsx, update the updateOrderStatus function
   const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     setUpdatingOrder(orderId);
     try {
-      const res = await fetch(`/api/merchant/orders/${orderId}`, {
+      let url = `/api/merchant/orders/${orderId}`;
+      let body: any = { status: newStatus };
+
+      // For confirmation, use the dedicated endpoint
+      if (newStatus === 'confirmed') {
+        url = `/api/merchant/orders/${orderId}/confirm`;
+        const res = await fetch(url, {
+          method: 'POST', // Use POST for confirmation endpoint
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          alert(data.message || 'Order confirmed successfully!');
+          await fetchOrders();
+        } else {
+          const error = await res.json();
+          alert(error.error || 'Failed to confirm order');
+        }
+        setUpdatingOrder(null);
+        return;
+      }
+
+      // For other status updates
+      const res = await fetch(url, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(body),
       });
-      
+
       if (res.ok) {
         await fetchOrders();
+        alert(`Order ${newStatus} successfully!`);
       } else {
         const error = await res.json();
         alert(error.error || 'Failed to update order status');
@@ -108,6 +161,7 @@ const OrderSection: React.FC = () => {
     }
   };
 
+
   const updateDeliveryDate = async (orderId: string, newDeliveryDate: string) => {
     setUpdatingOrder(orderId);
     try {
@@ -118,7 +172,7 @@ const OrderSection: React.FC = () => {
         },
         body: JSON.stringify({ deliveryDate: newDeliveryDate }),
       });
-      
+
       if (res.ok) {
         await fetchOrders();
         alert('Delivery date updated successfully!');
@@ -159,7 +213,7 @@ const OrderSection: React.FC = () => {
     }
   };
 
-  const filteredOrders = orders.filter(order => 
+  const filteredOrders = orders.filter(order =>
     order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -192,7 +246,7 @@ const OrderSection: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <h2 className="text-2xl font-bold text-gray-800">Order Management</h2>
-        
+
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -204,7 +258,7 @@ const OrderSection: React.FC = () => {
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
-          
+
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -245,7 +299,7 @@ const OrderSection: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(order.status)}`}>
                       {getStatusIcon(order.status)}
@@ -352,7 +406,7 @@ const OrderSection: React.FC = () => {
                         Accept Order
                       </button>
                     )}
-                    
+
                     {order.status === 'confirmed' && (
                       <button
                         onClick={() => updateOrderStatus(order._id, 'processing')}
@@ -362,7 +416,7 @@ const OrderSection: React.FC = () => {
                         Start Processing
                       </button>
                     )}
-                    
+
                     {order.status === 'processing' && (
                       <button
                         onClick={() => updateOrderStatus(order._id, 'shipped')}
@@ -372,17 +426,17 @@ const OrderSection: React.FC = () => {
                         Mark as Shipped
                       </button>
                     )}
-                    
+
                     {order.status === 'shipped' && (
                       <button
                         onClick={() => updateOrderStatus(order._id, 'delivered')}
                         disabled={updatingOrder === order._id}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                        className="px-4 py-2 my-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
                       >
                         Mark as Delivered
                       </button>
                     )}
-                    
+
                     {['pending', 'confirmed', 'processing'].includes(order.status) && (
                       <button
                         onClick={() => updateOrderStatus(order._id, 'cancelled')}

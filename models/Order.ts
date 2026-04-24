@@ -9,6 +9,9 @@ export interface IOrderItem {
   price: number;
   offerPrice: number;
   image: string;
+  variantDisplayValue?: string; 
+  variantId?: string; 
+
 }
 
 export interface IOrder extends Document {
@@ -70,6 +73,8 @@ const OrderSchema = new Schema<IOrder>(
         price: { type: Number, required: true },
         offerPrice: { type: Number, required: true },
         image: { type: String, required: true },
+        variantDisplayValue: { type: String }, // Add this field
+        variantId: { type: String }, // Optional: store variant ID
       },
     ],
     paymentMethod: {
