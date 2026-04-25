@@ -18,7 +18,8 @@
     background-color: #ffffff;
     padding: 0;
     position: relative;
-    z-index: 1000;
+    /* z-index: -999; */
+    /* z-index: 1000; */
 }
 
 .nav-bar .nav-list {
