@@ -1,151 +1,108 @@
 // app/api/merchant/orders/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
-import connectDB from "../../../../../../lib/mongodb";
-import { auth } from "../../../../../../auth";
-import Order from "../../../../../../models/Order";
-import Product from "../../../../../../models/Product";
+import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
+import connectDB from '../../../../../../lib/mongodb';
+import { auth } from '../../../../../../auth';
+import Order from '../../../../../../models/Order';
+import { updateOrderStatusWithLog } from '../../../../../../lib/orderStatusManager';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } }
 ) {
   try {
-    await connectDB();
-
     const session = await auth();
-    if (!session?.user) {
+
+   if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized", details: "Please login to continue" },
         { status: 401 },
       );
     }
 
+    await connectDB();
+    
     const { id } = params;
     const body = await req.json();
-    const { status, deliveryDate } = body;
-
-    // Start a session for transaction (to ensure data consistency)
+    const { status, deliveryDate, note } = body;
+    
     const dbSession = await mongoose.startSession();
     dbSession.startTransaction();
-
+    
     try {
       const updateData: any = {};
-      if (status) updateData.status = status;
       if (deliveryDate) updateData.deliveryDate = new Date(deliveryDate);
-
-      // If confirming the order, update product quantities
-      if (status === "confirmed") {
+      
+      // If status is being updated, add to logs
+      if (status) {
         const order = await Order.findById(id).session(dbSession);
-
+        
         if (!order) {
           await dbSession.abortTransaction();
           dbSession.endSession();
-          return NextResponse.json(
-            { error: "Order not found" },
-            { status: 404 },
-          );
+          return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
-
-        // Process each item in the order
-        for (const item of order.items) {
-          const product = await Product.findById(item.productId).session(
-            dbSession,
-          );
-
-          if (!product) {
-            await dbSession.abortTransaction();
-            dbSession.endSession();
-            return NextResponse.json(
-              {
-                error: `Product ${item.name} not found`,
-              },
-              { status: 404 },
-            );
-          }
-
-          // Check if product has variants
-          if (product.hasVariants && product.variants) {
-            // Find the specific variant that matches the ordered item
-            // You need to identify which variant was ordered
-            // This requires storing variant info in the order item
-            const variant = product.variants.find(
-              (v) => v.displayValue === item.variantDisplayValue, // You'll need to add this to order item
-            );
-
-            if (!variant) {
-              await dbSession.abortTransaction();
-              dbSession.endSession();
-              return NextResponse.json(
-                {
-                  error: `Variant for product ${item.name} not found`,
-                },
-                { status: 404 },
-              );
-            }
-
-            // Check if enough stock
-            if (variant.quantity < item.quantity) {
-              await dbSession.abortTransaction();
-              dbSession.endSession();
-              return NextResponse.json(
-                {
-                  error: `Insufficient stock for ${item.name} - ${variant.displayValue}. Available: ${variant.quantity}`,
-                },
-                { status: 400 },
-              );
-            }
-
-            // Deduct quantity
-            variant.quantity -= item.quantity;
-            await product.save({ session: dbSession });
-          } else {
-            // Regular product without variants
-            if (product.quantity < item.quantity) {
-              await dbSession.abortTransaction();
-              dbSession.endSession();
-              return NextResponse.json(
-                {
-                  error: `Insufficient stock for ${item.name}. Available: ${product.quantity}`,
-                },
-                { status: 400 },
-              );
-            }
-
-            // Deduct quantity
-            product.quantity -= item.quantity;
-            await product.save({ session: dbSession });
-          }
+        
+        // Validate status transition
+        const validTransitions: Record<string, string[]> = {
+          'pending': ['confirmed', 'cancelled'],
+          'confirmed': ['processing', 'cancelled'],
+          'processing': ['shipped', 'cancelled'],
+          'shipped': ['delivered', 'cancelled'],
+          'delivered': [],
+          'cancelled': []
+        };
+        
+        if (!validTransitions[order.status].includes(status)) {
+          await dbSession.abortTransaction();
+          dbSession.endSession();
+          return NextResponse.json({ 
+            error: `Invalid status transition from ${order.status} to ${status}` 
+          }, { status: 400 });
         }
+        
+        // Update status with log
+        const updatedOrder = await updateOrderStatusWithLog({
+          orderId: id,
+          newStatus: status,
+          updatedBy: 'merchant',
+          updatedById: session.user.id as any,
+          note: note || `Order status changed to ${status}`,
+          session: dbSession
+        });
+        
+        updateData.status = status;
       }
-
-      // Update order status
-      const order = await Order.findByIdAndUpdate(id, updateData, {
-        new: true,
-        session: dbSession,
-      });
-
-      if (!order) {
-        await dbSession.abortTransaction();
-        dbSession.endSession();
-        return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      
+      // Update delivery date if provided
+      if (deliveryDate) {
+        await Order.findByIdAndUpdate(id, updateData, { session: dbSession });
+      } else if (status) {
+        // Only status was updated, but we already updated via the function above
+        // So we just need to get the final order
+      } else {
+        await Order.findByIdAndUpdate(id, updateData, { session: dbSession });
       }
-
-      // Commit the transaction
+      
       await dbSession.commitTransaction();
       dbSession.endSession();
-
-      return NextResponse.json({ order });
+      
+      const finalOrder = await Order.findById(id)
+        .populate('userId', 'name email');
+      
+      return NextResponse.json({ order: finalOrder });
+      
     } catch (error) {
       await dbSession.abortTransaction();
       dbSession.endSession();
       throw error;
     }
+    
   } catch (error) {
-    console.error("Error updating order:", error);
+    console.error('Error updating order:', error);
     return NextResponse.json(
-      { error: "Failed to update order" },
-      { status: 500 },
+      { error: 'Failed to update order' },
+      { status: 500 }
     );
   }
 }

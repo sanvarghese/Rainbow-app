@@ -1,10 +1,17 @@
 // app/api/merchant/orders/[id]/confirm/route.ts
 import { NextRequest, NextResponse } from "next/server";
+// import { getServerSession } from 'next-auth';
+// import { authOptions } from '@/lib/auth';
+// import dbConnect from '@/lib/dbConnect';
+// import Order from '@/models/Order';
+// import Product from '@/models/Product';
+// import { updateOrderStatusWithLog } from '@/lib/orderStatusManager';
 import mongoose from "mongoose";
 import connectDB from "../../../../../../../lib/mongodb";
 import { auth } from "../../../../../../../auth";
 import Order from "../../../../../../../models/Order";
 import Product from "../../../../../../../models/Product";
+import { updateOrderStatusWithLog } from "../../../../../../../lib/orderStatusManager";
 
 export async function POST(
   req: NextRequest,
@@ -116,22 +123,28 @@ export async function POST(
         }
       }
 
-      // Update order status to confirmed
-      order.status = "confirmed";
-      await order.save({ session: dbSession });
+      // Update order status with log
+      const updatedOrder = await updateOrderStatusWithLog({
+        orderId: id,
+        newStatus: "confirmed",
+        updatedBy: "merchant",
+        updatedById: session.user.id as any,
+        note: "Order confirmed by merchant",
+        session: dbSession,
+      });
 
       await dbSession.commitTransaction();
       dbSession.endSession();
 
       // Fetch the updated order with populated fields
-      const updatedOrder = await Order.findById(id).populate(
+      const finalOrder = await Order.findById(id).populate(
         "userId",
         "name email",
       );
 
       return NextResponse.json({
         success: true,
-        order: updatedOrder,
+        order: finalOrder,
         message: "Order confirmed and stock updated successfully",
       });
     } catch (error) {
