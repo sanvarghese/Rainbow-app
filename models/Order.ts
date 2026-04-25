@@ -9,9 +9,17 @@ export interface IOrderItem {
   price: number;
   offerPrice: number;
   image: string;
-  variantDisplayValue?: string; 
-  variantId?: string; 
+  variantDisplayValue?: string;
+  variantId?: string;
+}
 
+// Status log interface
+export interface IStatusLog {
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  timestamp: Date;
+  note?: string;
+  updatedBy: 'customer' | 'merchant' | 'system';
+  updatedById?: mongoose.Types.ObjectId;
 }
 
 export interface IOrder extends Document {
@@ -38,10 +46,37 @@ export interface IOrder extends Document {
   };
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   paymentStatus: 'pending' | 'paid' | 'failed';
-  deliveryDate: Date; // Added delivery date field
+  deliveryDate: Date;
+  statusLogs: IStatusLog[]; // Add status logs array
   createdAt: Date;
   updatedAt: Date;
 }
+
+const StatusLogSchema = new Schema<IStatusLog>({
+  status: {
+    type: String,
+    enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
+    required: true,
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
+  note: {
+    type: String,
+    trim: true,
+  },
+  updatedBy: {
+    type: String,
+    enum: ['customer', 'merchant', 'system'],
+    required: true,
+  },
+  updatedById: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+});
 
 const OrderSchema = new Schema<IOrder>(
   {
@@ -73,8 +108,8 @@ const OrderSchema = new Schema<IOrder>(
         price: { type: Number, required: true },
         offerPrice: { type: Number, required: true },
         image: { type: String, required: true },
-        variantDisplayValue: { type: String }, // Add this field
-        variantId: { type: String }, // Optional: store variant ID
+        variantDisplayValue: { type: String },
+        variantId: { type: String },
       },
     ],
     paymentMethod: {
@@ -102,9 +137,13 @@ const OrderSchema = new Schema<IOrder>(
       type: Date,
       default: () => {
         const date = new Date();
-        date.setDate(date.getDate() + 14); // Default 14 days from now
+        date.setDate(date.getDate() + 14);
         return date;
       },
+    },
+    statusLogs: {
+      type: [StatusLogSchema],
+      default: [],
     },
   },
   {
@@ -120,6 +159,21 @@ OrderSchema.pre('save', async function (next) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const count = await mongoose.model('Order').countDocuments();
     this.orderId = `ORD${year}${month}${String(count + 1).padStart(6, '0')}`;
+  }
+  next();
+});
+
+// Add initial status log when order is created
+OrderSchema.pre('save', function(next) {
+  if (this.isNew) {
+    if (!this.statusLogs || this.statusLogs.length === 0) {
+      this.statusLogs = [{
+        status: 'pending',
+        timestamp: new Date(),
+        updatedBy: 'customer',
+        note: 'Order created'
+      }];
+    }
   }
   next();
 });
