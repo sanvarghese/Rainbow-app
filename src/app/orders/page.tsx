@@ -54,10 +54,7 @@ const OrdersPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState<string>('all');
   const [reviewStatus, setReviewStatus] = useState<{ [key: string]: any }>({});
-  const [reviewCheck, setReviewCheck] = useState<{ [key: string]: any }>({});
-
 
   // Review Modal State
   const [selectedProduct, setSelectedProduct] = useState<{
@@ -65,6 +62,7 @@ const OrdersPage = () => {
     name: string;
     image: string;
     orderId: string;
+    existingReview?: any;
   } | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
 
@@ -146,10 +144,6 @@ const OrdersPage = () => {
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
-  const filteredOrders = filter === 'all'
-    ? orders
-    : orders.filter(order => order.status === filter);
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
       day: 'numeric',
@@ -203,49 +197,20 @@ const OrdersPage = () => {
             <p className="text-gray-600 mt-1">Track and manage all your orders</p>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="mb-6 border-b border-gray-200">
-            <nav className="flex gap-6 overflow-x-auto pb-2">
-              {['all', 'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map((tab) => {
-                const count = tab === 'all'
-                  ? orders.length
-                  : orders.filter(o => o.status === tab).length;
-
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => setFilter(tab)}
-                    className={`px-1 py-2 text-sm font-medium transition-colors relative whitespace-nowrap
-                      ${filter === tab
-                        ? 'text-green-600 border-b-2 border-green-600'
-                        : 'text-gray-500 hover:text-gray-700'
-                      }
-                    `}
-                  >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                    <span className="ml-2 text-xs text-gray-400">({count})</span>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
 
-          {filteredOrders.length === 0 ? (
+          {orders.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ShoppingBag className="w-10 h-10 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders found</h3>
               <p className="text-gray-500 mb-6">
-                {filter === 'all'
-                  ? "You haven't placed any orders yet."
-                  : `You don't have any ${filter} orders.`}
+                You haven't placed any orders yet.
               </p>
               <Link
                 href="/products"
@@ -256,7 +221,7 @@ const OrdersPage = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredOrders.map((order) => {
+              {orders.map((order) => {
                 const statusConfig = getStatusConfig(order.status);
                 const StatusIcon = statusConfig.icon;
 
@@ -326,8 +291,11 @@ const OrdersPage = () => {
                               {order.status === 'delivered' && (
                                 <button
                                   onClick={() => handleReviewClick(item.productId, item.name, item.image, order._id)}
-                                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                                  style={{ color: reviewStatus[`${order._id}-${item.productId}`]?.hasReview ? '#059669' : '#2563eb' }}
+                                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                                  style={{ 
+                                    backgroundColor: reviewStatus[`${order._id}-${item.productId}`]?.hasReview ? '#dcfce7' : '#eff6ff',
+                                    color: reviewStatus[`${order._id}-${item.productId}`]?.hasReview ? '#059669' : '#2563eb'
+                                  }}
                                 >
                                   <Star className="w-3 h-3" />
                                   {reviewStatus[`${order._id}-${item.productId}`]?.hasReview ? 'Update Review' : 'Write Review'}
