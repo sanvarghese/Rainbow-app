@@ -27,8 +27,10 @@ import {
   Home,
   DollarSign,
   TrendingDown,
-  AlertCircle
+  AlertCircle,
+  Star
 } from 'lucide-react';
+import ReviewModal from '@/app/components/Review/ReviewModal';
 
 interface OrderItem {
   productId: string;
@@ -174,8 +176,8 @@ const StatusHistoryModal: React.FC<{ logs: StatusLog[]; onClose: () => void }> =
                             {getStatusLabel(log.status)}
                           </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${log.updatedBy === 'merchant' ? 'bg-blue-100 text-blue-700' :
-                              log.updatedBy === 'customer' ? 'bg-green-100 text-green-700' :
-                                'bg-gray-100 text-gray-600'
+                            log.updatedBy === 'customer' ? 'bg-green-100 text-green-700' :
+                              'bg-gray-100 text-gray-600'
                             }`}>
                             {log.updatedBy === 'merchant' ? 'Merchant' :
                               log.updatedBy === 'customer' ? 'You' : 'System'}
@@ -321,77 +323,169 @@ const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
 };
 
 // Enhanced Order Items Component
-const OrderItemsSection: React.FC<{ items: OrderItem[]; formatCurrency: (amount: number) => string }> = ({
-  items,
-  formatCurrency
-}) => {
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+// const OrderItemsSection: React.FC<{ items: OrderItem[]; formatCurrency: (amount: number) => string }> = ({
+//   items,
+//   formatCurrency
+// }) => {
+//   const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
-  return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-gray-900">Order Items</h2>
-              <p className="text-sm text-gray-500 mt-0.5">{items.length} items in your order</p>
+//   return (
+//     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+//       <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+//         <div className="flex items-center justify-between">
+//           <div className="flex items-center gap-3">
+//             <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+//               <ShoppingBag className="w-5 h-5 text-green-600" />
+//             </div>
+//             <div>
+//               <h2 className="font-semibold text-gray-900">Order Items</h2>
+//               <p className="text-sm text-gray-500 mt-0.5">{items.length} items in your order</p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//       <div className="divide-y divide-gray-100">
+//         {items.map((item, index) => (
+//           <div key={index} className="p-6 hover:bg-gray-50 transition-colors">
+//             <div className="flex gap-4">
+//               <div className="flex-shrink-0">
+//                 <img
+//                   src={item.image}
+//                   alt={item.name}
+//                   className="w-20 h-20 object-cover rounded-xl shadow-sm"
+//                   onError={(e) => {
+//                     (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+//                   }}
+//                 />
+//               </div>
+//               <div className="flex-1">
+//                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+//                   <div className="flex-1">
+//                     <h3 className="font-semibold text-gray-900">{item.name}</h3>
+//                     <p className="text-sm text-gray-500 mt-0.5">{item.subtitle}</p>
+//                     {item.variantDisplayValue && (
+//                       <div className="inline-flex items-center gap-1 mt-2 px-2 py-1 bg-gray-100 rounded-md">
+//                         <span className="text-xs text-gray-600">Variant:</span>
+//                         <span className="text-xs font-medium text-gray-900">{item.variantDisplayValue}</span>
+//                       </div>
+//                     )}
+//                     <div className="flex items-center gap-3 mt-3">
+//                       <div className="flex items-center gap-1">
+//                         <span className="text-sm text-gray-500">Quantity:</span>
+//                         <span className="text-sm font-semibold text-gray-900">{item.quantity}</span>
+//                       </div>
+//                     </div>
+//                   </div>
+//                   <div className="text-right">
+//                     <p className="text-lg font-bold text-gray-900">{formatCurrency(item.offerPrice)}</p>
+//                     {item.price > item.offerPrice && (
+//                       <p className="text-sm text-gray-400 line-through">{formatCurrency(item.price)}</p>
+//                     )}
+//                     <p className="text-sm font-medium text-green-600 mt-2">
+//                       Total: {formatCurrency(item.offerPrice * item.quantity)}
+//                     </p>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
+// Enhanced Order Items Component with Review Button
+const OrderItemsSection: React.FC<{
+  items: OrderItem[];
+  formatCurrency: (amount: number) => string;
+  orderId: string;
+  orderStatus: string;
+  onReviewClick: (productId: string, productName: string, productImage: string) => void;
+}> = ({
+  items,
+  formatCurrency,
+  orderId,
+  orderStatus,
+  onReviewClick
+}) => {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-gray-900">Order Items </h2>
+                <p className="text-sm text-gray-500 mt-0.5">{items.length} items in your order</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="divide-y divide-gray-100">
-        {items.map((item, index) => (
-          <div key={index} className="p-6 hover:bg-gray-50 transition-colors">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-20 h-20 object-cover rounded-xl shadow-sm"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
-                  }}
-                />
-              </div>
-              <div className="flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                    <p className="text-sm text-gray-500 mt-0.5">{item.subtitle}</p>
-                    {item.variantDisplayValue && (
-                      <div className="inline-flex items-center gap-1 mt-2 px-2 py-1 bg-gray-100 rounded-md">
-                        <span className="text-xs text-gray-600">Variant:</span>
-                        <span className="text-xs font-medium text-gray-900">{item.variantDisplayValue}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-3 mt-3">
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm text-gray-500">Quantity:</span>
-                        <span className="text-sm font-semibold text-gray-900">{item.quantity}</span>
+        <div className="divide-y divide-gray-100">
+          {items.map((item, index) => (
+            <div key={index} className="p-6 hover:bg-gray-50 transition-colors">
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-20 h-20 object-cover rounded-xl shadow-sm"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                    }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                      <p className="text-sm text-gray-500 mt-0.5">{item.subtitle}</p>
+                      {item.variantDisplayValue && (
+                        <div className="inline-flex items-center gap-1 mt-2 px-2 py-1 bg-gray-100 rounded-md">
+                          <span className="text-xs text-gray-600">Variant:</span>
+                          <span className="text-xs font-medium text-gray-900">{item.variantDisplayValue}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-3 mt-3">
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm text-gray-500">Quantity:</span>
+                          <span className="text-sm font-semibold text-gray-900">{item.quantity}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-gray-900">{formatCurrency(item.offerPrice)}</p>
-                    {item.price > item.offerPrice && (
-                      <p className="text-sm text-gray-400 line-through">{formatCurrency(item.price)}</p>
-                    )}
-                    <p className="text-sm font-medium text-green-600 mt-2">
-                      Total: {formatCurrency(item.offerPrice * item.quantity)}
-                    </p>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-gray-900">{formatCurrency(item.offerPrice)}</p>
+                      {item.price > item.offerPrice && (
+                        <p className="text-sm text-gray-400 line-through">{formatCurrency(item.price)}</p>
+                      )}
+                      <p className="text-sm font-medium text-green-600 mt-2">
+                        Total: {formatCurrency(item.offerPrice * item.quantity)}
+                      </p>
+
+                      {/* Review Button - Only show for delivered orders */}
+                      {/* {orderStatus === 'delivered' && (
+                        <button
+                          onClick={() => onReviewClick(item.productId, item.name, item.image)}
+                          className="mt-3 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1 mx-auto sm:mx-0"
+                        >
+                          <Star className="w-3.5 h-3.5" />
+                          Write a Review
+                        </button>
+                      )} */}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
+
 
 // Enhanced Order Summary Component
 const OrderSummarySection: React.FC<{ order: Order; formatCurrency: (amount: number) => string; formatDate: (date: string) => string }> = ({
@@ -460,10 +554,10 @@ const OrderSummarySection: React.FC<{ order: Order; formatCurrency: (amount: num
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Payment Status</span>
             <span className={`font-semibold capitalize flex items-center gap-1 ${order.paymentStatus === 'paid' ? 'text-green-600' :
-                order.paymentStatus === 'failed' ? 'text-red-600' : 'text-yellow-600'
+              order.paymentStatus === 'failed' ? 'text-red-600' : 'text-yellow-600'
               }`}>
               <div className={`w-2 h-2 rounded-full ${order.paymentStatus === 'paid' ? 'bg-green-600' :
-                  order.paymentStatus === 'failed' ? 'bg-red-600' : 'bg-yellow-600'
+                order.paymentStatus === 'failed' ? 'bg-red-600' : 'bg-yellow-600'
                 }`}></div>
               {order.paymentStatus}
             </span>
@@ -550,6 +644,38 @@ const OrderDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+
+  const [selectedProduct, setSelectedProduct] = useState<{
+    id: string;
+    name: string;
+    image: string;
+  } | null>(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [canReview, setCanReview] = useState<{ [key: string]: boolean }>({});
+
+  // Add function to check if product can be reviewed
+  const checkCanReview = async (productId: string, orderId: string) => {
+    try {
+      const response = await fetch(`/api/reviews/check?productId=${productId}&orderId=${orderId}`);
+      const data = await response.json();
+      setCanReview(prev => ({ ...prev, [`${orderId}-${productId}`]: data.canReview }));
+      return data.canReview;
+    } catch (error) {
+      console.error('Error checking review status:', error);
+      return false;
+    }
+  };
+
+  // Add function to handle review click
+  const handleReviewClick = async (productId: string, productName: string, productImage: string) => {
+    const canReviewFlag = await checkCanReview(productId, order._id);
+    if (canReviewFlag) {
+      setSelectedProduct({ id: productId, name: productName, image: productImage });
+      setShowReviewModal(true);
+    } else {
+      alert('You have already reviewed this product or order is not delivered yet');
+    }
+  };
 
   useEffect(() => {
     if (sessionStatus === 'unauthenticated') {
@@ -708,8 +834,29 @@ const OrderDetailPage = () => {
 
           {/* Order Items Section - Full Width */}
           <div className="mb-6">
-            <OrderItemsSection items={order.items} formatCurrency={formatCurrency} />
+            <OrderItemsSection
+              items={order.items}
+              formatCurrency={formatCurrency}
+              orderId={order._id}
+              orderStatus={order.status}
+              onReviewClick={handleReviewClick}
+            />
           </div>
+
+          {showReviewModal && selectedProduct && (
+            <ReviewModal
+              isOpen={showReviewModal}
+              onClose={() => setShowReviewModal(false)}
+              productId={selectedProduct.id}
+              orderId={order._id}
+              productName={selectedProduct.name}
+              productImage={selectedProduct.image}
+              onSuccess={() => {
+                alert('Review submitted successfully! Thank you for your feedback.');
+                // Optionally refresh the page or update UI
+              }}
+            />
+          )}
 
           {/* Order Summary & Shipping Address - Side by Side */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
