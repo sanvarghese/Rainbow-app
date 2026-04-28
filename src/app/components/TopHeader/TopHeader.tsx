@@ -18,6 +18,11 @@ const TopHeader = () => {
         setIsDropdownOpen(!isDropdownOpen)
     }
 
+    // Check if user has merchant or admin role
+    const userRole = session?.user?.role as string || 'user'
+    const showDashboard = userRole === 'Merchant' || userRole === 'admin'
+
+
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -62,29 +67,29 @@ const TopHeader = () => {
                                 {/* Dropdown Section */}
                                 {session ? (
                                     <li className="list-inline-item px-3 dropdown" ref={dropdownRef}>
-                                        <span 
-                                            className="text-white" 
+                                        <span
+                                            className="text-white"
                                             onClick={toggleDropdown}
                                             style={{ cursor: 'pointer' }}
                                         >
                                             My Account
-                                            <svg 
-                                                xmlns="http://www.w3.org/2000/svg" 
-                                                width="12" 
-                                                height="12" 
-                                                fill="currentColor" 
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="12"
+                                                height="12"
+                                                fill="currentColor"
                                                 className={`ms-1 transition ${isDropdownOpen ? 'rotate-180' : ''}`}
                                                 viewBox="0 0 16 16"
-                                                style={{ 
+                                                style={{
                                                     transition: 'transform 0.2s',
                                                     transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'
                                                 }}
                                             >
-                                                <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
+                                                <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" />
                                             </svg>
                                         </span>
 
-                                        <ul 
+                                        <ul
                                             className={`dropdown-menu dropdown-menu-end ${isDropdownOpen ? 'show' : ''}`}
                                             style={{
                                                 position: 'absolute',
@@ -94,50 +99,65 @@ const TopHeader = () => {
                                             }}
                                         >
                                             <li>
-                                                <Link 
-                                                    className="dropdown-item" 
+                                                <Link
+                                                    className="dropdown-item"
                                                     href="/my-account"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-person me-2" viewBox="0 0 16 16">
-                                                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                                                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
                                                     </svg>
                                                     My Profile
                                                 </Link>
                                             </li>
+                                            {showDashboard &&
+                                                <li>
+                                                    <Link
+                                                        className="dropdown-item"
+                                                        href="/dashboard"
+                                                        onClick={() => setIsDropdownOpen(false)}
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-house-door me-2" viewBox="0 0 16 16">
+                                                            <path d="M8 4a.5.5 0 0 1 .5.5v3.293l2.146 2.147a.5.5 0 0 1-.708.708L7.5 8.207V4.5A.5.5 0 0 1 8 4" />
+                                                            <path d="M4.5 14a.5.5 0 0 1-.5-.5v-1a4 4 0 1 1 8 0v1a.5.5 0 0 1-.5.5h-7zM8 1a7 7 0 0 0-7 7v5.5A1.5 1.5 0 0 0 2.5 15h11A1.5 1.5 0 0 0 15 13.5V8a7 7 0 0 0-7-7" />
+                                                        </svg>
+                                                        Dashboard
+                                                    </Link>
+                                                </li>
+                                            }
                                             <li>
-                                                <Link 
-                                                    className="dropdown-item" 
+                                                <Link
+                                                    className="dropdown-item"
                                                     href="/orders"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-seam me-2" viewBox="0 0 16 16">
-                                                        <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                                                        <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z" />
                                                     </svg>
                                                     My Orders
                                                 </Link>
                                             </li>
                                             <li>
-                                                <Link 
-                                                    className="dropdown-item" 
+                                                <Link
+                                                    className="dropdown-item"
                                                     href="/cart"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-cart me-2" viewBox="0 0 16 16">
-                                                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                                                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
                                                     </svg>
                                                     Cart
                                                 </Link>
                                             </li>
                                             <li><hr className="dropdown-divider" /></li>
                                             <li>
-                                                <button 
-                                                    className="dropdown-item text-danger" 
+                                                <button
+                                                    className="dropdown-item text-danger"
                                                     onClick={handleLogout}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-right me-2" viewBox="0 0 16 16">
-                                                        <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
-                                                        <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                                                        <path fillRule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z" />
+                                                        <path fillRule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z" />
                                                     </svg>
                                                     Logout
                                                 </button>
