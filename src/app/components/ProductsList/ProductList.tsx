@@ -234,7 +234,7 @@ const ProductList = () => {
                                                     title={product.company?.name || 'Unknown Brand'}
                                                     subtitle={product.name}
                                                     rating="4.5"
-                                                    reviews="100" // You can add actual review count later
+                                                    reviews="100" 
                                                     oldPrice={`₹${product.price.toFixed(2)}`}
                                                     newPrice={`₹${product.offerPrice.toFixed(2)}`}
                                                     discount={product.discount}

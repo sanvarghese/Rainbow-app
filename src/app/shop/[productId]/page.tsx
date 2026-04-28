@@ -10,7 +10,7 @@ const page = () => {
         <>
             <Header />
             <ProductSingle/>
-            <Description />
+            {/* <Description /> */}
             <RelatedProducts />
             <Footer />
         </>

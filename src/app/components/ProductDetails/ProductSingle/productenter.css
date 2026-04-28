@@ -426,3 +426,48 @@
     font-size: 15px;
   }
 }
+
+/* Rating Summary Styles */
+.rating-summary {
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.rating-summary .text-5xl {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+/* Review Item Styles */
+.review-item:last-child {
+  border-bottom: none !important;
+}
+
+.review-item:hover {
+  background-color: #fafafa;
+}
+
+/* Reviews List */
+.reviews-list {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.reviews-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reviews-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.reviews-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.reviews-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
