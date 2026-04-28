@@ -316,7 +316,7 @@ const ProductsSection = () => {
                     {totalPages > 1 && (
                         <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm">
                             <div className="text-sm text-gray-600">
-                                Showing {startIndex + 1} to {Math.min(endIndex, products.length)} of {products.length} products
+                                Showing {startIndex + 1} to {Math.min(endIndex, products.length)} of {products.length} 
                             </div>
 
                             <div className="flex items-center gap-2">

@@ -276,7 +276,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <div className="col-6 d-flex justify-content-end">
               <button
                 className="btn topbtn3"
-                onClick={handleBuyNow}
+                onClick={handleCardClick}
                 disabled={isBuyingNow}
                 style={{
                   backgroundColor: '#FF5722',
@@ -291,14 +291,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   transition: 'all 0.2s ease',
                 }}
               >
-                {isBuyingNow ? (
+                {/* {isBuyingNow ? (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '14px', height: '14px', border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
                     Processing...
                   </span>
                 ) : (
                   'Buy Now'
-                )}
+                )} */}
+                Buy Now
               </button>
             </div>
           </div>
