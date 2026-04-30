@@ -1,8 +1,8 @@
 // Example: /app/api/user/addresses/route.ts (Simplified version using helper)
 
 import { NextRequest, NextResponse } from 'next/server';
-import DeliveryAddress from '../../../../../models/DeliveryAddress';
-import connectDB from '../../../../../lib/mongodb';
+import DeliveryAddress from '../../../../models/DeliveryAddress';
+import connectDB from '../../../../lib/mongodb';
 import { auth } from '../../../../../auth';
 // import { requireAuth } from '@/lib/auth';
 // import connectDB from '@/lib/mongodb';

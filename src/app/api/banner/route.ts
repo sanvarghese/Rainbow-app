@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // import Banner from '@/models/Banner';
 import { unlink } from 'fs/promises';
 import path from 'path';
-import Banner from '../../../../models/Banner';
-import connectDB from '../../../../lib/mongodb';
+import Banner from '../../../models/Banner';
+import connectDB from '../../../lib/mongodb';
 
 export async function GET() {
   try {

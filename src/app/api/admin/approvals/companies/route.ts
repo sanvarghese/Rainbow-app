@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAdminToken } from '../../../../../../lib/adminAuth';
-import connectDB from '../../../../../../lib/mongodb';
-import Company from '../../../../../../models/Company';
+import { verifyAdminToken } from '../../../../../lib/adminAuth';
+import connectDB from '../../../../../lib/mongodb';
+import Company from '../../../../../models/Company';
 
 // POST - Approve / Reject / Revoke
 export async function GET(req: NextRequest) {

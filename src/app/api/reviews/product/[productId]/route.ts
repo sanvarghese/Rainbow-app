@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import Review from "../../../../../../models/Review";
-import connectDB from "../../../../../../lib/mongodb";
+import Review from "../../../../../models/Review";
+import connectDB from "../../../../../lib/mongodb";
 import { auth } from "../../../../../../auth";
 
 export async function GET(

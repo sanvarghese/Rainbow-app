@@ -1,7 +1,7 @@
 // app/api/subcategories/route.ts
 import { NextResponse } from "next/server";
-import Category from "../../../../models/Category";
-import connectDB from "../../../../lib/mongodb";
+import Category from "../../../models/Category";
+import connectDB from "../../../lib/mongodb";
 
 export async function GET() {
   try {

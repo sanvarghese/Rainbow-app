@@ -2,9 +2,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import connectDB from '../../../../../lib/mongodb';
-import { verifyAdminToken } from '../../../../../lib/adminAuth';
-import Company from '../../../../../models/Company';
+import connectDB from '../../../../lib/mongodb';
+import { verifyAdminToken } from '../../../../lib/adminAuth';
+import Company from '../../../../models/Company';
 
 // POST - Admin create or update company
 export async function POST(req: NextRequest) {

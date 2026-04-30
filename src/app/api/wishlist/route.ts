@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '../../../../lib/mongodb';
-import Wishlist from '../../../../models/Wishlist';
+import connectDB from '../../../lib/mongodb';
+import Wishlist from '../../../models/Wishlist';
 import { auth } from '../../../../auth';
 
 // GET - Fetch user's wishlist

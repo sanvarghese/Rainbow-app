@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import formidable from 'formidable';
 import fs from 'fs/promises';
 import path from 'path';
-import connectDB from '../../../../../lib/mongodb';
-import Company from '../../../../../models/Company';
+import connectDB from '../../../../lib/mongodb';
+import Company from '../../../../models/Company';
 import { auth } from '../../../../../auth';
 
 // Disable body parser for file uploads

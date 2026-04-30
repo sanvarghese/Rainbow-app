@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "../../../../../lib/adminAuth";
-import Category from "../../../../../models/Category";
-import connectDB from "../../../../../lib/mongodb";
+import { verifyAdminToken } from "../../../../lib/adminAuth";
+import Category from "../../../../models/Category";
+import connectDB from "../../../../lib/mongodb";
 
 // GET - Fetch all categories (optionally filter by status)
 export async function GET(req: NextRequest) {

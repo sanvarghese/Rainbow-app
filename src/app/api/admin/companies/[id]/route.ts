@@ -1,8 +1,8 @@
 // app/api/admin/companies/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "../../../../../../lib/adminAuth";
-import connectDB from "../../../../../../lib/mongodb";
-import Company from "../../../../../../models/Company";
+import { verifyAdminToken } from "../../../../../lib/adminAuth";
+import connectDB from "../../../../../lib/mongodb";
+import Company from "../../../../../models/Company";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 

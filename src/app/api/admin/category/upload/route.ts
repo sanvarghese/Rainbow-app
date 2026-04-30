@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { verifyAdminToken } from '../../../../../../lib/adminAuth';
+import { verifyAdminToken } from '../../../../../lib/adminAuth';
 // import { verifyAdminToken } from '../../../../../lib/adminAuth';
 
 export async function POST(req: NextRequest) {

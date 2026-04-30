@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '../../../../../../auth';
-import connectDB from '../../../../../../lib/mongodb';
-import Product from '../../../../../../models/Product';
+import connectDB from '../../../../../lib/mongodb';
+import Product from '../../../../../models/Product';
 
 
 export async function DELETE(

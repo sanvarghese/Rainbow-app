@@ -4,9 +4,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // import WeekendOffer from '@/models/WeekendOffer';
 // import { getServerSession } from 'next-auth';
 // import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import connectDB from '../../../../../lib/mongodb';
-import { verifyAdminToken } from '../../../../../lib/adminAuth';
-import WeekendOffer from '../../../../../models/WeekendOffer';
+import connectDB from '../../../../lib/mongodb';
+import { verifyAdminToken } from '../../../../lib/adminAuth';
+import WeekendOffer from '../../../../models/WeekendOffer';
 
 export async function GET() {
     await connectDB();

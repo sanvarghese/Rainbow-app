@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '../../../../../auth';
-import connectDB from '../../../../../lib/mongodb';
-import User from '../../../../../models/User';
+import connectDB from '../../../../lib/mongodb';
+import User from '../../../../models/User';
 // import { getServerSession } from 'next-auth';
 // import connectDB from '@/lib/mongodb'; // Adjust path as needed
 // import User from '@/models/User'; // Adjust path as needed

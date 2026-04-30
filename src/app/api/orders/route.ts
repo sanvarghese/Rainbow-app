@@ -1,10 +1,10 @@
 // app/api/orders/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "../../../../lib/mongodb";
-import User from "../../../../models/User";
-import DeliveryAddress from "../../../../models/DeliveryAddress";
-import Order from "../../../../models/Order";
-import Cart from "../../../../models/Cart";
+import connectDB from "../../../lib/mongodb";
+import User from "../../../models/User";
+import DeliveryAddress from "../../../models/DeliveryAddress";
+import Order from "../../../models/Order";
+import Cart from "../../../models/Cart";
 import { auth } from "../../../../auth";
 
 

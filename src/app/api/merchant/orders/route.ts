@@ -1,7 +1,7 @@
 // app/api/merchant/orders/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import Order from "../../../../../models/Order";
-import connectDB from "../../../../../lib/mongodb";
+import Order from "../../../../models/Order";
+import connectDB from "../../../../lib/mongodb";
 import { auth } from "../../../../../auth";
 // import { getServerSession } from 'next-auth';
 // import { authOptions } from '@/lib/auth';

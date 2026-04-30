@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "../../../../../lib/adminAuth";
-import Product from "../../../../../models/Product";
-import connectDB from "../../../../../lib/mongodb";
+import { verifyAdminToken } from "../../../../lib/adminAuth";
+import Product from "../../../../models/Product";
+import connectDB from "../../../../lib/mongodb";
 
 // GET - Fetch all products (admin view)
 export async function GET(req: NextRequest) {

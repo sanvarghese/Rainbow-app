@@ -1,10 +1,10 @@
 // app/api/reviews/[reviewId]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 // import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
-import connectDB from '../../../../../lib/mongodb';
+import connectDB from '../../../../lib/mongodb';
 import { auth } from '../../../../../auth';
-import Review from '../../../../../models/Review';
-import { deleteFromCloudinary, uploadToCloudinary } from '../../../../../lib/cloudinary';
+import Review from '../../../../models/Review';
+import { deleteFromCloudinary, uploadToCloudinary } from '../../../../lib/cloudinary';
 
 export async function PUT(
   req: NextRequest,

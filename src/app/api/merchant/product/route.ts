@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '../../../../../auth';
-import connectDB from '../../../../../lib/mongodb';
-import Company from '../../../../../models/Company';
-import Category from '../../../../../models/Category'; // Import Category model
+import connectDB from '../../../../lib/mongodb';
+import Company from '../../../../models/Company';
+import Category from '../../../../models/Category'; // Import Category model
 import mongoose from 'mongoose';
 
 // Clear cached model to ensure we use the latest schema
@@ -10,7 +10,7 @@ if (mongoose.models.Product) {
   delete mongoose.models.Product;
 }
 
-import Product from '../../../../../models/Product';
+import Product from '../../../../models/Product';
 
 async function parseForm(req: NextRequest): Promise<{ fields: any; files: any }> {
   const formData = await req.formData();

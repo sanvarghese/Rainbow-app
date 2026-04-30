@@ -1,32 +1,39 @@
-import React from 'react'
-import Header from '../components/Header/Header'
-import Footer from '../components/Footer/Footer'
-import ProductSingle from '../components/ProductDetails/ProductSingle/ProductSingle'
-import RelatedProducts from '../components/ProductDetails/RelatedProducts/RelatedProducts'
-import Description from '../components/ProductDetails/Description/Description'
-import ContactUs from '../components/ContactUs/ContactUs'
-import BlogPage from '../components/Blog/Blog'
-import FilterMenu from '../components/FilterMenu/FilterMenu'
-import ProductList from '../components/ProductsList/ProductList'
-import "../components/ProductDetails/RelatedProducts/RelatedProducts";
+"use client";
 
-const page = () => {
-    return (
-        <>
-            <Header />
-            {/* product details page */}
-            {/* <ProductSingle />
-            <Description />
-            <RelatedProducts /> */}
+import React, { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Header from '../components/Header/Header';
+import Footer from '../components/Footer/Footer';
+import ProductList from '../components/ProductsList/ProductList';
 
-            {/* <ContactUs/> */}
-            {/* <BlogPage/> */}
+function ShopContent() {
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
+  const categoryParam = searchParams.get('category') || '';
 
-            <ProductList />
-            <Footer />
-        </>
-
-    )
+  return (
+    <>
+      <Header />
+      <ProductList 
+        key={`shop-${searchQuery}-${categoryParam}`}   // Force remount when params change
+        initialSearch={searchQuery} 
+        initialCategory={categoryParam} 
+      />
+      <Footer />
+    </>
+  );
 }
 
-export default page
+export default function ShopPage() {
+  return (
+    <Suspense fallback={
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <div className="spinner-border text-success" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    }>
+      <ShopContent />
+    </Suspense>
+  );
+}

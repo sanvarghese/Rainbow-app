@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 // import SessionProvider from '@/components/SessionProvider';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './globals.css';
-import SessionProvider from '../../components/SessionProvider';
+import SessionProvider from '../components/SessionProvider';
 import { CartProvider } from '@/context/CartContext';
 import { WishlistProvider } from '@/context/WishlistContext';
 import { OrderProvider } from '@/context/OrderContext';

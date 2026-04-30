@@ -1,32 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '../../../../lib/mongodb';
-import Product from '../../../../models/Product';
-import Company from '../../../../models/Company';
+import { NextRequest, NextResponse } from "next/server";
+import connectDB from "../../../lib/mongodb";
+import Product from "../../../models/Product";
+import Company from "../../../models/Company";
 
 export async function GET(req: NextRequest) {
   try {
-    console.log('Connecting to database...');
+    console.log("Connecting to database...");
     await connectDB();
-    console.log('Database connected successfully');
+    console.log("Database connected successfully");
 
     const { searchParams } = new URL(req.url);
 
-    console.log('checking product listing...!')
-    
+    console.log("checking product listing...!");
+
     // Pagination
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
-    // Filters
-    const categories = searchParams.getAll('category');
-    const minDiscount = searchParams.get('minDiscount');
-    const search = searchParams.get('search');
-    const sortBy = searchParams.get('sortBy') || 'newest';
+    // Filter
+    const categories = searchParams.getAll("category");
+    const minDiscount = searchParams.get("minDiscount");
+    const search = searchParams.get("search");
+    const sortBy = searchParams.get("sortBy") || "newest";
 
     // Build query - ONLY approved products
-    const query: any = { 
-      status: "approved"   // Changed from isApproved: true
+    const query: any = {
+      status: "approved", // Changed from isApproved: true
     };
 
     // Category filter
@@ -37,41 +37,44 @@ export async function GET(req: NextRequest) {
     // Search filter
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { descriptionShort: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: "i" } },
+        { descriptionShort: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } }, // ADD THIS
+        { subCategory: { $regex: search, $options: "i" } }, // ADD THIS
+        { childSubCategory: { $regex: search, $options: "i" } }, // ADD THIS
       ];
     }
 
     // Sort options
     let sort: any = {};
     switch (sortBy) {
-      case 'priceAsc':
+      case "priceAsc":
         sort = { offerPrice: 1 };
         break;
-      case 'priceDesc':
+      case "priceDesc":
         sort = { offerPrice: -1 };
         break;
-      case 'nameAsc':
+      case "nameAsc":
         sort = { name: 1 };
         break;
-      case 'nameDesc':
+      case "nameDesc":
         sort = { name: -1 };
         break;
-      case 'newest':
+      case "newest":
         sort = { createdAt: -1 };
         break;
-      case 'oldest':
+      case "oldest":
         sort = { createdAt: 1 };
         break;
-      case 'discount':
+      case "discount":
         sort = { createdAt: -1 }; // Will handle later
         break;
       default:
         sort = { createdAt: -1 };
     }
 
-    console.log('Query:', query);
-    console.log('Sort:', sort);
+    console.log("Query:", query);
+    console.log("Sort:", sort);
 
     // Get total count for pagination (before discount filter)
     const total = await Product.countDocuments(query);
@@ -82,7 +85,7 @@ export async function GET(req: NextRequest) {
       .sort(sort)
       .skip(skip)
       .limit(limit)
-      .populate('companyId', 'name companyLogo')
+      .populate("companyId", "name companyLogo")
       .lean();
 
     console.log(`Products fetched before quantity filter: ${products.length}`);
@@ -95,8 +98,10 @@ export async function GET(req: NextRequest) {
       } else {
         // Variant product: at least one variant must have quantity > 0
         if (!product.variants || product.variants.length === 0) return false;
-        
-        return product.variants.some((variant: any) => (variant.quantity || 0) > 0);
+
+        return product.variants.some(
+          (variant: any) => (variant.quantity || 0) > 0,
+        );
       }
     });
 
@@ -109,16 +114,19 @@ export async function GET(req: NextRequest) {
       let discount = 0;
 
       if (!product.hasVariants) {
-        discount = price > 0 && price > offerPrice
-          ? Math.round(((price - offerPrice) / price) * 100)
-          : 0;
+        discount =
+          price > 0 && price > offerPrice
+            ? Math.round(((price - offerPrice) / price) * 100)
+            : 0;
       } else if (product.variants && product.variants.length > 0) {
         // For variant products, you can show the best discount (optional)
-        const bestDiscount = Math.max(...product.variants.map((v: any) => {
-          const p = v.price || 0;
-          const op = v.offerPrice || p;
-          return p > 0 && p > op ? Math.round(((p - op) / p) * 100) : 0;
-        }));
+        const bestDiscount = Math.max(
+          ...product.variants.map((v: any) => {
+            const p = v.price || 0;
+            const op = v.offerPrice || p;
+            return p > 0 && p > op ? Math.round(((p - op) / p) * 100) : 0;
+          }),
+        );
         discount = bestDiscount;
         // You can also take the lowest offerPrice if needed
       }
@@ -128,7 +136,7 @@ export async function GET(req: NextRequest) {
         price,
         offerPrice,
         discount,
-        company: product.companyId || { name: 'Unknown Company' },
+        company: product.companyId || { name: "Unknown Company" },
       };
     });
 
@@ -136,19 +144,19 @@ export async function GET(req: NextRequest) {
     if (minDiscount) {
       const minDiscountValue = parseInt(minDiscount);
       productsWithDiscount = productsWithDiscount.filter(
-        product => product.discount >= minDiscountValue
+        (product) => product.discount >= minDiscountValue,
       );
     }
 
     // Sort by discount if requested
-    if (sortBy === 'discount') {
+    if (sortBy === "discount") {
       productsWithDiscount.sort((a, b) => b.discount - a.discount);
     }
 
     // Final total after all client-side filters
     const finalTotal = productsWithDiscount.length;
 
-    console.log('Returning products:', productsWithDiscount.length);
+    console.log("Returning products:", productsWithDiscount.length);
 
     return NextResponse.json({
       success: true,
@@ -162,13 +170,13 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error('Fetch products error:', error);
+    console.error("Fetch products error:", error);
     return NextResponse.json(
-      { 
-        error: 'Server error',
-        details: error.message || 'Failed to fetch products'
+      {
+        error: "Server error",
+        details: error.message || "Failed to fetch products",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

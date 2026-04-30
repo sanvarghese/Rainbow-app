@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "../../../../../../lib/adminAuth";
-import connectDB from "../../../../../../lib/mongodb";
-import Product from "../../../../../../models/Product";
+import { verifyAdminToken } from "../../../../../lib/adminAuth";
+import connectDB from "../../../../../lib/mongodb";
+import Product from "../../../../../models/Product";
 
 // GET single product
 export async function GET(

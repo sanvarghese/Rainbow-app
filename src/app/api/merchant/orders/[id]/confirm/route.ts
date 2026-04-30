@@ -7,11 +7,11 @@ import { NextRequest, NextResponse } from "next/server";
 // import Product from '@/models/Product';
 // import { updateOrderStatusWithLog } from '@/lib/orderStatusManager';
 import mongoose from "mongoose";
-import connectDB from "../../../../../../../lib/mongodb";
+import connectDB from "../../../../../../lib/mongodb";
 import { auth } from "../../../../../../../auth";
-import Order from "../../../../../../../models/Order";
-import Product from "../../../../../../../models/Product";
-import { updateOrderStatusWithLog } from "../../../../../../../lib/orderStatusManager";
+import Order from "../../../../../../models/Order";
+import Product from "../../../../../../models/Product";
+import { updateOrderStatusWithLog } from "../../../../../../lib/orderStatusManager";
 
 export async function POST(
   req: NextRequest,

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "../../../../../auth";
-import connectDB from "../../../../../lib/mongodb";
-import Order from "../../../../../models/Order";
-import Review from "../../../../../models/Review";
+import connectDB from "../../../../lib/mongodb";
+import Order from "../../../../models/Order";
+import Review from "../../../../models/Review";
 
 export async function GET(req: NextRequest) {
   try {

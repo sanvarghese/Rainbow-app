@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import ProductCard from '../ProductCard/ProductCard';
 import "./RelatedProducts.css";
 import FilterMenu from '../FilterMenu/FilterMenu';
@@ -23,7 +24,7 @@ interface Product {
         name: string;
         companyLogo?: string;
     };
-    companyId: string; // Add this for cart functionality
+    companyId: string;
 }
 
 interface Pagination {
@@ -40,7 +41,13 @@ interface Filters {
     search: string;
 }
 
-const ProductList = () => {
+interface ProductListProps {
+    initialSearch?: string;
+    initialCategory?: string;
+}
+
+const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListProps) => {
+    const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState<Pagination>({
@@ -51,13 +58,36 @@ const ProductList = () => {
         hasMore: false,
     });
     const [filters, setFilters] = useState<Filters>({
-        categories: [],
+        categories: initialCategory ? [initialCategory] : [],
         minDiscount: null,
-        search: '',
+        search: initialSearch,
     });
     const [sortOption, setSortOption] = useState('newest');
 
-    // Memoized fetch function to prevent unnecessary re-renders
+    // Update filters when props change
+    // useEffect(() => {
+    //     setFilters(prev => ({
+    //         ...prev,
+    //         search: initialSearch,
+    //         categories: initialCategory ? [initialCategory] : [],
+    //     }));
+    //     setPagination(prev => ({ ...prev, page: 1 }));
+    // }, [initialSearch, initialCategory]);
+
+    useEffect(() => {
+        const newCategories = initialCategory ? [initialCategory] : [];
+
+        setFilters({
+            categories: newCategories,
+            minDiscount: null,
+            search: initialSearch,
+        });
+
+        setPagination(prev => ({ ...prev, page: 1 }));
+        // Optional: reset sort
+        // setSortOption('newest');
+    }, [initialSearch, initialCategory]);
+
     const fetchProducts = useCallback(async () => {
         setLoading(true);
         try {
@@ -105,18 +135,14 @@ const ProductList = () => {
         }
     }, [pagination.page, pagination.limit, sortOption, filters]);
 
-    // Fetch products when dependencies change
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
 
-    // Helper function to get the first product image
     const getProductImage = (product: Product): string => {
-        // Check if productImages array exists and has at least one image
         if (product.productImages && product.productImages.length > 0) {
             return product.productImages[0];
         }
-        // Fallback to the old productImage field for backward compatibility
         return product.productImage || '/placeholder-product.png';
     };
 
@@ -125,28 +151,52 @@ const ProductList = () => {
         setPagination(prev => ({ ...prev, page: 1 }));
     };
 
-    const handleFilterChange = useCallback((newFilters: any) => {
-        setFilters(prev => {
-            // Only update if filters actually changed to prevent infinite loop
-            if (
-                JSON.stringify(prev.categories) === JSON.stringify(newFilters.categories || []) &&
-                prev.minDiscount === newFilters.minDiscount
-            ) {
-                return prev;
-            }
+    // const handleFilterChange = useCallback((newFilters: any) => {
+    //     setFilters(prev => {
+    //         if (
+    //             JSON.stringify(prev.categories) === JSON.stringify(newFilters.categories || []) &&
+    //             prev.minDiscount === newFilters.minDiscount
+    //         ) {
+    //             return prev;
+    //         }
             
-            return {
-                ...prev,
-                categories: newFilters.categories || [],
-                minDiscount: newFilters.minDiscount,
-            };
-        });
+    //         return {
+    //             ...prev,
+    //             categories: newFilters.categories || [],
+    //             minDiscount: newFilters.minDiscount,
+    //         };
+    //     });
+    //     setPagination(prev => ({ ...prev, page: 1 }));
+    // }, []);
+
+    const handleFilterChange = useCallback((newFilters: any) => {
+        setFilters(prev => ({
+            ...prev,
+            categories: newFilters.categories || [],
+            minDiscount: newFilters.minDiscount,
+        }));
         setPagination(prev => ({ ...prev, page: 1 }));
     }, []);
 
     const goToPage = (page: number) => {
         setPagination(prev => ({ ...prev, page }));
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // const clearAllFilters = () => {
+    //     setFilters({ categories: [], minDiscount: null, search: '' });
+    //     setPagination(prev => ({ ...prev, page: 1 }));
+    //     router.push('/shop');
+    // };
+
+    const clearAllFilters = () => {
+        setFilters({ 
+            categories: [], 
+            minDiscount: null, 
+            search: '' 
+        });
+        setPagination(prev => ({ ...prev, page: 1 }));
+        router.push('/shop');   // Clears URL
     };
 
     const sortOptions = [
@@ -160,44 +210,43 @@ const ProductList = () => {
     return (
         <div className='container-fluid product-list-page'>
             <div className='row justify-content-center'>
-                {/* Filter Sidebar */}
                 <div className='col-12 col-sm-4 col-md-3 col-lg-2 mb-4'>
                     <FilterMenu onFilterChange={handleFilterChange} />
                 </div>
 
-                {/* Products Section */}
                 <div className='col-12 col-sm-8 col-md-9 col-lg-10 mb-4'>
                     <div className="relatedProducts product-list">
                         <div className="container-fluid">
                             <div className="row justify-content-start">
-                                {/* Header with Results Count and Sort */}
                                 <div className="youmightheading productlist d-flex justify-content-between align-items-center mb-4">
                                     <h4 className="h4_1">
                                         {loading ? 'Loading...' : 
+                                            products.length > 0 ?
                                             `Showing ${((pagination.page - 1) * pagination.limit) + 1}-
                                             ${Math.min(pagination.page * pagination.limit, pagination.total)} 
                                             of ${pagination.total} results`
+                                            : 'No products found'
                                         }
                                     </h4>
 
-                                    {/* <div className="sort-section">
-                                        <span className="sort-label">Sort by:</span>
-                                        <select
-                                            className="sort-dropdown box-wrapper"
-                                            value={sortOption}
-                                            onChange={(e) => handleSortChange(e.target.value)}
-                                            disabled={loading}
-                                        >
-                                            {sortOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div> */}
+                                    {products.length > 0 && (
+                                        <div className="sort-section">
+                                            <select
+                                                className="sort-dropdown box-wrapper"
+                                                value={sortOption}
+                                                onChange={(e) => handleSortChange(e.target.value)}
+                                                disabled={loading}
+                                            >
+                                                {sortOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Loading State */}
                                 {loading ? (
                                     <div className="col-12 text-center py-5">
                                         <div className="spinner-border text-success" role="status">
@@ -211,42 +260,39 @@ const ProductList = () => {
                                         <p>Try adjusting your filters or search criteria</p>
                                         <button 
                                             className="btn btn-success mt-2"
-                                            onClick={() => {
-                                                setFilters({ categories: [], minDiscount: null, search: '' });
-                                                setPagination(prev => ({ ...prev, page: 1 }));
-                                            }}
+                                            onClick={clearAllFilters}
                                         >
                                             Clear Filters
                                         </button>
                                     </div>
                                 ) : (
                                     <>
-                                        {/* Product Grid */}
-                                        {products.map((product) => (
-                                            <div
-                                                key={product._id}
-                                                className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
-                                            >
-                                                <ProductCard
-                                                    id={product._id}
-                                                    productId={product._id}
-                                                    img={getProductImage(product)}
-                                                    title={product.company?.name || 'Unknown Brand'}
-                                                    subtitle={product.name}
-                                                    rating="4.5"
-                                                    reviews="100" 
-                                                    oldPrice={`₹${product.price.toFixed(2)}`}
-                                                    newPrice={`₹${product.offerPrice.toFixed(2)}`}
-                                                    discount={product.discount}
-                                                    price={product.price}
-                                                    offerPrice={product.offerPrice}
-                                                    companyId={product.company?._id || product.companyId}
-                                                    productImage={getProductImage(product)}
-                                                />
-                                            </div>
-                                        ))}
+                                        <div className="row justify-content-start">
+                                            {products.map((product) => (
+                                                <div
+                                                    key={product._id}
+                                                    className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
+                                                >
+                                                    <ProductCard
+                                                        id={product._id}
+                                                        productId={product._id}
+                                                        img={getProductImage(product)}
+                                                        title={product.company?.name || 'Unknown Brand'}
+                                                        subtitle={product.name}
+                                                        rating="4.5"
+                                                        reviews="100" 
+                                                        oldPrice={`₹${product.price.toFixed(2)}`}
+                                                        newPrice={`₹${product.offerPrice.toFixed(2)}`}
+                                                        discount={product.discount}
+                                                        price={product.price}
+                                                        offerPrice={product.offerPrice}
+                                                        companyId={product.company?._id || product.companyId}
+                                                        productImage={getProductImage(product)}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
 
-                                        {/* Pagination */}
                                         {pagination.totalPages > 1 && (
                                             <div className="col-12 mt-4">
                                                 <nav className="d-flex justify-content-center">

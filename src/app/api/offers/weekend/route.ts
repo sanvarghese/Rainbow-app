@@ -1,7 +1,7 @@
 // app/api/weekend-offers/route.ts
 import { NextResponse } from 'next/server';
-import WeekendOffer from '../../../../../models/WeekendOffer';
-import connectDB from '../../../../../lib/mongodb';
+import WeekendOffer from '../../../../models/WeekendOffer';
+import connectDB from '../../../../lib/mongodb';
 // import dbConnect from '@/lib/dbConnect';          
 // import WeekendOffer from '@/models/WeekendOffer';
 
