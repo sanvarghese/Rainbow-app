@@ -66,7 +66,15 @@ const SearchBar = () => {
     setQuery(suggestion.name);
     setMobileSearchOpen(false);
     // Navigate to shop page with search query
-    router.push(`/shop?search=${encodeURIComponent(suggestion.name)}`);
+
+    if (suggestion.type === 'category') {
+      router.push(`/shop?category=${encodeURIComponent(suggestion.name)}`);
+    } else if (suggestion.type === 'subCategory') {
+      router.push(`/shop?search=${encodeURIComponent(suggestion.name)}`);
+    } else {
+      // Product — navigate directly to product detail page using its id
+      router.push(`/shop/${suggestion.id}`);
+    }
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
