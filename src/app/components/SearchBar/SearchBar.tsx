@@ -199,34 +199,66 @@ const SearchBar = () => {
                                   cursor: "pointer",
                                   borderBottom: "1px solid #f0f0f0",
                                   transition: "background 0.2s",
+                                  backgroundColor: suggestion.type !== 'product' ? "#f8fff8" : "white", // subtle bg for categories
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor = "#f8f9fa";
+                                  e.currentTarget.style.backgroundColor = "#f0f7f0";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = "white";
+                                  e.currentTarget.style.backgroundColor =
+                                    suggestion.type !== 'product' ? "#f8fff8" : "white";
                                 }}
                               >
-                                <div style={{ flexShrink: 0 }}>
-                                  <Image
-                                    src={suggestion.image}
-                                    alt={suggestion.name}
-                                    width={40}
-                                    height={40}
-                                    style={{ objectFit: "cover", borderRadius: "4px" }}
-                                  />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontWeight: 500, fontSize: "14px" }}>
-                                    {suggestion.name}
-                                  </div>
-                                  <div style={{ fontSize: "12px", color: "#6c757d" }}>
-                                    {suggestion.companyName} • {suggestion.category}
-                                  </div>
-                                  <div style={{ fontSize: "13px", color: "#28a745", fontWeight: 500 }}>
-                                    ₹{suggestion.price.toFixed(2)}
-                                  </div>
-                                </div>
+                                {/* Category/SubCategory suggestion */}
+                                {suggestion.type !== 'product' ? (
+                                  <>
+                                    <div style={{
+                                      width: 40,
+                                      height: 40,
+                                      borderRadius: "50%",
+                                      background: "#e8f5e9",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      flexShrink: 0,
+                                      fontSize: "18px",
+                                    }}>
+                                      🗂️
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontWeight: 600, fontSize: "14px" }}>
+                                        {suggestion.name}
+                                      </div>
+                                      {/* <div style={{ fontSize: "12px", color: "#6c757d" }}>
+                                        {suggestion.type === 'category' ? 'Category' : 'Sub Category'}
+                                      </div> */}
+                                    </div>
+                                  </>
+                                ) : (
+                                  /* Product suggestion */
+                                  <>
+                                    <div style={{ flexShrink: 0 }}>
+                                      <Image
+                                        src={suggestion.image}
+                                        alt={suggestion.name}
+                                        width={40}
+                                        height={40}
+                                        style={{ objectFit: "cover", borderRadius: "4px" }}
+                                      />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontWeight: 500, fontSize: "14px" }}>
+                                        {suggestion.name}
+                                      </div>
+                                      {/* <div style={{ fontSize: "12px", color: "#6c757d" }}>
+                                        {suggestion.companyName} • {suggestion.category}
+                                      </div>
+                                      <div style={{ fontSize: "13px", color: "#28a745", fontWeight: 500 }}>
+                                        ₹{suggestion.price?.toFixed(2)}
+                                      </div> */}
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             ))}
                         </div>

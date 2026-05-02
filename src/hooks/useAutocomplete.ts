@@ -3,9 +3,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 interface Suggestion {
   id: string;
   name: string;
+  type: 'product' | 'category' | 'subCategory';  
   category: string;
+  subCategory: string;
+  companyName: string;
   image: string;
-  url: string;
+  price: number | null;  // null for category suggestions
 }
 
 export const useAutocomplete = (debounceDelay: number = 300) => {
@@ -21,7 +24,6 @@ export const useAutocomplete = (debounceDelay: number = 300) => {
       return;
     }
 
-    // Cancel previous request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -49,13 +51,13 @@ export const useAutocomplete = (debounceDelay: number = 300) => {
     }
   }, []);
 
-  // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       if (query) {
         fetchSuggestions(query);
       } else {
         setSuggestions([]);
+        setShowSuggestions(false);
       }
     }, debounceDelay);
 
