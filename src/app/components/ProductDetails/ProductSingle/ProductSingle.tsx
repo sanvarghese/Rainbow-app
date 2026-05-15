@@ -57,7 +57,7 @@ const ProductSingle = () => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
-  
+
   // Review states
   const [reviews, setReviews] = useState<Review[]>([]);
   const [averageRating, setAverageRating] = useState(0);
@@ -66,13 +66,13 @@ const ProductSingle = () => {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewPage, setReviewPage] = useState(1);
   const [hasMoreReviews, setHasMoreReviews] = useState(true);
-  
+
   // Review Modal State
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewStatus, setReviewStatus] = useState<any>(null);
   const [checkingReview, setCheckingReview] = useState(false);
   const [userReview, setUserReview] = useState<any>(null);
-  
+
   const { addToCart, cart } = useCart();
   const { wishlist, addToWishlist, isInWishlist, fetchWishlist } = useWishlist();
   const { setBuyNowItem } = useBuyNow();
@@ -114,13 +114,13 @@ const ProductSingle = () => {
   // Check if user can review this product (similar to ordersPage)
   const checkUserReviewStatus = async () => {
     if (!session || !productId) return;
-    
+
     setCheckingReview(true);
     try {
       // First check if user has any delivered order containing this product
       const response = await fetch(`/api/reviews/check-user-review?productId=${productId}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setReviewStatus(data);
         if (data.existingReview) {
@@ -144,12 +144,12 @@ const ProductSingle = () => {
   // Fetch reviews
   const fetchReviews = async (page: number = 1, append: boolean = false) => {
     if (!productId) return;
-    
+
     try {
       setReviewsLoading(true);
       const res = await fetch(`/api/reviews/product/${productId}?page=${page}&limit=5`);
       const data = await res.json();
-      
+
       if (data.success) {
         if (append) {
           setReviews(prev => [...prev, ...data.reviews]);
@@ -178,6 +178,7 @@ const ProductSingle = () => {
     fetchReviews(nextPage, true);
   };
 
+
   const handleAddToCart = async () => {
     if (!product) return;
 
@@ -189,6 +190,10 @@ const ProductSingle = () => {
     } finally {
       setIsAddingToCart(false);
     }
+  };
+
+  const handleGoToCart = () => {
+    router.push('/cart');   
   };
 
   const handleBuyNow = async () => {
@@ -239,11 +244,11 @@ const ProductSingle = () => {
       router.push('/login');
       return;
     }
-    
+
     // If user has already reviewed, pass existing review data
     if (userReview) {
       setShowReviewModal(true);
-    } 
+    }
     // If user can review (has purchased product)
     else if (reviewStatus?.canReview) {
       setShowReviewModal(true);
@@ -268,7 +273,7 @@ const ProductSingle = () => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
+
     return (
       <>
         {[...Array(fullStars)].map((_, i) => (
@@ -450,20 +455,31 @@ const ProductSingle = () => {
                 'Buy Now..!'
               )}
             </button>
-            <button
-              className="cart-button"
-              onClick={handleAddToCart}
-              disabled={isOutOfStock || isAddingToCart}
-            >
-              {isAddingToCart ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Adding...
-                </span>
-              ) : (
-                isInCart ? 'Update Cart' : 'Add to Cart'
-              )}
-            </button>
+
+            {isInCart ? (
+              <button
+                className="cart-button"
+                onClick={handleGoToCart}
+                style={{ backgroundColor: '#28a745' }}   // green for "already in cart"
+              >
+                Go to Cart
+              </button>
+            ) : (
+              <button
+                className="cart-button"
+                onClick={handleAddToCart}
+                disabled={isOutOfStock || isAddingToCart}
+              >
+                {isAddingToCart ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Adding...
+                  </span>
+                ) : (
+                  'Add to Cart'
+                )}
+              </button>
+            )}
           </div>
 
           {/* Wishlist Button */}
@@ -544,7 +560,7 @@ const ProductSingle = () => {
               />
             </div>
           )}
-          
+
           {activeTab === "reviews" && (
             <div className="reviews-content">
               {/* Rating Summary */}
@@ -561,14 +577,14 @@ const ProductSingle = () => {
                         Based on {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
                       </div>
                     </div>
-                    
+
                     {/* Rating Distribution */}
                     <div>
                       {[5, 4, 3, 2, 1].map((star) => (
                         <div key={star} className="flex items-center gap-2 mb-2">
                           <div className="w-12 text-sm">{star} star</div>
                           <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-                            <div 
+                            <div
                               className="bg-yellow-400 h-full rounded-full"
                               style={{ width: `${getRatingPercentage(ratingDistribution[star as keyof typeof ratingDistribution])}%` }}
                             />
@@ -582,7 +598,7 @@ const ProductSingle = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* Write/Edit Review Button - Same logic as ordersPage */}
               {session ? (
                 checkingReview ? (
@@ -628,7 +644,7 @@ const ProductSingle = () => {
                   </button>
                 </div>
               )}
-              
+
               {/* Reviews List */}
               {reviewsLoading && reviews.length === 0 ? (
                 <div className="text-center py-8">
@@ -654,13 +670,13 @@ const ProductSingle = () => {
                           <span>{formatDate(review.createdAt)}</span>
                         </div>
                       </div>
-                      
+
                       {review.title && (
                         <h4 className="font-semibold text-lg mt-2">{review.title}</h4>
                       )}
-                      
+
                       <p className="text-gray-700 mt-2">{review.review}</p>
-                      
+
                       {/* Review Images */}
                       {review.images && review.images.length > 0 && (
                         <div className="flex gap-2 mt-3 flex-wrap">
@@ -679,7 +695,7 @@ const ProductSingle = () => {
                       )}
                     </div>
                   ))}
-                  
+
                   {/* Load More Button */}
                   {hasMoreReviews && (
                     <div className="text-center pt-4">
@@ -708,7 +724,7 @@ const ProductSingle = () => {
               )}
             </div>
           )}
-          
+
           {activeTab === "specifications" && (
             <div className="specifications-content">
               <h3 className="text-xl font-semibold mb-4">Product Specifications</h3>

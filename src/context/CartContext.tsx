@@ -59,36 +59,36 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
-    
+
     case 'SET_CART':
-      return { 
-        ...state, 
+      return {
+        ...state,
         ...action.payload,
-        loading: false, 
-        error: null 
+        loading: false,
+        error: null
       };
-    
+
     case 'ADD_ITEM':
       const existingItemIndex = state.items.findIndex(
         item => item.productId._id === action.payload.productId._id
       );
-      
+
       let updatedItems: CartItem[];
       if (existingItemIndex > -1) {
         updatedItems = state.items.map((item, index) =>
           index === existingItemIndex
-            ? { 
-                ...item, 
-                quantity: item.quantity + action.payload.quantity,
-                price: action.payload.price,
-                offerPrice: action.payload.offerPrice
-              }
+            ? {
+              ...item,
+              quantity: item.quantity + action.payload.quantity,
+              price: action.payload.price,
+              offerPrice: action.payload.offerPrice
+            }
             : item
         );
       } else {
         updatedItems = [...state.items, action.payload];
       }
-      
+
       const updatedTotalAmount = updatedItems.reduce(
         (total, item) => total + (item.offerPrice * item.quantity),
         0
@@ -101,7 +101,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         (total, item) => total + ((item.price - item.offerPrice) * item.quantity),
         0
       );
-      
+
       return {
         ...state,
         items: updatedItems,
@@ -110,7 +110,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         totalSavings: updatedTotalSavings,
         loading: false,
       };
-    
+
     case 'UPDATE_ITEM':
       const itemsAfterUpdate = state.items
         .map(item =>
@@ -119,7 +119,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
             : item
         )
         .filter(item => item.quantity > 0);
-      
+
       const totalAfterUpdate = itemsAfterUpdate.reduce(
         (total, item) => total + (item.offerPrice * item.quantity),
         0
@@ -132,7 +132,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         (total, item) => total + ((item.price - item.offerPrice) * item.quantity),
         0
       );
-      
+
       return {
         ...state,
         items: itemsAfterUpdate,
@@ -141,12 +141,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         totalSavings: totalSavingsAfterUpdate,
         loading: false,
       };
-    
+
     case 'REMOVE_ITEM':
       const itemsAfterRemove = state.items.filter(
         item => item.productId._id !== action.payload
       );
-      
+
       const totalAfterRemove = itemsAfterRemove.reduce(
         (total, item) => total + (item.offerPrice * item.quantity),
         0
@@ -159,7 +159,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         (total, item) => total + ((item.price - item.offerPrice) * item.quantity),
         0
       );
-      
+
       return {
         ...state,
         items: itemsAfterRemove,
@@ -168,26 +168,26 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         totalSavings: totalSavingsAfterRemove,
         loading: false,
       };
-    
+
     case 'CLEAR_CART':
       return {
         ...initialState,
         loading: false,
       };
-    
+
     case 'SET_ERROR':
-      return { 
-        ...state, 
-        error: action.payload, 
-        loading: false 
+      return {
+        ...state,
+        error: action.payload,
+        loading: false
       };
-    
+
     case 'CLEAR_ERROR':
-      return { 
-        ...state, 
-        error: null 
+      return {
+        ...state,
+        error: null
       };
-    
+
     default:
       return state;
   }
@@ -214,14 +214,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await fetch('/api/cart');
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch cart');
       }
-      
+
       const data = await response.json();
-      dispatch({ 
-        type: 'SET_CART', 
+      dispatch({
+        type: 'SET_CART',
         payload: {
           items: data.items || [],
           totalAmount: data.totalAmount || 0,
@@ -230,63 +230,55 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
     } catch (error: any) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: error.message || 'Failed to fetch cart' 
+      dispatch({
+        type: 'SET_ERROR',
+        payload: error.message || 'Failed to fetch cart'
       });
     }
   };
 
-const addToCart = async (productId: string, quantity: number = 1) => {
-  try {
-    dispatch({ type: 'SET_LOADING', payload: true });
-    console.log('Sending add to cart request:', { productId, quantity });
-    
-    const response = await fetch('/api/cart', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ productId, quantity }),
-    });
-    
-    console.log('Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Response error text:', errorText);
-      
-      let errorData;
-      try {
-        errorData = JSON.parse(errorText);
-      } catch (e) {
-        errorData = { error: errorText || 'Unknown error' };
+  const addToCart = async (productId: string, quantity: number = 1) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+
+      // Optional: Prevent spam clicks
+      if (cart.items.some(item => item.productId._id === productId)) {
+        console.log('Item already in cart - use update instead');
       }
-      
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      dispatch({
+        type: 'SET_CART',
+        payload: {
+          items: data.cart.items,
+          totalAmount: data.cart.totalAmount,
+          totalItems: data.cart.totalItems,
+          totalSavings: data.cart.totalSavings || 0,
+        }
+      });
+    } catch (error: any) {
+      console.error('Add to cart error:', error);
+      dispatch({ type: 'SET_ERROR', payload: error.message || 'Failed to add item to cart' });
+      throw error;
+    } finally {
+      // Small delay to prevent rapid clicks
+      setTimeout(() => {
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }, 300);
     }
-    
-    const data = await response.json();
-    console.log('Add to cart success:', data);
-    
-    dispatch({ 
-      type: 'SET_CART', 
-      payload: {
-        items: data.cart.items,
-        totalAmount: data.cart.totalAmount,
-        totalItems: data.cart.totalItems,
-        totalSavings: data.cart.totalSavings || 0,
-      }
-    });
-  } catch (error: any) {
-    console.error('Add to cart error in context:', error);
-    dispatch({ 
-      type: 'SET_ERROR', 
-      payload: error.message || 'Failed to add item to cart' 
-    });
-    throw error;
-  }
-};
+  };
 
   const updateCartItem = async (productId: string, quantity: number) => {
     try {
@@ -298,15 +290,15 @@ const addToCart = async (productId: string, quantity: number = 1) => {
         },
         body: JSON.stringify({ productId, quantity }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update cart');
       }
-      
+
       const data = await response.json();
-      dispatch({ 
-        type: 'SET_CART', 
+      dispatch({
+        type: 'SET_CART',
         payload: {
           items: data.cart.items,
           totalAmount: data.cart.totalAmount,
@@ -315,9 +307,9 @@ const addToCart = async (productId: string, quantity: number = 1) => {
         }
       });
     } catch (error: any) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: error.message || 'Failed to update cart item' 
+      dispatch({
+        type: 'SET_ERROR',
+        payload: error.message || 'Failed to update cart item'
       });
       throw error;
     }
@@ -329,15 +321,15 @@ const addToCart = async (productId: string, quantity: number = 1) => {
       const response = await fetch(`/api/cart?productId=${productId}`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to remove item from cart');
       }
-      
+
       const data = await response.json();
-      dispatch({ 
-        type: 'SET_CART', 
+      dispatch({
+        type: 'SET_CART',
         payload: {
           items: data.cart.items,
           totalAmount: data.cart.totalAmount,
@@ -346,9 +338,9 @@ const addToCart = async (productId: string, quantity: number = 1) => {
         }
       });
     } catch (error: any) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: error.message || 'Failed to remove item from cart' 
+      dispatch({
+        type: 'SET_ERROR',
+        payload: error.message || 'Failed to remove item from cart'
       });
       throw error;
     }
@@ -363,9 +355,9 @@ const addToCart = async (productId: string, quantity: number = 1) => {
       }
       dispatch({ type: 'CLEAR_CART' });
     } catch (error: any) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: error.message || 'Failed to clear cart' 
+      dispatch({
+        type: 'SET_ERROR',
+        payload: error.message || 'Failed to clear cart'
       });
       throw error;
     }
