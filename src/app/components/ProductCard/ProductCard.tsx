@@ -209,37 +209,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               )}
             </button>
 
-            {/* Cart Button - Add to Cart */}
-            <button
-              onClick={handleAddToCart}
-              disabled={isAddingToCart}
-              style={{
-                background: isInCart ? '#28a745' : '#007F27',
-                border: 'none',
-                borderRadius: '50%',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: isAddingToCart ? 'not-allowed' : 'pointer',
-                opacity: isAddingToCart ? 0.6 : 1,
-                transition: 'all 0.2s ease',
-              }}
-              title={isInCart ? "Added to cart" : "Add to cart"}
-            >
-              {isAddingToCart ? (
-                <div style={{ width: '16px', height: '16px', border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              ) : isInCart ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
-                  <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
-                  <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 4 1 1 0 0 1 0-4m7 0a1 1 0 1 1 0 4 1 1 0 0 1 0-4" />
-                </svg>
-              )}
-            </button>
+            
           </div>
         </div>
 
@@ -273,35 +243,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
               )}
             </div>
 
-            <div className="col-6 d-flex justify-content-end">
-              <button
-                className="btn topbtn3"
-                onClick={handleCardClick}
-                disabled={isBuyingNow}
-                style={{
-                  backgroundColor: '#FF5722',
-                  color: 'white',
-                  border: 'none',
-                  padding: '8px 12px',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  opacity: isBuyingNow ? 0.6 : 1,
-                  cursor: isBuyingNow ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {/* {isBuyingNow ? (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '14px', height: '14px', border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                    Processing...
-                  </span>
-                ) : (
-                  'Buy Now'
-                )} */}
-                Buy Now
-              </button>
-            </div>
           </div>
         </div>
       </div>
