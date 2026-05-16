@@ -40,7 +40,6 @@ export async function GET(req: NextRequest) {
 }
 
 // Add item to cart
-// Add item to cart
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
@@ -51,6 +50,8 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { productId, quantity = 1 } = body;
+
+      console.log(body,'req from body.!!')
 
     if (!productId) {
       return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });

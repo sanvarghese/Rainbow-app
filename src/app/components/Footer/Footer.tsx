@@ -166,7 +166,7 @@ const Footer = () => {
             {/* Copyright */}
             <div className="copyright d-flex justify-content-center align-items-center text-white text-center">
                 <span className="copyrighttext">
-                    © Mazhavillu 2025 All rights reserved. Designed by Xeventure
+                    © Mazhavillu 2026 All rights reserved. Designed by Xeventure
                 </span>
             </div>
         </footer>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import "./RelatedProducts.css";
 import ProductCard from "../../ProductCard/ProductCard";
+import { useWishlist } from "@/context/WishlistContext";
 
 interface Product {
   _id: string;
@@ -24,112 +25,68 @@ interface Product {
 
 const RelatedProducts = () => {
   const { productId } = useParams();
+  const { wishlist } = useWishlist();
+
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!productId) return;
-
-    const fetchRelatedProducts = async () => {
+    const fetchWishlistProducts = async () => {
       try {
         setLoading(true);
-        
-        // First, get the current product to find related ones
-        const productRes = await fetch(`/api/products/${productId}`);
-        if (!productRes.ok) return;
-        
-        const productData = await productRes.json();
-        if (!productData.success) return;
 
-        const currentProduct = productData.product;
-        
-        // Then fetch related products (same category or subcategory)
+        if (!wishlist.items || wishlist.items.length === 0) {
+          setRelatedProducts([]);
+          return;
+        }
+
+        // Safe product ID extraction
+        const wishlistProductIds = wishlist.items
+          .map((item: any) => {
+            if (!item?.productId) return null;
+            return typeof item.productId === "object" 
+              ? item.productId._id?.toString() 
+              : item.productId.toString();
+          })
+          .filter(Boolean);
+
+        console.log("Wishlist IDs for API:", wishlistProductIds);
+
+        if (wishlistProductIds.length === 0) {
+          setRelatedProducts([]);
+          return;
+        }
+
+        // ✅ FIXED: Properly pass productId
         const params = new URLSearchParams({
-          category: currentProduct.category,
-          limit: '4',
-          exclude: productId
+          productId: productId as string,        // ← This was missing
+          relatedTo: wishlistProductIds.join(","),
+          limit: "8",
         });
 
-        const relatedRes = await fetch(`/api/products?${params}`);
-        
-        if (relatedRes.ok) {
-          const relatedData = await relatedRes.json();
-          if (relatedData.success) {
-            setRelatedProducts(relatedData.products);
+        const res = await fetch(`/api/products/related?${params}`);
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log("Related API Response:", data);
+          if (data.success) {
+            setRelatedProducts(data.products || []);
           }
+        } else {
+          console.error("API Error:", await res.text());
         }
       } catch (err) {
-        console.error("Error fetching related products:", err);
+        console.error("Error fetching wishlist products:", err);
         setRelatedProducts([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRelatedProducts();
-  }, [productId]);
-
-  // Fallback dummy data if no related products found
-  const fallbackProducts = [
-    {
-      _id: "1",
-      name: "Chicken Masala",
-      descriptionShort: "Authentic chicken masala powder",
-      price: 59,
-      offerPrice: 55,
-      discount: 7,
-      category: "food",
-      subCategory: "spices",
-      company: {
-        _id: "1",
-        name: "KOTTHAS KITCHEN"
-      }
-    },
-    {
-      _id: "2",
-      name: "Fish Masala",
-      descriptionShort: "Special fish masala blend",
-      price: 60,
-      offerPrice: 56,
-      discount: 7,
-      category: "food",
-      subCategory: "spices",
-      company: {
-        _id: "1",
-        name: "KOTTHAS KITCHEN"
-      }
-    },
-    {
-      _id: "3",
-      name: "Mutton Masala",
-      descriptionShort: "Rich mutton masala powder",
-      price: 65,
-      offerPrice: 60,
-      discount: 8,
-      category: "food",
-      subCategory: "spices",
-      company: {
-        _id: "1",
-        name: "KOTTHAS KITCHEN"
-      }
-    },
-    {
-      _id: "4",
-      name: "Veg Curry Masala",
-      descriptionShort: "Vegetarian curry masala",
-      price: 55,
-      offerPrice: 50,
-      discount: 9,
-      category: "food",
-      subCategory: "spices",
-      company: {
-        _id: "1",
-        name: "KOTTHAS KITCHEN"
-      }
+    if (productId) {
+      fetchWishlistProducts();
     }
-  ];
-
-  const productsToShow = relatedProducts.length > 0 ? relatedProducts : fallbackProducts;
+  }, [productId, wishlist.items]);
 
   return (
     <div className="relatedProducts">
@@ -137,20 +94,16 @@ const RelatedProducts = () => {
         <div className="row justify-content-center">
           <div className="youmightheading">
             <h4 className="h4_1">You might also like</h4>
-            <h4 className="h4_2">
-              All Products
-            </h4>
+            <h4 className="h4_2">From Your Wishlist</h4>
           </div>
 
           {loading ? (
             <div className="col-12 text-center py-4">
-              <div className="spinner-border text-success" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <p className="mt-2">Loading related products...</p>
+              <div className="spinner-border text-success" role="status" />
+              <p className="mt-2">Loading wishlist products...</p>
             </div>
-          ) : (
-            productsToShow.map((product) => (
+          ) : relatedProducts.length > 0 ? (
+            relatedProducts.map((product) => (
               <div
                 key={product._id}
                 className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
@@ -173,6 +126,10 @@ const RelatedProducts = () => {
                 />
               </div>
             ))
+          ) : (
+            <div className="col-12 text-center py-8">
+              <p className="text-muted">No products in wishlist yet.</p>
+            </div>
           )}
         </div>
       </div>
