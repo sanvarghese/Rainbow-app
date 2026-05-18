@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import "../cart/cart.css";
+import '../Cart/Cart.css'
 import cartpricebottom from "../../../assets/images/cartpricebottom.png";
 import { useCart } from "@/context/CartContext";
 

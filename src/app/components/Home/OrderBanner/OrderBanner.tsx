@@ -1,7 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import ban_one from '../../../../assets/images/banner.png'
-import '../OrderBanner/orderBanner.css'
+import '../OrderBanner/OrderBanner.css'
 
 const OrderBanner = () => {
   return (
