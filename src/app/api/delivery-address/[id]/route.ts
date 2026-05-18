@@ -1,7 +1,8 @@
 // app/api/delivery-address/[id]/route.ts
+import { addressService } from '@/lib/addressService';
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
-import { addressService } from '@/lib/addressService';
+// import { addressService } from '@/lib/addressService';
 
 export async function PUT(
   request: NextRequest,
