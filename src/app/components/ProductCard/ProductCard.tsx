@@ -186,7 +186,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               onClick={toggleWishlist}
               disabled={isTogglingWishlist || wishlist.loading}
               style={{
-                background: isWishlisted ? '#ff4444' : '#007F27',
+                background: isWishlisted ? 'rgb(223 0 0)' : '#007F27',
                 border: 'none',
                 borderRadius: '50%',
                 width: '32px',

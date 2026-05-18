@@ -10,7 +10,7 @@ import Advantages from './components/Home/Advantages/Advantages';
 import Category from './components/Home/Category/Category';
 import Products from './components/Home/Products/Products';
 import WeekendOffers from './components/Home/WeekendOffers/WeekendOffers';
-import TopSelling from './components/Home/TopSelling/TopSelling';
+import TopSelling from './components/Home/LatestProducts/LatestProducts';
 import OrderBanner from './components/Home/OrderBanner/OrderBanner';
 import TopVendors from './components/Home/TopVendors/TopVendors';
 import SpecialOffer from './components/Home/SpecialOffer/SpecialOffer';

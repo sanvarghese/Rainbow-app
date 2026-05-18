@@ -222,7 +222,7 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
                                     <h4 className="h4_1">
                                         {loading ? 'Loading...' : 
                                             products.length > 0 ?
-                                            `Showing ${((pagination.page - 1) * pagination.limit) + 1}-
+                                            ` Showing ${((pagination.page - 1) * pagination.limit) + 1}-
                                             ${Math.min(pagination.page * pagination.limit, pagination.total)} 
                                             of ${pagination.total} results`
                                             : 'No products found'
