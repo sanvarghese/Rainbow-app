@@ -1,13 +1,29 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Lock, Mail, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
+// ✅ Separate component that uses useSearchParams — must be wrapped in Suspense
+const SearchParamsHandler = ({
+  onSuccess,
+}: {
+  onSuccess: (msg: string) => void;
+}) => {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('signup') === 'success') {
+      onSuccess('Account created successfully! Please login.');
+    }
+  }, [searchParams]);
+
+  return null;
+};
+
 const AdminLoginPage = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -16,12 +32,6 @@ const AdminLoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
-  useEffect(() => {
-    if (searchParams.get('signup') === 'success') {
-      setSuccessMessage('Account created successfully! Please login.');
-    }
-  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -84,6 +94,12 @@ const AdminLoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-600 via-green-800 to-emerald-600 flex items-center justify-center p-4">
+
+      {/* ✅ Suspense boundary wrapping the useSearchParams component */}
+      <Suspense fallback={null}>
+        <SearchParamsHandler onSuccess={setSuccessMessage} />
+      </Suspense>
+
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -156,7 +172,6 @@ const AdminLoginPage = () => {
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            {/* Don't have an account?{' '} */}
             <button
               onClick={() => router.push('/auth/admin/signup')}
               className="text-green-600 font-semibold hover:text-green-700"

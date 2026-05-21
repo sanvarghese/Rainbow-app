@@ -1,15 +1,34 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { TextField, Button, Typography, Paper, Link, Alert } from '@mui/material';
 import './Login.css';
 
+// ✅ Separate component that uses useSearchParams — must be wrapped in Suspense
+const SearchParamsHandler = ({
+    onSuccess,
+}: {
+    onSuccess: (msg: string) => void;
+}) => {
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        if (searchParams.get('registered') === 'true') {
+            onSuccess('Account created successfully! Please login.');
+        }
+        if (searchParams.get('reset') === 'true') {
+            onSuccess('Password reset successfully! Please login.');
+        }
+    }, [searchParams]);
+
+    return null;
+};
+
 const LoginPage: React.FC = () => {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -17,15 +36,6 @@ const LoginPage: React.FC = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        if (searchParams.get('registered') === 'true') {
-            setSuccess('Account created successfully! Please login.');
-        }
-        if (searchParams.get('reset') === 'true') {
-            setSuccess('Password reset successfully! Please login.');
-        }
-    }, [searchParams]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -60,18 +70,15 @@ const LoginPage: React.FC = () => {
                 const statusData = await statusRes.json();
 
                 if (statusData.hasCompany && statusData.hasProducts) {
-                    // Setup complete - merchants can choose where to go
-                    // Redirect to home page by default (they can navigate to dashboard)
                     router.push('/dashboard');
                 } else {
-                    // Setup incomplete - redirect to complete setup
                     router.push('/dashboard');
                 }
             } else {
                 // Normal user - redirect to home page
                 router.push('/');
             }
-            
+
             router.refresh();
         } catch (err: any) {
             setError(err.message || 'Invalid credentials');
@@ -82,6 +89,12 @@ const LoginPage: React.FC = () => {
 
     return (
         <Container className="login-section d-flex align-items-center justify-content-center min-vh-100">
+
+            {/* ✅ Suspense boundary wrapping the useSearchParams component */}
+            <Suspense fallback={null}>
+                <SearchParamsHandler onSuccess={setSuccess} />
+            </Suspense>
+
             <Row className="w-100 justify-content-center">
                 <Col md={6} lg={5}>
                     <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
