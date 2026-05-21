@@ -21,43 +21,20 @@ const PaymentStep: React.FC = () => {
     placeOrder,
     isPlacingOrder,
     orderSummary,
-    selectedAddress  // Add this line - it was missing
+    selectedAddress  
   } = useOrder();
   
   const { buyNowItem, isBuyNowMode, clearBuyNow } = useBuyNow();
+  
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [orderDetails, setOrderDetails] = useState<any>(null);
 
   const paymentMethods: PaymentMethod[] = [
-    { 
-      id: 'cod', 
-      name: 'Cash on Delivery', 
-      type: 'cod', 
-      icon: '💵',
-      description: 'Pay when you receive your order'
-    },
-    { 
-      id: 'card', 
-      name: 'Credit / Debit Card', 
-      type: 'card', 
-      icon: '💳',
-      description: 'Visa, Mastercard, RuPay'
-    },
-    { 
-      id: 'upi', 
-      name: 'UPI', 
-      type: 'upi', 
-      icon: '📱',
-      description: 'Google Pay, PhonePe, Paytm'
-    },
-    { 
-      id: 'netbanking', 
-      name: 'Net Banking', 
-      type: 'netbanking', 
-      icon: '🏦',
-      description: 'All major banks'
-    },
+    { id: 'cod', name: 'Cash on Delivery', type: 'cod', icon: '💵', description: 'Pay when you receive your order' },
+    { id: 'card', name: 'Credit / Debit Card', type: 'card', icon: '💳', description: 'Visa, Mastercard, RuPay' },
+    { id: 'upi', name: 'UPI', type: 'upi', icon: '📱', description: 'Google Pay, PhonePe, Paytm' },
+    { id: 'netbanking', name: 'Net Banking', type: 'netbanking', icon: '🏦', description: 'All major banks' },
   ];
 
   const handleBack = () => {
@@ -71,17 +48,16 @@ const PaymentStep: React.FC = () => {
     }
 
     setError(null);
+
     try {
-      // Pass buyNow data to placeOrder function
-      const result = await placeOrder(buyNowItem, isBuyNowMode);
+      await placeOrder(buyNowItem, isBuyNowMode);   // ← Just await, don't assign
       
-      if (result && result.success) {
-        setOrderDetails(result.order);
-        setShowConfirmation(true);
-        // Clear buy now item after successful order
-        if (isBuyNowMode) {
-          clearBuyNow();
-        }
+      // If we reach here, order was placed successfully
+      setShowConfirmation(true);
+      
+      // Clear buy now item after successful order
+      if (isBuyNowMode) {
+        clearBuyNow();
       }
     } catch (err: any) {
       setError(err.message || 'Failed to place order. Please try again.');
@@ -119,7 +95,6 @@ const PaymentStep: React.FC = () => {
                     }
                   `}
                 >
-                  {/* Radio Indicator */}
                   <div className={`
                     w-5 h-5 rounded-full border-2 mr-4 flex-shrink-0
                     transition-all duration-200
@@ -137,10 +112,8 @@ const PaymentStep: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Icon */}
                   <span className="text-2xl mr-3">{method.icon}</span>
 
-                  {/* Details */}
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-gray-800">{method.name}</span>
@@ -155,7 +128,6 @@ const PaymentStep: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Chevron indicator for selected */}
                   {selectedPaymentMethod?.id === method.id && (
                     <div className="absolute right-4 top-1/2 -translate-y-1/2">
                       <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,7 +139,6 @@ const PaymentStep: React.FC = () => {
               ))}
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-600 flex items-center gap-2">
@@ -179,7 +150,6 @@ const PaymentStep: React.FC = () => {
               </div>
             )}
 
-            {/* Security Notice */}
             <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-400">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -189,7 +159,7 @@ const PaymentStep: React.FC = () => {
           </div>
         </div>
 
-        {/* Order Summary Sidebar */}
+        {/* Order Summary Sidebar - Unchanged */}
         <div className="md:col-span-1">
           <div className="bg-gray-50 rounded-xl p-5 sticky top-4">
             <h3 className="font-semibold text-lg mb-4">Order Summary</h3>
@@ -208,7 +178,9 @@ const PaymentStep: React.FC = () => {
                     <p className="font-medium text-gray-800 truncate">{currentProduct.name}</p>
                     <p className="text-sm text-gray-500">Qty: {currentProduct.quantity}</p>
                   </div>
-                  <p className="font-medium">₹{((currentProduct.offerPrice || currentProduct.price) * currentProduct.quantity).toFixed(2)}</p>
+                  <p className="font-medium">
+                    ₹{((currentProduct.offerPrice || currentProduct.price) * currentProduct.quantity).toFixed(2)}
+                  </p>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-gray-600">
@@ -237,6 +209,7 @@ const PaymentStep: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-3">
+                {/* Regular cart summary */}
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
@@ -252,10 +225,6 @@ const PaymentStep: React.FC = () => {
                       <span>-₹{orderSummary.discount.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Tax</span>
-                    <span>₹{orderSummary.tax.toFixed(2)}</span>
-                  </div>
                 </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between items-center">
@@ -303,12 +272,11 @@ const PaymentStep: React.FC = () => {
         </button>
       </div>
 
-      {/* Order Confirmation Modal */}
+      {/* Order Confirmation Modal - Unchanged */}
       {showConfirmation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 transform animate-in fade-in zoom-in duration-300">
             <div className="text-center">
-              {/* Success Icon */}
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -331,30 +299,18 @@ const PaymentStep: React.FC = () => {
                     <span>Payment Method:</span>
                     <span>{selectedPaymentMethod?.name}</span>
                   </div>
-                  {selectedAddress && (
-                    <div className="flex justify-between">
-                      <span>Delivery Address:</span>
-                      <span className="text-right">{selectedAddress?.fullName}</span>
-                    </div>
-                  )}
                 </div>
               </div>
               
               <div className="flex gap-3">
                 <button
-                  onClick={() => {
-                    setShowConfirmation(false);
-                    window.location.href = '/orders';
-                  }}
+                  onClick={() => window.location.href = '/orders'}
                   className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
                 >
                   View Orders
                 </button>
                 <button
-                  onClick={() => {
-                    setShowConfirmation(false);
-                    window.location.href = '/';
-                  }}
+                  onClick={() => window.location.href = '/'}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
                 >
                   Continue Shopping

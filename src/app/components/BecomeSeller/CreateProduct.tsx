@@ -161,7 +161,7 @@ const MenuBar = ({ editor }: any) => {
 const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData }) => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
-    
+
     const [formData, setFormData] = useState({
         productImages: [] as File[],
         badges: null as File | null,
@@ -199,7 +199,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
     const availableChildSubCategories = React.useMemo(() => {
         const selectedCategory = categories.find(cat => cat.name === formData.category);
         const selectedSubCategory = selectedCategory?.subCategories.find(sub => sub.name === formData.subCategory);
-        
+
         if (selectedSubCategory?.hasChildSubCategories) {
             return selectedSubCategory.childSubCategories;
         }
@@ -248,7 +248,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             setLoadingCategories(true);
             const response = await fetch('/api/merchant/categories');
             const data = await response.json();
-            
+
             if (data.success) {
                 setCategories(data.categories);
             } else {
@@ -310,7 +310,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
     const handleVariantToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
         const checked = event.target.checked;
         setFormData(prev => ({ ...prev, hasVariants: checked }));
-        
+
         if (checked && variants.length === 0) {
             addVariant();
         }
@@ -341,13 +341,13 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setVariants(variants.map(v => {
             if (v.id === id) {
                 const updated = { ...v, [field]: value };
-                
+
                 if (field === 'variantType' || field === 'variantValue' || field === 'variantUnit') {
                     if (!v.displayValue || v.displayValue === generateDisplayValue(v)) {
                         updated.displayValue = generateDisplayValue(updated);
                     }
                 }
-                
+
                 return updated;
             }
             return v;
@@ -357,19 +357,19 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
     // Generate display value based on type and value
     const generateDisplayValue = (variant: Variant): string => {
         if (!variant.variantValue) return '';
-        
+
         if (variant.variantType === 'custom') {
-            return variant.variantUnit 
-                ? `${variant.variantValue} ${variant.variantUnit}` 
+            return variant.variantUnit
+                ? `${variant.variantValue} ${variant.variantUnit}`
                 : variant.variantValue;
         }
-        
+
         if (['size', 'piece', 'pack'].includes(variant.variantType)) {
             return variant.variantValue;
         }
-        
-        return variant.variantUnit 
-            ? `${variant.variantValue} ${variant.variantUnit}` 
+
+        return variant.variantUnit
+            ? `${variant.variantValue} ${variant.variantUnit}`
             : variant.variantValue;
     };
 
@@ -445,7 +445,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setFormData((prev) => ({ ...prev, [name]: value }));
         setError('');
         validateField(name, value);
-        
+
         // Reset dependent fields when parent category changes
         if (name === 'category') {
             setFormData(prev => ({ ...prev, subCategory: '', childSubCategory: '' }));
@@ -457,10 +457,10 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
     const handleMultipleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
-        
+
         if (files.length === 0) return;
 
-        const existingUrlImages = preview.productImages.filter(img => 
+        const existingUrlImages = preview.productImages.filter(img =>
             typeof img === 'string' && (img.startsWith('http') || img.startsWith('data:image'))
         ).length;
 
@@ -512,8 +512,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
     const removeProductImage = (index: number) => {
         const imageToRemove = preview.productImages[index];
-        
-        const isExistingServerImage = typeof imageToRemove === 'string' && 
+
+        const isExistingServerImage = typeof imageToRemove === 'string' &&
             (imageToRemove.startsWith('http') || imageToRemove.includes(';base64,'));
 
         if (isExistingServerImage) {
@@ -572,7 +572,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setFormData((prev) => ({ ...prev, [name]: value }));
         setError('');
         validateField(name, value);
-        
+
         // Reset dependent fields
         if (name === 'category') {
             setFormData(prev => ({ ...prev, subCategory: '', childSubCategory: '' }));
@@ -588,12 +588,12 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         setSuccess('');
         setFieldErrors({});
 
-        const existingServerImages = preview.productImages.filter(img => 
+        const existingServerImages = preview.productImages.filter(img =>
             typeof img === 'string' && (img.startsWith('http') || img.includes(';base64,'))
         );
-        
+
         const totalProductImages = existingServerImages.length + formData.productImages.length;
-        
+
         if (totalProductImages < 2) {
             setFieldErrors(prev => ({
                 ...prev,
@@ -604,16 +604,16 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
         }
 
         const requiredFields = ['name', 'descriptionShort', 'category', 'subCategory'];
-        
+
         // Add childSubCategory validation if the selected subcategory has child subcategories
         if (hasChildSubCategories) {
             requiredFields.push('childSubCategory');
         }
-        
+
         if (!formData.hasVariants) {
             requiredFields.push('quantity', 'price', 'offerPrice');
         }
-        
+
         let hasErrors = false;
 
         requiredFields.forEach(field => {
@@ -675,14 +675,14 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
             });
 
             if (initialData?.productImages) {
-                const existingImages = preview.productImages.filter(img => 
+                const existingImages = preview.productImages.filter(img =>
                     typeof img === 'string' && (img.startsWith('http') || img.includes(';base64,'))
                 );
                 formDataToSend.append('existingImages', JSON.stringify(existingImages));
             }
 
             formDataToSend.append('hasVariants', formData.hasVariants.toString());
-            
+
             if (formData.hasVariants) {
                 const variantsData = variants.map(v => ({
                     variantType: v.variantType,
@@ -802,9 +802,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                         <div className="row g-4">
                             {/* Product Images Section (same as before) */}
                             <div className="col-12">
-                                <Box sx={{ 
-                                    border: '2px dashed #006d21ff', 
-                                    borderRadius: 2, 
+                                <Box sx={{
+                                    border: '2px dashed #006d21ff',
+                                    borderRadius: 2,
                                     p: 3,
                                     backgroundColor: '#f8f9fa',
                                     transition: 'all 0.3s ease',
@@ -819,7 +819,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                             Product Images *
                                         </Typography>
                                     </Box>
-                                    
+
                                     <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
                                         Upload minimum 2 and maximum 5 high-quality product images. First image will be the main display image.
                                     </Typography>
@@ -846,10 +846,10 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                 disabled={preview.productImages.length >= 5}
                                             />
                                         </Button>
-                                        
-                                        <Box sx={{ 
-                                            display: 'flex', 
-                                            alignItems: 'center', 
+
+                                        <Box sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
                                             gap: 1,
                                             px: 2,
                                             py: 1,
@@ -873,7 +873,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                             {fieldErrors.productImages}
                                         </Alert>
                                     )}
-
+                                    {/* 
                                     {preview.productImages.length > 0 && (
                                         <Grid container spacing={2} sx={{ mt: 1 }}>
                                             {preview.productImages.map((img, index) => (
@@ -958,11 +958,106 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                 </Grid>
                                             ))}
                                         </Grid>
+                                    )} */}
+
+                                    {/* Image Preview Grid */}
+                                    {preview.productImages.length > 0 && (
+                                        <Grid container spacing={2} sx={{ mt: 1 }}>
+                                            {preview.productImages.map((img, index) => (
+                                                <Grid
+                                                    size={{
+                                                        xs: 6,
+                                                        sm: 4,
+                                                        md: 3
+                                                    }}
+                                                    key={index}
+                                                >
+                                                    <Box sx={{
+                                                        position: 'relative',
+                                                        paddingTop: '100%',
+                                                        borderRadius: 2,
+                                                        overflow: 'hidden',
+                                                        boxShadow: 2,
+                                                        border: index === 0 ? '3px solid #006d21ff' : '2px solid #e0e0e0',
+                                                        transition: 'all 0.3s ease',
+                                                        '&:hover': {
+                                                            transform: 'scale(1.05)',
+                                                            boxShadow: 4
+                                                        }
+                                                    }}>
+                                                        {index === 0 && (
+                                                            <Box sx={{
+                                                                position: 'absolute',
+                                                                top: 8,
+                                                                left: 8,
+                                                                backgroundColor: '#006d21ff',
+                                                                color: 'white',
+                                                                px: 1,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontSize: '0.75rem',
+                                                                fontWeight: 'bold',
+                                                                zIndex: 2
+                                                            }}>
+                                                                MAIN
+                                                            </Box>
+                                                        )}
+                                                        <img
+                                                            src={img}
+                                                            alt={`Product ${index + 1}`}
+                                                            style={{
+                                                                position: 'absolute',
+                                                                top: 0,
+                                                                left: 0,
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover'
+                                                            }}
+                                                        />
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => removeProductImage(index)}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                top: 8,
+                                                                right: 8,
+                                                                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                                                color: 'white',
+                                                                zIndex: 2,
+                                                                '&:hover': {
+                                                                    backgroundColor: 'rgba(200, 0, 0, 1)'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <X size={16} />
+                                                        </IconButton>
+                                                        <Typography
+                                                            variant="caption"
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                bottom: 8,
+                                                                left: '50%',
+                                                                transform: 'translateX(-50%)',
+                                                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                                                color: 'white',
+                                                                px: 1,
+                                                                py: 0.5,
+                                                                borderRadius: 1,
+                                                                fontSize: '0.7rem'
+                                                            }}
+                                                        >
+                                                            Image {index + 1}
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>
+                                            ))}
+                                        </Grid>
                                     )}
 
+
                                     {preview.productImages.length === 0 && (
-                                        <Box sx={{ 
-                                            textAlign: 'center', 
+                                        <Box sx={{
+                                            textAlign: 'center',
                                             py: 4,
                                             border: '1px dashed #ccc',
                                             borderRadius: 2,
@@ -1210,7 +1305,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                 </Box>
 
                                                 <Grid container spacing={2}>
-                                                    <Grid item xs={12} sm={6} md={3}>
+                                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                                         <FormControl fullWidth size="small">
                                                             <InputLabel>Variant Type *</InputLabel>
                                                             <Select
@@ -1229,7 +1324,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
 
                                                     {variant.variantType === 'custom' ? (
                                                         <>
-                                                            <Grid item xs={12} sm={6} md={3}>
+                                                            <Grid
+                                                                size={{ xs: 12, sm: 6, md: 3 }}
+                                                            >
                                                                 <TextField
                                                                     fullWidth
                                                                     size="small"
@@ -1240,7 +1337,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                                     placeholder="e.g., 10, 25, 50"
                                                                 />
                                                             </Grid>
-                                                            <Grid item xs={12} sm={6} md={3}>
+                                                            <Grid
+                                                                size={{ xs: 12, sm: 6, md: 3 }}>
                                                                 <TextField
                                                                     fullWidth
                                                                     size="small"
@@ -1253,7 +1351,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                         </>
                                                     ) : ['weight', 'volume'].includes(variant.variantType) ? (
                                                         <>
-                                                            <Grid item xs={12} sm={6} md={3}>
+                                                            <Grid size={{ xs: 12, sm: 6, md: 3 }}
+                                                            >
+
                                                                 <TextField
                                                                     fullWidth
                                                                     size="small"
@@ -1264,7 +1364,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                                     placeholder="e.g., 500, 1, 2"
                                                                 />
                                                             </Grid>
-                                                            <Grid item xs={12} sm={6} md={3}>
+                                                            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                                                 <FormControl fullWidth size="small">
                                                                     <InputLabel>Unit *</InputLabel>
                                                                     <Select
@@ -1282,7 +1382,7 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                             </Grid>
                                                         </>
                                                     ) : (
-                                                        <Grid item xs={12} sm={6} md={3}>
+                                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                                             <FormControl fullWidth size="small">
                                                                 <InputLabel>Value *</InputLabel>
                                                                 <Select
@@ -1300,7 +1400,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                         </Grid>
                                                     )}
 
-                                                    <Grid item xs={12} sm={6} md={3}>
+                                                    <Grid
+                                                        size={{ xs: 12, sm: 6, md: 3 }}
+                                                    >
                                                         <TextField
                                                             fullWidth
                                                             size="small"
@@ -1312,7 +1414,10 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                         />
                                                     </Grid>
 
-                                                    <Grid item xs={12} sm={4}>
+                                                    <Grid
+                                                        size={{ xs: 12, sm: 4, md: 3 }}
+
+                                                    >
                                                         <TextField
                                                             fullWidth
                                                             size="small"
@@ -1323,7 +1428,8 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                         />
                                                     </Grid>
 
-                                                    <Grid item xs={12} sm={4}>
+                                                    <Grid size={{ xs: 12, sm: 4, }}
+                                                    >
                                                         <TextField
                                                             fullWidth
                                                             size="small"
@@ -1334,7 +1440,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                                                         />
                                                     </Grid>
 
-                                                    <Grid item xs={12} sm={4}>
+                                                    <Grid
+                                                        size={{ xs: 12, sm: 4, }}
+                                                    >
                                                         <TextField
                                                             fullWidth
                                                             size="small"
@@ -1398,9 +1506,9 @@ const CreateProduct: React.FC<CreateProductProps> = ({ onSuccess, initialData })
                             )}
 
                             <div className="col-12">
-                                <Box sx={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
+                                <Box sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
                                     alignItems: 'center',
                                     pt: 2,
                                     borderTop: '2px solid #e0e0e0'

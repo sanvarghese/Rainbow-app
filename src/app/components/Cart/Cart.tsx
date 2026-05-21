@@ -5,10 +5,12 @@ import "./Cart.css";
 import card_2 from "../../../assets/images/card_2.png";
 import PriceDetails from "./PriceDetails";
 import { useCart } from "@/context/CartContext";
-// import { useCart } from "../../../contexts/CartContext";
 
 const Cart = () => {
   const { cart, updateCartItem, removeFromCart } = useCart();
+
+  // Get the actual image URL from the imported image
+  const fallbackImageUrl = card_2.src;
 
   console.log(cart, 'cart data')
 
@@ -28,7 +30,6 @@ const Cart = () => {
 
   const handleSaveForLater = (productId: string) => {
     console.log(`Item with id ${productId} saved for later.`);
-    // Implement save for later functionality
   };
 
   if (cart.loading) {
@@ -86,7 +87,8 @@ const Cart = () => {
                     width={120}
                     height={120}
                     onError={(e) => {
-                      e.currentTarget.src = card_2;
+                      // Use .src property of the imported image
+                      e.currentTarget.src = fallbackImageUrl;
                     }}
                   />
                 </div>
@@ -143,7 +145,7 @@ const Cart = () => {
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            rating: 4.7, // You can add rating to your product model if needed
+            rating: 4.7,
           }))} />
         </div>
       </div>

@@ -11,7 +11,7 @@ interface Product {
   category: string;
   subCategory?: string;
   images: string[];
-  status: 'inactive' | 'approved' | 'rejected' | 'removed';
+  status: 'inactive' | 'pending' | 'approved' | 'rejected' | 'removed'; // ← Added 'pending'
   companyId: {
     _id: string;
     name: string;
@@ -27,18 +27,16 @@ interface Product {
 }
 
 const ProductApprovalSection = () => {
-  const [allProducts, setAllProducts] = useState<Product[]>([]); // Store all products
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
 
-  // Fetch ALL products once on component mount
   useEffect(() => {
     fetchAllProducts();
   }, []);
 
-  // Filter products whenever filter changes or allProducts updates
   useEffect(() => {
     filterProducts();
   }, [filter, allProducts]);
@@ -87,7 +85,6 @@ const ProductApprovalSection = () => {
 
       if (data.success) {
         alert(data.message);
-        // Refresh all data after approval/rejection
         fetchAllProducts();
         setSelectedProduct(null);
       } else {
@@ -99,7 +96,6 @@ const ProductApprovalSection = () => {
     }
   };
 
-  // Calculate counts from allProducts (always accurate)
   const pendingCount = allProducts.filter((p) => p.status === 'inactive' || p.status === 'pending').length;
   const approvedCount = allProducts.filter((p) => p.status === 'approved').length;
   const rejectedCount = allProducts.filter((p) => p.status === 'rejected').length;
@@ -165,7 +161,6 @@ const ProductApprovalSection = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
           <div key={product._id} className="bg-white rounded-xl shadow-sm overflow-hidden">
-            {/* Product Image */}
             <div className="h-48 bg-gray-100 relative">
               {product.images && product.images.length > 0 ? (
                 <img
@@ -258,11 +253,10 @@ const ProductApprovalSection = () => {
         </div>
       )}
 
-      {/* Product Review Modal - Unchanged */}
+      {/* Product Review Modal */}
       {selectedProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            {/* ... Your existing modal content remains exactly the same ... */}
             <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
               <h3 className="text-xl font-bold text-gray-800">Review Product</h3>
               <button onClick={() => setSelectedProduct(null)} className="text-gray-500 hover:text-gray-700">
@@ -271,7 +265,6 @@ const ProductApprovalSection = () => {
             </div>
 
             <div className="p-6">
-              {/* Product Images, Details, Company Info, etc. - Keep your original modal code here */}
               {selectedProduct.images && selectedProduct.images.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                   {selectedProduct.images.map((img, index) => (

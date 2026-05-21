@@ -5,22 +5,29 @@ import { useOrder } from '@/context/OrderContext';
 import { useBuyNow } from '@/context/BuyNowContext';
 import React from 'react';
 
+interface Totals {
+  subtotal: number;
+  deliveryFee: number;
+  discount: number;
+  total: number;
+}
+
 const OrderSummaryStep: React.FC = () => {
   const { selectedAddress, setCurrentStep } = useOrder();
   const { buyNowItem, isBuyNowMode } = useBuyNow();
 
   const currentProduct = isBuyNowMode && buyNowItem ? buyNowItem : null;
 
-  // Calculate totals with dummy delivery fee
-  const calculateTotals = () => {
+  // Calculate totals with proper typing
+  const calculateTotals = (): Totals | null => {
     if (!currentProduct) return null;
     
     const subtotal = currentProduct.offerPrice * currentProduct.quantity;
-    const deliveryFee = 40; // Dummy delivery fee
+    const deliveryFee = 40;
     const discount = currentProduct.price > currentProduct.offerPrice 
       ? (currentProduct.price - currentProduct.offerPrice) * currentProduct.quantity 
       : 0;
-    const total = subtotal + deliveryFee;
+    const total = subtotal + deliveryFee - discount;
 
     return {
       subtotal,
@@ -89,7 +96,6 @@ const OrderSummaryStep: React.FC = () => {
             <h3 className="font-semibold text-lg mb-4">Product Details</h3>
             
             <div className="flex gap-4 pb-4">
-              {/* Product Image */}
               <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                 {currentProduct.productImage ? (
                   <img 
@@ -104,7 +110,6 @@ const OrderSummaryStep: React.FC = () => {
                 )}
               </div>
               
-              {/* Product Info */}
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-800 text-lg">{currentProduct.name}</h4>
                 {currentProduct.subtitle && (
@@ -140,7 +145,7 @@ const OrderSummaryStep: React.FC = () => {
                 <span>₹{totals?.subtotal.toFixed(2)}</span>
               </div>
               
-              {totals?.discount > 0 && (
+              {totals && totals.discount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>
                   <span>-₹{totals.discount.toFixed(2)}</span>
@@ -149,9 +154,7 @@ const OrderSummaryStep: React.FC = () => {
               
               <div className="flex justify-between">
                 <span className="text-gray-600">Delivery Fee</span>
-                <div className="text-right">
-                  <span>₹{totals?.deliveryFee.toFixed(2)}</span>
-                </div>
+                <span>₹{totals?.deliveryFee.toFixed(2)}</span>
               </div>
               
               <div className="text-xs text-gray-500 text-right">

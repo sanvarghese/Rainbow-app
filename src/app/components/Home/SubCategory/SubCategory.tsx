@@ -4,8 +4,16 @@ import '../SubCategory/SubCategory.css'
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface SubCategory {
+  _id: string;
+  name: string;
+  image?: string;
+  parentCategory?: string;
+  // Add any other fields you expect from the API
+}
+
 const SubCategory = () => {
-  const [subCategories, setSubCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,7 +24,8 @@ const SubCategory = () => {
     try {
       const response = await fetch('/api/subcategories');
       const data = await response.json();
-      if (data.success) {
+      
+      if (data.success && Array.isArray(data.subCategories)) {
         setSubCategories(data.subCategories);
       }
     } catch (error) {
@@ -50,7 +59,6 @@ const SubCategory = () => {
     return null;
   }
 
-  // Background classes array for cycling through different card styles
   const bgClasses = ['card-bg-1', 'card-bg-2', 'card-bg-3', 'card-bg-4'];
   const imgClasses = ['card-img', 'card-img2', 'card-img3', 'card-img4'];
 
@@ -59,10 +67,13 @@ const SubCategory = () => {
       <div className="container-fluid text-center">
         <div className="row justify-content-center product-list">
           {subCategories.map((subCategory, index) => (
-            <div key={subCategory._id} className="col-12 col-md-6 col-custom-3 mt-4">
+            <div 
+              key={subCategory._id} 
+              className="col-12 col-md-6 col-custom-3 mt-4"
+            >
               <div className={`card fixed-card ${bgClasses[index % bgClasses.length]}`}>
                 <div className="card-body">
-                  <h4 className="card-title card-text ">
+                  <h4 className="card-title card-text">
                     {subCategory.name.split(' ').map((word, i) => (
                       <React.Fragment key={i}>
                         {word}
@@ -70,9 +81,13 @@ const SubCategory = () => {
                       </React.Fragment>
                     ))}
                   </h4>
-                  <Link href={`/products?subcategory=${encodeURIComponent(subCategory.name)}&category=${encodeURIComponent(subCategory.parentCategory)}`}>
+
+                  <Link 
+                    href={`/products?subcategory=${encodeURIComponent(subCategory.name)}&category=${encodeURIComponent(subCategory.parentCategory || '')}`}
+                  >
                     <button className="btn order-btn">Order Now</button>
                   </Link>
+
                   {subCategory.image ? (
                     <Image 
                       className={imgClasses[index % imgClasses.length]} 
@@ -82,9 +97,7 @@ const SubCategory = () => {
                       height={200}
                     />
                   ) : (
-                    <div className={`${imgClasses[index % imgClasses.length]} placeholder-image`}>
-                      {/* Optional: Add a default icon or leave empty */}
-                    </div>
+                    <div className={`${imgClasses[index % imgClasses.length]} placeholder-image`} />
                   )}
                 </div>
               </div>

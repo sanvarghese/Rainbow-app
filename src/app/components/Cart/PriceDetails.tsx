@@ -6,20 +6,40 @@ import '../Cart/Cart.css'
 import cartpricebottom from "../../../assets/images/cartpricebottom.png";
 import { useCart } from "@/context/CartContext";
 
-const PriceDetails: React.FC = () => {
+interface CartItemForPrice {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  rating?: number;
+}
+
+interface PriceDetailsProps {
+  cartItems?: CartItemForPrice[];   // Accept prop from parent
+}
+
+const PriceDetails: React.FC<PriceDetailsProps> = ({ cartItems }) => {
   const { cart } = useCart();
   
-  // Calculate values based on cart items
-  const subtotal = cart.items.reduce(
+  // Use passed cartItems if available, otherwise fallback to context
+  const items = cartItems || cart.items.map(item => ({
+    id: parseInt(item._id || '0'),
+    name: item.name,
+    price: item.price || item.offerPrice || 0,
+    quantity: item.quantity,
+  }));
+
+  const subtotal = items.reduce(
     (total, item) => total + (item.price * item.quantity),
     0
   );
-  const totalAmount = cart.totalAmount;
-  const totalSavings = cart.totalSavings || subtotal - totalAmount;
-  const deliveryCharge = 0;
+
+  const totalAmount = cart.totalAmount || subtotal;
+  const totalSavings = cart.totalSavings || 0;
 
   const handleCheckout = () => {
-    console.log("Proceeding to checkout with items:", cart.items);
+    console.log("Proceeding to checkout with items:", items);
+    // Add your checkout logic here
   };
 
   return (
@@ -30,36 +50,28 @@ const PriceDetails: React.FC = () => {
 
           <div className="d-flex justify-content-between mb-2">
             <span>
-              <b>Subtotal ({cart.totalItems} items)</b>
+              <b>Subtotal ({items.length} items)</b>
             </span>
             <span>₹{subtotal.toFixed(2)}</span>
           </div>
 
           {totalSavings > 0 && (
             <div className="d-flex justify-content-between mb-2">
-              <span>
-                <b>Discount</b>
-              </span>
+              <span><b>Discount</b></span>
               <span className="text-success">- ₹{totalSavings.toFixed(2)}</span>
             </div>
           )}
 
           <div className="d-flex justify-content-between mb-2">
-            <span>
-              <b>Delivery Charges</b>
-            </span>
+            <span><b>Delivery Charges</b></span>
             <span className="text-success">Free</span>
           </div>
 
           <hr />
 
           <div className="d-flex justify-content-between mb-2 totalamount">
-            <span>
-              <b>Total Amount</b>
-            </span>
-            <span>
-              <b>₹{totalAmount.toFixed(2)}</b>
-            </span>
+            <span><b>Total Amount</b></span>
+            <span><b>₹{totalAmount.toFixed(2)}</b></span>
           </div>
 
           {totalSavings > 0 && (
