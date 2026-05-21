@@ -1,25 +1,29 @@
+// app/api/reviews/product/[productId]/route.ts   (or your actual path)
 import { NextRequest, NextResponse } from "next/server";
 import Review from "../../../../../models/Review";
 import connectDB from "../../../../../lib/mongodb";
 import { auth } from "../../../../../../auth";
 
+type Params = Promise<{ productId: string }>;
+
 export async function GET(
   req: NextRequest,
-  { params }: { params: { productId: string } },
+  { params }: { params: Params }
 ) {
   try {
+    const { productId } = await params;     // ← Fixed
+
     const session = await auth();
 
     if (!session || !session.user?.email) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
     await connectDB();
 
-    const { productId } = params;
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
@@ -84,7 +88,7 @@ export async function GET(
     console.error("Error fetching reviews:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch reviews" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

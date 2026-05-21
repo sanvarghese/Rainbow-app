@@ -9,7 +9,7 @@ import path from "path";
 // GET - Get single company
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = await verifyAdminToken(req);
@@ -22,7 +22,9 @@ export async function GET(
 
     await connectDB();
 
-    const company = await Company.findById(params.id).populate(
+    const { id } = await params;
+
+    const company = await Company.findById(id).populate(
       "userId",
       "name email",
     );
@@ -47,7 +49,7 @@ export async function GET(
 // PUT - Update company
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = await verifyAdminToken(req);
@@ -59,6 +61,8 @@ export async function PUT(
     }
 
     await connectDB();
+
+    const { id } = await params;
 
     const formData = await req.formData();
 
@@ -120,7 +124,7 @@ export async function PUT(
       if (existingBanner) updateData.banner = existingBanner;
     }
 
-    const company = await Company.findByIdAndUpdate(params.id, updateData, {
+    const company = await Company.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     }).populate("userId", "name email");
@@ -149,7 +153,7 @@ export async function PUT(
 // DELETE - Soft delete company
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const admin = await verifyAdminToken(req);
@@ -162,7 +166,9 @@ export async function DELETE(
 
     await connectDB();
 
-    const company = await Company.findById(params.id);
+    const { id } = await params;
+
+    const company = await Company.findById(id);
 
     if (!company) {
       return NextResponse.json(
@@ -172,7 +178,7 @@ export async function DELETE(
     }
 
     // Soft delete - update status to 'removed' or just delete
-    await Company.deleteOne({ _id: params.id });
+    await Company.deleteOne({ _id: id });
 
     return NextResponse.json({
       success: true,

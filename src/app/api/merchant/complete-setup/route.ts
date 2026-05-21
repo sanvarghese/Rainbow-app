@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (session.user.role !== 'Merchant') {
+    // Fixed: Use lowercase 'merchant' to match your NextAuth types
+    if (session.user.role !== 'merchant') {
       return NextResponse.json(
         { error: 'Only merchants can complete setup' },
         { status: 403 }

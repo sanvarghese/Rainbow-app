@@ -6,23 +6,26 @@ import { auth } from '../../../../../../auth';
 import Order from '../../../../../models/Order';
 import { updateOrderStatusWithLog } from '../../../../../lib/orderStatusManager';
 
+type Params = Promise<{ id: string }>;
+
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Params }   // ← Fixed
 ) {
   try {
+    const { id } = await params;   // ← Must be awaited here
+
     const session = await auth();
 
-   if (!session?.user) {
+    if (!session?.user) {
       return NextResponse.json(
         { error: "Unauthorized", details: "Please login to continue" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
     await connectDB();
     
-    const { id } = params;
     const body = await req.json();
     const { status, deliveryDate, note } = body;
     
@@ -62,7 +65,7 @@ export async function PATCH(
         }
         
         // Update status with log
-        const updatedOrder = await updateOrderStatusWithLog({
+        await updateOrderStatusWithLog({
           orderId: id,
           newStatus: status,
           updatedBy: 'merchant',
@@ -70,17 +73,10 @@ export async function PATCH(
           note: note || `Order status changed to ${status}`,
           session: dbSession
         });
-        
-        updateData.status = status;
       }
       
-      // Update delivery date if provided
-      if (deliveryDate) {
-        await Order.findByIdAndUpdate(id, updateData, { session: dbSession });
-      } else if (status) {
-        // Only status was updated, but we already updated via the function above
-        // So we just need to get the final order
-      } else {
+      // Update delivery date if provided and no status change
+      if (deliveryDate && !status) {
         await Order.findByIdAndUpdate(id, updateData, { session: dbSession });
       }
       
@@ -90,7 +86,10 @@ export async function PATCH(
       const finalOrder = await Order.findById(id)
         .populate('userId', 'name email');
       
-      return NextResponse.json({ order: finalOrder });
+      return NextResponse.json({ 
+        success: true,
+        order: finalOrder 
+      });
       
     } catch (error) {
       await dbSession.abortTransaction();

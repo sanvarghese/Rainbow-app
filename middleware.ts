@@ -25,7 +25,7 @@ export default auth((req) => {
   // If authenticated user tries to access auth pages, redirect appropriately
   if (isAuthenticated && isPublicRoute && pathname !== '/become-a-seller') {
     // Redirect based on role
-    if (userRole === 'Merchant') {
+    if (userRole === 'merchant') {           // ← Fixed (lowercase)
       return NextResponse.redirect(new URL('/dashboard', req.url));
     } else {
       return NextResponse.redirect(new URL('/', req.url));
@@ -33,19 +33,19 @@ export default auth((req) => {
   }
 
   // Prevent normal users from accessing merchant routes
-  if (isAuthenticated && userRole !== 'Merchant') {
+  if (isAuthenticated && userRole !== 'merchant') {   // ← Fixed
     if (pathname.startsWith('/dashboard') || pathname.startsWith('/merchant-preview')) {
       return NextResponse.redirect(new URL('/', req.url));
     }
   }
 
   // Merchant-only API routes
-  if (pathname.startsWith('/api/merchant') && userRole !== 'Merchant') {
+  if (pathname.startsWith('/api/merchant') && userRole !== 'merchant') {  // ← Fixed
     return NextResponse.json({ error: 'Access denied' }, { status: 403 });
   }
 
   // Redirect merchants from become-a-seller to dashboard
-  if (pathname === '/become-a-seller' && userRole === 'Merchant') {
+  if (pathname === '/become-a-seller' && userRole === 'merchant') {   // ← Fixed
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 

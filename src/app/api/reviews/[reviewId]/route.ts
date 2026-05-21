@@ -1,30 +1,36 @@
 // app/api/reviews/[reviewId]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-// import { uploadToCloudinary, deleteFromCloudinary } from '@/lib/cloudinary';
 import connectDB from '../../../../lib/mongodb';
 import { auth } from '../../../../../auth';
 import Review from '../../../../models/Review';
 import { deleteFromCloudinary, uploadToCloudinary } from '../../../../lib/cloudinary';
 
+type Params = Promise<{ reviewId: string }>;
+
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+  [key: string]: any;
+}
+
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { reviewId: string } }
+  { params }: { params: Params }
 ) {
   try {
+    const { reviewId } = await params;
+
     const session = await auth();
 
     if (!session || !session.user?.email) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
     await connectDB();
     
-    const { reviewId } = params;
-    
-    // Check if review exists and belongs to user
     const existingReview = await Review.findById(reviewId);
     
     if (!existingReview) {
@@ -43,26 +49,29 @@ export async function PUT(
     const imagesToKeep = JSON.parse(formData.get('imagesToKeep') as string || '[]');
     const newImages = formData.getAll('newImages') as File[];
     
-    // Validation
     if (!rating || !review || !name) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
     
     // Delete removed images from Cloudinary
-    const currentImagePublicIds = existingReview.images.map(img => img.publicId);
-    const imagesToDelete = currentImagePublicIds.filter(id => !imagesToKeep.includes(id));
+    const currentImagePublicIds = existingReview.images.map((img: any) => img.publicId);
+    const imagesToDelete = currentImagePublicIds.filter((id: string) => !imagesToKeep.includes(id));
     
     for (const publicId of imagesToDelete) {
       await deleteFromCloudinary(publicId);
     }
     
     // Upload new images
-    const uploadedImages = [...existingReview.images.filter(img => imagesToKeep.includes(img.publicId))];
+    const uploadedImages = [...existingReview.images.filter((img: any) => 
+      imagesToKeep.includes(img.publicId)
+    )];
     
     if (newImages && newImages.length > 0) {
       for (const image of newImages) {
         const buffer = Buffer.from(await image.arrayBuffer());
-        const result = await uploadToCloudinary(buffer, `reviews/${existingReview.productId}`);
+        
+        const result = await uploadToCloudinary(buffer, `reviews/${existingReview.productId}`) as CloudinaryUploadResult;
+        
         uploadedImages.push({
           url: result.secure_url,
           publicId: result.public_id,
@@ -96,21 +105,21 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { reviewId: string } }
+  { params }: { params: Params }
 ) {
   try {
+    const { reviewId } = await params;
+
     const session = await auth();
 
     if (!session || !session.user?.email) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
     await connectDB();
-    
-    const { reviewId } = params;
     
     const review = await Review.findById(reviewId);
     
@@ -124,7 +133,7 @@ export async function DELETE(
     
     // Delete images from Cloudinary
     for (const image of review.images) {
-      await deleteFromCloudinary(image.publicId);
+      await deleteFromCloudinary((image as any).publicId);
     }
     
     await review.deleteOne();

@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Home, Users, Package, Bell, User, Edit, Lock, LogOut, Menu, X,
-  Building, CheckSquare, FolderTree, ShieldCheck,
-  ImageIcon
+  Building, CheckSquare, FolderTree, ShieldCheck, ImageIcon
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -17,7 +16,11 @@ import AdminProductSection from '@/app/components/Admin/AdminProductsSection';
 import WeekendOffersSection from '@/app/components/Admin/WeekendOffersSection';
 import BannerSection from '@/app/components/Admin/BannerSection';
 
-type SectionType = 'dashboard' | 'companies' | 'products' | 'approvals-companies' | 'approvals-products' | 'categories' | 'weekend-offers' | 'banners';;
+// Import signOut from your auth configuration
+// import { signOut } from '@/auth';
+import { signOut } from "next-auth/react";
+
+type SectionType = 'dashboard' | 'companies' | 'products' | 'approvals-companies' | 'approvals-products' | 'categories' | 'weekend-offers' | 'banners';
 
 const AdminDashboardView = () => {
   const router = useRouter();
@@ -91,7 +94,10 @@ const AdminDashboardView = () => {
   };
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/auth/admin/login' });
+    await signOut({
+      callbackUrl: '/auth/admin/login',
+      redirect: true
+    });
   };
 
   const handleSectionChange = (section: SectionType) => {

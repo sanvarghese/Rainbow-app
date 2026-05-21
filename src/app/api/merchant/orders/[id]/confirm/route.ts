@@ -1,11 +1,5 @@
 // app/api/merchant/orders/[id]/confirm/route.ts
 import { NextRequest, NextResponse } from "next/server";
-// import { getServerSession } from 'next-auth';
-// import { authOptions } from '@/lib/auth';
-// import dbConnect from '@/lib/dbConnect';
-// import Order from '@/models/Order';
-// import Product from '@/models/Product';
-// import { updateOrderStatusWithLog } from '@/lib/orderStatusManager';
 import mongoose from "mongoose";
 import connectDB from "../../../../../../lib/mongodb";
 import { auth } from "../../../../../../../auth";
@@ -13,10 +7,14 @@ import Order from "../../../../../../models/Order";
 import Product from "../../../../../../models/Product";
 import { updateOrderStatusWithLog } from "../../../../../../lib/orderStatusManager";
 
+type Params = Promise<{ id: string }>;
+
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Params }, // ← Fixed
 ) {
+  const { id } = await params; // ← Must await
+
   try {
     await connectDB();
 
@@ -28,7 +26,6 @@ export async function POST(
       );
     }
 
-    const { id } = params;
 
     const dbSession = await mongoose.startSession();
     dbSession.startTransaction();
@@ -46,9 +43,7 @@ export async function POST(
         await dbSession.abortTransaction();
         dbSession.endSession();
         return NextResponse.json(
-          {
-            error: "Order can only be confirmed from pending status",
-          },
+          { error: "Order can only be confirmed from pending status" },
           { status: 400 },
         );
       }
@@ -63,9 +58,7 @@ export async function POST(
           await dbSession.abortTransaction();
           dbSession.endSession();
           return NextResponse.json(
-            {
-              error: `Product "${item.name}" not found`,
-            },
+            { error: `Product "${item.name}" not found` },
             { status: 404 },
           );
         }

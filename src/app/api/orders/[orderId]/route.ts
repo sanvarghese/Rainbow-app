@@ -4,11 +4,15 @@ import User from "../../../../models/User";
 import Order from "../../../../models/Order";
 import { auth } from "../../../../../auth";
 
+type Params = Promise<{ orderId: string }>;
+
 export async function GET(
   req: NextRequest,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Params }
 ) {
   try {
+    const { orderId } = await params;     // ← Fixed
+
     const session = await auth();
 
     if (!session?.user) {
@@ -24,7 +28,7 @@ export async function GET(
 
     // Find order by orderId (not _id) and ensure it belongs to the user
     const order = await Order.findOne({
-      orderId: params.orderId,
+      orderId: orderId,          // ← Use the awaited orderId
       userId: user._id,
     });
 
@@ -40,7 +44,7 @@ export async function GET(
     console.error("Error fetching order details:", error);
     return NextResponse.json(
       { error: "Failed to fetch order details" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

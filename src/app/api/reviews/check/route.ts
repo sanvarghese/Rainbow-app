@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     if (!session || !session.user?.email) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
@@ -38,7 +38,10 @@ export async function GET(req: NextRequest) {
     }
     
     // Check if product exists in order
-    const orderItem = order.items.find(item => item.productId.toString() === productId);
+    const orderItem = order.items.find((item: any) => 
+      item.productId.toString() === productId
+    );
+    
     if (!orderItem) {
       return NextResponse.json({ canReview: false, reason: 'Product not found in order' });
     }

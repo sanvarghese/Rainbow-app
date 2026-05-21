@@ -3,12 +3,15 @@ import { verifyAdminToken } from "../../../../../lib/adminAuth";
 import connectDB from "../../../../../lib/mongodb";
 import Product from "../../../../../models/Product";
 
+type Params = Promise<{ id: string }>;
+
 // GET single product
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Params }, // ← Changed
 ) {
   try {
+    const { id } = await params; // ← Must await
     const admin = await verifyAdminToken(req);
 
     if (!admin) {
@@ -20,7 +23,7 @@ export async function GET(
 
     await connectDB();
 
-    const product = await Product.findById(params.id)
+    const product = await Product.findById(id)
       .populate("companyId", "name email companyLogo")
       .populate("userId", "name email");
 
@@ -47,8 +50,10 @@ export async function GET(
 // PUT - Admin update any product
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params; // ← Important
+
   try {
     const admin = await verifyAdminToken(req);
 
@@ -138,7 +143,7 @@ export async function PUT(
     });
 
     const product = await Product.findByIdAndUpdate(
-      params.id,
+      id,
       { $set: updateData },
       { new: true, runValidators: true },
     )
@@ -169,8 +174,10 @@ export async function PUT(
 // DELETE - Soft delete (change status to 'removed')
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params; // ← Important
+
   try {
     const admin = await verifyAdminToken(req);
 
@@ -183,7 +190,7 @@ export async function DELETE(
 
     await connectDB();
 
-    const product = await Product.findById(params.id);
+    const product = await Product.findById(id);
 
     if (!product) {
       return NextResponse.json(

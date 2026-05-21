@@ -1,14 +1,18 @@
+// app/api/merchant/products/[id]/route.ts   (or wherever this file is)
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '../../../../../../auth';
 import connectDB from '../../../../../lib/mongodb';
 import Product from '../../../../../models/Product';
 
+type Params = Promise<{ id: string }>;
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Params }
 ) {
   try {
+    const { id } = await params;        
+
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json(
@@ -19,7 +23,7 @@ export async function DELETE(
 
     await connectDB();
 
-    const productId = params.id;
+    const productId = id;               // ← Use the awaited id
 
     // Find product and verify ownership
     const product = await Product.findOne({
@@ -56,7 +60,7 @@ export async function DELETE(
     //   }, { status: 400 });
     // }
 
-    // Soft delete - update status to 'removed' instead of hard deleting
+    // Soft delete - update status to 'removed'
     product.status = 'removed';
     await product.save();
 
@@ -80,4 +84,3 @@ export async function DELETE(
     );
   }
 }
-

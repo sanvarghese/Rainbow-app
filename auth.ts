@@ -38,7 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user._id.toString(),
           email: user.email,
           name: user.name,
-          role: user.role,
+          role: user.role,                    // ← Better to keep original type
           profileImage: user.profileImage,
         };
       },
@@ -55,15 +55,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        token.role = user.role;                    // ← No 'as string'
         token.profileImage = user.profileImage;
       }
       return token;
     },
+
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.role = token.role as "user" | "admin" | "merchant";  // ← Fixed
         session.user.profileImage = token.profileImage as string;
       }
       return session;
