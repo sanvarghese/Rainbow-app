@@ -55,7 +55,7 @@ interface OrderContextType {
   deleteAddress: (id: string) => Promise<void>;
   orderSummary: OrderSummary;
   isPlacingOrder: boolean;
-  placeOrder: (buyNowItem?: BuyNowItem | null, isBuyNowMode?: boolean) => Promise<void>;
+  placeOrder: (buyNowItem?: BuyNowItem | null, isBuyNowMode?: boolean) => Promise<{ success: boolean; order: any }>;
   paymentMethods: PaymentMethod[];
   selectedPaymentMethod: PaymentMethod | null;
   setSelectedPaymentMethod: (method: PaymentMethod | null) => void;

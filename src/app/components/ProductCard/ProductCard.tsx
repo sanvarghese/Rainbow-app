@@ -1,4 +1,4 @@
-// components/ProductCard.tsx (Fixed)
+// components/ProductCard.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -51,34 +51,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const actualProductId = String(productId || id);
   const hasMounted = useRef(false);
-  
-  // Check if product is in wishlist
-  const isWishlisted = !wishlist.loading && isInWishlist(actualProductId);
 
-  // Check if product is in cart
+  const isWishlisted = !wishlist.loading && isInWishlist(actualProductId);
   const isInCart = cart.items.some(item => item.productId._id === actualProductId);
 
   useEffect(() => {
-    // Fetch wishlist on mount if needed
     if (!hasMounted.current && wishlist.items.length === 0 && !wishlist.loading) {
       fetchWishlist();
     }
     hasMounted.current = true;
-  }, []);
+  }, [fetchWishlist, wishlist.loading]);
 
-  // Sync loading state
   useEffect(() => {
-    if (!actualProductId) return;
+    setIsLoading(wishlist.loading);
+  }, [wishlist.loading]);
 
-    if (wishlist.loading) {
-      setIsLoading(true);
-      return;
-    }
-    
-    setIsLoading(false);
-  }, [actualProductId, wishlist.loading]);
-
-  const toggleWishlist = async (e: React.MouseEvent) => {
+  const toggleWishlist = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!actualProductId || isTogglingWishlist) return;
 
@@ -92,19 +80,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!actualProductId) return;
-    
+
     setIsAddingToCart(true);
+
     try {
       await addToCart(actualProductId, 1);
-      // Show success feedback
-      const button = e.currentTarget;
-      button.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        button.style.transform = 'scale(1)';
-      }, 200);
+
+      // ✅ FIXED: Proper typing for style access
+      const button = e.currentTarget as HTMLButtonElement;
+      if (button) {
+        button.style.transform = "scale(0.95)";
+        setTimeout(() => {
+          button.style.transform = "scale(1)";
+        }, 200);
+      }
     } catch (error: any) {
       alert(error.message || "Failed to add to cart");
     } finally {
@@ -112,18 +104,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleBuyNow = async (e: React.MouseEvent) => {
+  const handleBuyNow = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!actualProductId) return;
-    
+
     setIsBuyingNow(true);
     try {
-      // First add the product to cart
       await addToCart(actualProductId, 1);
-      // Then redirect to checkout page
-      window.location.href = '/checkout';
+      window.location.href = "/checkout";
     } catch (error: any) {
       alert("Failed to process. Please try again.");
+    } finally {
       setIsBuyingNow(false);
     }
   };
@@ -132,20 +123,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
     window.location.href = `/shop/${id}`;
   };
 
-  const actualOldPrice = oldPrice ? parseFloat(oldPrice.replace('₹', '')) : price;
-  const actualNewPrice = parseFloat(newPrice.replace('₹', '')) || offerPrice;
-  const calculatedDiscount = actualOldPrice > actualNewPrice
-    ? Math.round(((actualOldPrice - actualNewPrice) / actualOldPrice) * 100)
-    : (discount || 0);
+  const actualOldPrice = oldPrice ? parseFloat(oldPrice.replace("₹", "")) : price;
+  const actualNewPrice = parseFloat(newPrice.replace("₹", "")) || offerPrice;
+  const calculatedDiscount =
+    actualOldPrice > actualNewPrice
+      ? Math.round(((actualOldPrice - actualNewPrice) / actualOldPrice) * 100)
+      : (discount || 0);
 
-  // Show loading state while checking wishlist
   if (isLoading) {
     return (
-      <div className="youmightlikecard" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="youmightlikecard" onClick={handleCardClick} style={{ cursor: "pointer" }}>
         <div className="card topcard3">
-          <div className="cardimgdiv3" style={{ position: 'relative', height: '200px', background: '#f0f0f0' }} />
+          <div className="cardimgdiv3" style={{ position: "relative", height: "200px", background: "#f0f0f0" }} />
           <div className="card-body">
-            <div style={{ height: '60px', background: '#f0f0f0' }} />
+            <div style={{ height: "60px", background: "#f0f0f0" }} />
           </div>
         </div>
       </div>
@@ -153,96 +144,97 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }
 
   return (
-    <div className="youmightlikecard" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+    <div className="youmightlikecard" onClick={handleCardClick} style={{ cursor: "pointer" }}>
       <div className="card topcard3">
-        <div className="cardimgdiv3" style={{ position: 'relative' }}>
+        <div className="cardimgdiv3" style={{ position: "relative" }}>
           <Image
             className="topimg3"
             src={imageSrc}
             alt={title}
             width={200}
             height={200}
-            style={{ objectFit: "cover", width: '100%', height: '200px' }}
+            style={{ objectFit: "cover", width: "100%", height: "200px" }}
             onError={() => setImageSrc(DefaultProductImage.src)}
           />
 
           {calculatedDiscount > 0 && (
             <div className="discount-badge" style={{
-              position: 'absolute', top: '10px', left: '10px',
-              backgroundColor: '#007F27', color: 'white',
-              padding: '4px 8px', borderRadius: '4px',
-              fontSize: '12px', fontWeight: 'bold', zIndex: 2
+              position: "absolute",
+              top: "10px",
+              left: "10px",
+              backgroundColor: "#007F27",
+              color: "white",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              fontSize: "12px",
+              fontWeight: "bold",
+              zIndex: 2,
             }}>
               {calculatedDiscount}% OFF
             </div>
           )}
 
           <div className="icons" style={{
-            position: 'absolute', top: '10px', right: '10px',
-            display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 2
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+            zIndex: 2,
           }}>
-            {/* Wishlist Button */}
             <button
               onClick={toggleWishlist}
               disabled={isTogglingWishlist || wishlist.loading}
               style={{
-                background: isWishlisted ? 'rgb(223 0 0)' : '#007F27',
-                border: 'none',
-                borderRadius: '50%',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: (isTogglingWishlist || wishlist.loading) ? 'not-allowed' : 'pointer',
-                opacity: (isTogglingWishlist || wishlist.loading) ? 0.7 : 1,
-                transition: 'all 0.2s ease',
+                background: isWishlisted ? "rgb(223 0 0)" : "#007F27",
+                border: "none",
+                borderRadius: "50%",
+                width: "32px",
+                height: "32px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: (isTogglingWishlist || wishlist.loading) ? "not-allowed" : "pointer",
               }}
               title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
-              {(isTogglingWishlist || wishlist.loading) ? (
-                <div style={{ width: '16px', height: '16px', border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
-                  <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1" />
-                </svg>
-              )}
+              {/* Your heart SVG here */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16">
+                <path d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1" />
+              </svg>
             </button>
-
-            
           </div>
         </div>
 
-        {/* Product Details */}
         <div className="card-body">
-          <h2 className="card-title" style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
+          <h2 className="card-title" style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "8px" }}>
             {subtitle}
           </h2>
-          <h6 className="subheading3" style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+          <h6 className="subheading3" style={{ fontSize: "14px", color: "#666", marginBottom: "8px" }}>
             {title}
           </h6>
-          <h5 className="card-text" style={{ fontSize: '14px', marginBottom: '12px' }}>
+          <h5 className="card-text" style={{ fontSize: "14px", marginBottom: "12px" }}>
             {rating} ★ ({reviews})
           </h5>
 
-          <div className="row row-2" style={{ alignItems: 'center' }}>
+          <div className="row row-2" style={{ alignItems: "center" }}>
             <div className="col-6">
               {oldPrice && actualOldPrice > actualNewPrice ? (
                 <>
-                  <span style={{ textDecoration: 'line-through', color: '#6c757d', fontSize: '14px' }}>
+                  <span style={{ textDecoration: "line-through", color: "#6c757d", fontSize: "14px" }}>
                     {oldPrice}
-                  </span>{' '}
-                  <span style={{ color: '#007F27', fontWeight: 'bold', fontSize: '16px' }}>
+                  </span>{" "}
+                  <span style={{ color: "#007F27", fontWeight: "bold", fontSize: "16px" }}>
                     {newPrice}
                   </span>
                 </>
               ) : (
-                <span style={{ color: '#007F27', fontWeight: 'bold', fontSize: '16px' }}>
+                <span style={{ color: "#007F27", fontWeight: "bold", fontSize: "16px" }}>
                   {newPrice}
                 </span>
               )}
             </div>
-
           </div>
         </div>
       </div>

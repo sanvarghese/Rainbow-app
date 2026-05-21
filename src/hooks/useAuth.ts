@@ -22,9 +22,13 @@ export function useAuth(options: UseAuthOptions = {}) {
       return;
     }
 
+    // Normalize role for comparison
+    const userRole = session.user.role.toLowerCase();
+    const requiredRoleLower = options.requiredRole?.toLowerCase();
+    
     // Check role if required
-    if (options.requiredRole && session.user.role !== options.requiredRole) {
-      const redirectUrl = session.user.role === 'Merchant' ? '/dashboard' : '/';
+    if (options.requiredRole && userRole !== requiredRoleLower) {
+      const redirectUrl = userRole === 'merchant' ? '/dashboard' : '/';
       router.push(redirectUrl);
     }
   }, [session, status, router, options.requiredRole, options.redirectTo]);
@@ -33,6 +37,6 @@ export function useAuth(options: UseAuthOptions = {}) {
     user: session?.user,
     isLoading: status === 'loading',
     isAuthenticated: !!session,
-    isMerchant: session?.user?.role === 'Merchant',
+    isMerchant: session?.user?.role?.toLowerCase() === 'merchant',
   };
 }

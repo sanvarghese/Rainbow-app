@@ -667,13 +667,20 @@ const OrderDetailPage = () => {
   };
 
   // Add function to handle review click
+  // Add function to handle review click
   const handleReviewClick = async (productId: string, productName: string, productImage: string) => {
+    if (!order) {
+      alert("Order information is not available");
+      return;
+    }
+
     const canReviewFlag = await checkCanReview(productId, order._id);
+
     if (canReviewFlag) {
       setSelectedProduct({ id: productId, name: productName, image: productImage });
       setShowReviewModal(true);
     } else {
-      alert('You have already reviewed this product or order is not delivered yet');
+      alert('You have already reviewed this product or the order is not delivered yet');
     }
   };
 

@@ -14,13 +14,16 @@ import topvendors7 from "../../../../assets/images/topvendors_7.png";
 import topvendors8 from "../../../../assets/images/topvendors_8.png";
 
 export default function TopVendors() {
-  const sliderRef = useRef(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
 
-  // Mouse drag
-  const handleMouseDown = (e) => {
+  // Mouse Events
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!sliderRef.current) return;
+
     isDragging.current = true;
     startX.current = e.pageX - sliderRef.current.offsetLeft;
     scrollLeft.current = sliderRef.current.scrollLeft;
@@ -28,29 +31,36 @@ export default function TopVendors() {
   };
 
   const handleMouseLeave = () => {
+    if (!sliderRef.current) return;
     isDragging.current = false;
     sliderRef.current.classList.remove("dragging");
   };
 
   const handleMouseUp = () => {
+    if (!sliderRef.current) return;
     isDragging.current = false;
     sliderRef.current.classList.remove("dragging");
   };
 
-  const handleMouseMove = (e) => {
-    if (!isDragging.current) return;
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current || !sliderRef.current) return;
+
     const x = e.pageX - sliderRef.current.offsetLeft;
     const walk = (x - startX.current) * 1.5;
     sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
-  // Touch drag
-  const handleTouchStart = (e) => {
+  // Touch Events
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!sliderRef.current) return;
+
     startX.current = e.touches[0].pageX - sliderRef.current.offsetLeft;
     scrollLeft.current = sliderRef.current.scrollLeft;
   };
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!sliderRef.current) return;
+
     const x = e.touches[0].pageX - sliderRef.current.offsetLeft;
     const walk = (x - startX.current) * 1.5;
     sliderRef.current.scrollLeft = scrollLeft.current - walk;
@@ -75,37 +85,37 @@ export default function TopVendors() {
               onTouchMove={handleTouchMove}
             >
               <div className="vendor-item">
-                <Image src={topvendors1} alt="Vendor 1" />
+                <Image src={topvendors1} alt="Vendor 1" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={topvendors6} alt="Vendor 6" />
+                <Image src={topvendors6} alt="Vendor 6" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={secondImage} alt="Vendor 2" />
+                <Image src={secondImage} alt="Vendor 2" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={topvendors3} alt="Vendor 3" />
+                <Image src={topvendors3} alt="Vendor 3" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={topvendors4} alt="Vendor 4" />
+                <Image src={topvendors4} alt="Vendor 4" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={topvendors5} alt="Vendor 5" />
+                <Image src={topvendors5} alt="Vendor 5" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={topvendors7} alt="Vendor 7" />
+                <Image src={topvendors7} alt="Vendor 7" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={topvendors8} alt="Vendor 8" />
+                <Image src={topvendors8} alt="Vendor 8" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={topvendors1} alt="Vendor 1" />
+                <Image src={topvendors1} alt="Vendor 1" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={topvendors6} alt="Vendor 6" />
+                <Image src={topvendors6} alt="Vendor 6" width={150} height={150} />
               </div>
               <div className="vendor-item">
-                <Image src={secondImage} alt="Vendor 2" />
+                <Image src={secondImage} alt="Vendor 2" width={150} height={150} />
               </div>
             </div>
           </div>

@@ -16,7 +16,8 @@ export async function checkAndDeductStock(
   const stockUpdates = [];
   
   for (const item of items) {
-    const product = await Product.findById(item.productId).session(session);
+    // Convert undefined to null for mongoose session
+    const product = await Product.findById(item.productId).session(session || null);
     
     if (!product) {
       throw new Error(`Product "${item.name}" not found`);
@@ -40,7 +41,7 @@ export async function checkAndDeductStock(
       }
       
       variant.quantity -= item.quantity;
-      stockUpdates.push(product.save({ session }));
+      stockUpdates.push(product.save({ session: session || undefined }));
       
     } else if (!product.hasVariants) {
       if (product.quantity < item.quantity) {
@@ -51,7 +52,7 @@ export async function checkAndDeductStock(
       }
       
       product.quantity -= item.quantity;
-      stockUpdates.push(product.save({ session }));
+      stockUpdates.push(product.save({ session: session || undefined }));
     }
   }
   
@@ -66,7 +67,8 @@ export async function restoreStock(
   const stockUpdates = [];
   
   for (const item of items) {
-    const product = await Product.findById(item.productId).session(session);
+    // Convert undefined to null for mongoose session
+    const product = await Product.findById(item.productId).session(session || null);
     
     if (!product) continue;
     
@@ -77,11 +79,11 @@ export async function restoreStock(
       
       if (variant) {
         variant.quantity += item.quantity;
-        stockUpdates.push(product.save({ session }));
+        stockUpdates.push(product.save({ session: session || undefined }));
       }
     } else if (!product.hasVariants) {
       product.quantity += item.quantity;
-      stockUpdates.push(product.save({ session }));
+      stockUpdates.push(product.save({ session: session || undefined }));
     }
   }
   
