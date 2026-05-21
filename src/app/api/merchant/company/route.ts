@@ -1,17 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import formidable from 'formidable';
-import fs from 'fs/promises';
-import path from 'path';
 import connectDB from '../../../../lib/mongodb';
 import Company from '../../../../models/Company';
 import { auth } from '../../../../../auth';
-
-// Disable body parser for file uploads
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 // Helper to parse form data with files
 async function parseForm(req: NextRequest): Promise<{ fields: any; files: any }> {
@@ -21,7 +11,6 @@ async function parseForm(req: NextRequest): Promise<{ fields: any; files: any }>
 
   for (const [key, value] of formData.entries()) {
     if (value instanceof File) {
-      // Convert File to base64 for storage
       const bytes = await value.arrayBuffer();
       const buffer = Buffer.from(bytes);
       files[key] = {
@@ -60,7 +49,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(fields.email)) {
       return NextResponse.json(
@@ -69,7 +57,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate phone number (basic validation)
     if (fields.phoneNumber.length < 10) {
       return NextResponse.json(
         { error: 'Validation failed', details: 'Phone number must be at least 10 digits' },
@@ -77,7 +64,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Prepare company data
     const companyData: any = {
       userId: session.user.id,
       name: fields.name,
@@ -90,7 +76,6 @@ export async function POST(req: NextRequest) {
       facebookLink: fields.facebookLink || '',
     };
 
-    // Add images as base64 (in production, upload to cloud storage)
     if (files.companyLogo) {
       companyData.companyLogo = `data:${files.companyLogo.mimetype};base64,${files.companyLogo.data}`;
     }
@@ -103,11 +88,9 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
-    // Check if company already exists
     const existingCompany = await Company.findOne({ userId: session.user.id });
     
     if (existingCompany) {
-      // Update existing company
       Object.keys(companyData).forEach(key => {
         if (companyData[key] !== undefined && companyData[key] !== '') {
           existingCompany[key] = companyData[key];
@@ -122,7 +105,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Create new company
     const company = await Company.create(companyData);
 
     return NextResponse.json(
@@ -136,23 +118,16 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Company creation error:', error);
     
-    // Handle validation errors
     if (error.name === 'ValidationError') {
       const errorMessages = Object.values(error.errors).map((err: any) => err.message);
       return NextResponse.json(
-        { 
-          error: 'Validation failed',
-          details: errorMessages.join(', ')
-        },
+        { error: 'Validation failed', details: errorMessages.join(', ') },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { 
-        error: 'Server error',
-        details: error.message || 'Something went wrong while creating company profile'
-      },
+      { error: 'Server error', details: error.message || 'Something went wrong' },
       { status: 500 }
     );
   }
@@ -176,10 +151,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('Fetch company error:', error);
     return NextResponse.json(
-      { 
-        error: 'Server error',
-        details: 'Failed to fetch company profile'
-      },
+      { error: 'Server error', details: 'Failed to fetch company profile' },
       { status: 500 }
     );
   }

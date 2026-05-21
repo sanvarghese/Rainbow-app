@@ -1,4 +1,3 @@
-// app/api/admin/company/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
@@ -114,7 +113,6 @@ export async function POST(req: NextRequest) {
       bannerUrl = `/uploads/companies/banners/${filename}`;
     }
 
-    // Prepare company data
     const companyData = {
       name,
       email,
@@ -127,7 +125,6 @@ export async function POST(req: NextRequest) {
       ...(companyLogoUrl && { companyLogo: companyLogoUrl }),
       ...(badgesUrl && { badges: badgesUrl }),
       ...(bannerUrl && { banner: bannerUrl }),
-      // Note: You may want to add userId from admin session
       userId: admin.id,
     };
 
@@ -135,7 +132,6 @@ export async function POST(req: NextRequest) {
     let message;
 
     if (companyId) {
-      // UPDATE existing company
       company = await Company.findByIdAndUpdate(
         companyId,
         companyData,
@@ -151,10 +147,7 @@ export async function POST(req: NextRequest) {
 
       message = 'Company updated successfully';
     } else {
-      // CREATE new company
       company = await Company.create(companyData);
-      
-      // Populate after creation
       company = await Company.findById(company._id)
         .populate('userId', 'name email');
 
@@ -180,139 +173,35 @@ export async function POST(req: NextRequest) {
   }
 }
 
-
-// app/api/admin/companies/route.ts - Update the GET method
-
+// GET - Fetch companies with filter
 export async function GET(req: NextRequest) {
-    try {
-        const admin = await verifyAdminToken(req);
-        if (!admin) {
-            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-        }
-
-        await connectDB();
-
-        const { searchParams } = new URL(req.url);
-        const statusParam = searchParams.get('status');
-
-        let query: any = {};
-
-        if (statusParam === 'approved') {
-            query = { status: 'approved' };
-        } else if (statusParam === 'rejected') {
-            query = { status: 'rejected' };
-        } else if (statusParam === 'removed') {
-            query = { status: 'removed' };
-        } else if (statusParam === 'pending') {
-            query = { status: 'pending' };
-        } else if (statusParam === 'all') {
-            query = {};
-        } else {
-            // Default: show pending companies for approval
-            query = { status: 'all' };
-        }
-
-        const companies = await Company.find(query)
-            .populate('userId', 'name email') // Make sure this matches your User model
-            .sort({ createdAt: -1 });
-
-        return NextResponse.json({ success: true, companies });
-    } catch (error: any) {
-        console.error('Error fetching companies:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  try {
+    const admin = await verifyAdminToken(req);
+    if (!admin) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
+
+    await connectDB();
+
+    const { searchParams } = new URL(req.url);
+    const statusParam = searchParams.get('status');
+
+    let query: any = {};
+
+    if (statusParam === 'approved') query = { status: 'approved' };
+    else if (statusParam === 'rejected') query = { status: 'rejected' };
+    else if (statusParam === 'removed') query = { status: 'removed' };
+    else if (statusParam === 'pending') query = { status: 'pending' };
+    else if (statusParam === 'all') query = {};
+    else query = { status: 'pending' }; // default
+
+    const companies = await Company.find(query)
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 });
+
+    return NextResponse.json({ success: true, companies });
+  } catch (error: any) {
+    console.error('Error fetching companies:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
 }
-
-// export async function GET(req: NextRequest) {
-//   try {
-//     const admin = await verifyAdminToken();
-
-//     if (!admin) {
-//       return NextResponse.json(
-//         { success: false, error: 'Unauthorized' },
-//         { status: 401 }
-//       );
-//     }
-
-//     await connectDB();
-
-//     const companies = await Company.find()
-//       .populate('userId', 'name email')
-//       .sort({ createdAt: -1 });
-
-//     return NextResponse.json({
-//       success: true,
-//       companies,
-//     });
-//   } catch (error: any) {
-//     console.error('Fetch all companies error:', error);
-//     return NextResponse.json(
-//       {
-//         success: false,
-//         error: 'Server error',
-//         details: error.message,
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-// GET - Fetch company (for editing)
-// export async function GET(req: NextRequest) {
-//   try {
-//     const admin = await verifyAdminToken();
-    
-//     if (!admin) {
-//       return NextResponse.json(
-//         { success: false, error: 'Unauthorized' },
-//         { status: 401 }
-//       );
-//     }
-
-//     await connectDB();
-
-//     const { searchParams } = new URL(req.url);
-//     const companyId = searchParams.get('id');
-
-//     if (!companyId) {
-//       return NextResponse.json(
-//         { success: false, error: 'Company ID is required' },
-//         { status: 400 }
-//       );
-//     }
-
-//     const company = await Company.findById(companyId)
-//       .populate('userId', 'name email');
-
-//     if (!company) {
-//       return NextResponse.json(
-//         { success: false, error: 'Company not found' },
-//         { status: 404 }
-//       );
-//     }
-
-//     return NextResponse.json({
-//       success: true,
-//       company,
-//     });
-
-//   } catch (error: any) {
-//     console.error('Fetch company error:', error);
-//     return NextResponse.json(
-//       { 
-//         success: false,
-//         error: 'Server error',
-//         details: error.message
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// Configure to handle file uploads
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
