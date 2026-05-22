@@ -1,4 +1,3 @@
-// app/products/[productId]/page.tsx (UPDATED)
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -12,6 +11,7 @@ import "./productenter.css";
 import { useBuyNow } from "@/context/BuyNowContext";
 import ReviewModal from "@/app/components/Review/ReviewModal";
 import { Star } from "lucide-react";
+import AuthDrawer from "../../AuthDrawer/AuthDrawer";
 
 interface Product {
   _id: string;
@@ -84,6 +84,11 @@ const ProductSingle = () => {
   const isInCart = productId && cart.items.some(item => item.productId._id === String(productId));
   const cartItem = isInCart ? cart.items.find(item => item.productId._id === String(productId)) : null;
   const cartQuantity = cartItem?.quantity || 0;
+
+  const [authDrawer, setAuthDrawer] = useState<{
+    open: boolean;
+    pendingAction: 'addToCart' | 'buyNow' | null;
+  }>({ open: false, pendingAction: null });
 
   // Fetch product details
   useEffect(() => {
@@ -180,42 +185,47 @@ const ProductSingle = () => {
 
 
   const handleAddToCart = async () => {
+    if (!session) {
+      setAuthDrawer({ open: true, pendingAction: 'addToCart' });
+      return;
+    }
     if (!product) return;
-
     setIsAddingToCart(true);
     try {
       await addToCart(product._id, quantity);
     } catch (error: any) {
-      alert(error.message || "Failed to add to cart");
+      alert(error.message || 'Failed to add to cart');
     } finally {
       setIsAddingToCart(false);
     }
   };
 
   const handleGoToCart = () => {
-    router.push('/cart');   
+    router.push('/cart');
   };
 
   const handleBuyNow = async () => {
+    if (!session) {
+      setAuthDrawer({ open: true, pendingAction: 'buyNow' });
+      return;
+    }
     if (!product) return;
-
     setIsBuyingNow(true);
     try {
       const buyNowItemData = {
         productId: product._id,
         name: product.name,
         subtitle: product.descriptionShort?.substring(0, 100),
-        quantity: quantity,
+        quantity,
         price: product.price,
         offerPrice: product.offerPrice,
         productImage: product.productImages?.[0] || '',
         totalAmount: (product.offerPrice || product.price) * quantity,
       };
-
       setBuyNowItem(buyNowItemData);
       router.push('/check-out');
     } catch (error: any) {
-      alert(error.message || "Failed to process. Please try again.");
+      alert(error.message || 'Failed to process. Please try again.');
       setIsBuyingNow(false);
     }
   };
@@ -230,6 +240,33 @@ const ProductSingle = () => {
       alert(error.message || "Failed to update wishlist");
     } finally {
       setIsTogglingWishlist(false);
+    }
+  };
+
+  const handleAuthSuccess = async () => {
+    if (!product) return;
+    if (authDrawer.pendingAction === 'addToCart') {
+      setIsAddingToCart(true);
+      try {
+        await addToCart(product._id, quantity);
+      } catch (error: any) {
+        alert(error.message || 'Failed to add to cart');
+      } finally {
+        setIsAddingToCart(false);
+      }
+    } else if (authDrawer.pendingAction === 'buyNow') {
+      const buyNowItemData = {
+        productId: product._id,
+        name: product.name,
+        subtitle: product.descriptionShort?.substring(0, 100),
+        quantity,
+        price: product.price,
+        offerPrice: product.offerPrice,
+        productImage: product.productImages?.[0] || '',
+        totalAmount: (product.offerPrice || product.price) * quantity,
+      };
+      setBuyNowItem(buyNowItemData);
+      router.push('/check-out');
     }
   };
 
@@ -808,6 +845,13 @@ const ProductSingle = () => {
           }
         }
       `}</style>
+
+      <AuthDrawer
+        isOpen={authDrawer.open}
+        onClose={() => setAuthDrawer({ open: false, pendingAction: null })}
+        pendingAction={authDrawer.pendingAction}
+        onAuthSuccess={handleAuthSuccess}
+      />
     </section>
   );
 };

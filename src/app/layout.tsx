@@ -9,7 +9,7 @@ import { OrderProvider } from '@/context/OrderContext';
 import { BuyNowProvider } from '@/context/BuyNowContext';
 
 export const metadata: Metadata = {
-  title: 'Your App Name',
+  title: 'Mazhavillu',
   description: 'Your app description',
 };
 

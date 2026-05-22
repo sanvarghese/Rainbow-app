@@ -62,7 +62,7 @@ const TopHeader = () => {
                             <ul className="list-inline m-0">
                                 <li className="list-inline-item border-end px-3">About us</li>
                                 <li className="list-inline-item border-end px-3">Help Center</li>
-                                <li className="list-inline-item border-end px-3">Languages</li>
+                                {/* <li className="list-inline-item border-end px-3">Languages</li> */}
 
                                 {/* Dropdown Section */}
                                 {session ? (

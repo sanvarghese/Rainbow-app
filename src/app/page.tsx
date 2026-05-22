@@ -7,9 +7,9 @@ export default async function Page() {
   const session = await auth();
 
   // If user is not logged in, redirect to login
-  if (!session?.user) {
-    redirect('/auth/login');
-  }
+  // if (!session?.user) {
+  //   redirect('/auth/login');
+  // }
 
   // If user is a Merchant, redirect to dashboard
   // if (session.user.role === 'Merchant') {
@@ -17,5 +17,7 @@ export default async function Page() {
   // }
 
   // Normal users can access home page
-  return <HomePage />;
+  // return <HomePage />;
+  return<HomePage/>
+
 }
