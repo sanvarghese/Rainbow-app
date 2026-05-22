@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
-import { auth } from './auth';
+import { authConfig } from './auth.config';
+import NextAuth from 'next-auth';
+// import { auth } from './auth';
+
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
-
   const isAuthenticated = !!req.auth;
   const userRole = req.auth?.user?.role ?? null;
 

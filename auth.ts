@@ -3,8 +3,11 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import connectDB from './src/lib/mongodb';
 import User from './src/models/User';
+import { authConfig } from './auth.config';
+// import { authConfig } from './auth.config';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -38,36 +41,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user._id.toString(),
           email: user.email,
           name: user.name,
-          role: user.role,                    // ← Better to keep original type
+          role: user.role,
           profileImage: user.profileImage,
         };
       },
     }),
   ],
-  pages: {
-    signIn: '/auth/login',
-    error: '/auth/login',
-  },
-  session: {
-    strategy: 'jwt',
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;                    // ← No 'as string'
-        token.profileImage = user.profileImage;
-      }
-      return token;
-    },
-
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as "user" | "admin" | "merchant";  // ← Fixed
-        session.user.profileImage = token.profileImage as string;
-      }
-      return session;
-    },
-  },
 });
