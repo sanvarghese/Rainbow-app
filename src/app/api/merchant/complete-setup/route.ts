@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-
+    console.log(session.user,"session.user..!")
     // Fixed: Use lowercase 'merchant' to match your NextAuth types
     if (session.user.role !== 'merchant') {
       return NextResponse.json(

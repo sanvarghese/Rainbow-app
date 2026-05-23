@@ -273,7 +273,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                         router.push('/profile');
                                                     }}
                                                     className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                                                    <User className="w-4 h-4 mr-2" />
+                                                    <User className="w-4 h-4 mx-2" />
                                                     Profile
                                                 </button>
                                                 <button
@@ -282,7 +282,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                         router.push('/profile/edit');
                                                     }}
                                                     className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                                                    <Edit className="w-4 h-4 mr-2" />
+                                                    <Edit className="w-4 h-4 mx-2" />
                                                     Edit Account
                                                 </button>
                                                 <button
@@ -291,7 +291,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                         router.push('/profile/password');
                                                     }}
                                                     className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                                                    <Lock className="w-4 h-4 mr-2" />
+                                                    <Lock className="w-4 h-4 mx-2" />
                                                     Reset Password
                                                 </button>
                                             </div>
@@ -303,7 +303,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                                         handleLogout();
                                                     }}
                                                     className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                                                    <LogOut className="w-4 h-4 mr-2" />
+                                                    <LogOut className="w-4 h-4 mx-2" />
                                                     Logout
                                                 </button>
                                             </div>

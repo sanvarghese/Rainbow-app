@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import '../BecomeSeller/BecomeSeller.css'
 import {
     Box,
@@ -12,10 +12,15 @@ import {
     TextField,
     Typography,
     Alert,
+    Chip,
 } from "@mui/material";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const MerchantRegisterForm: React.FC = () => {
     const router = useRouter();
+    const { data: session, status } = useSession();
+    const isLoggedIn = status === 'authenticated';
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -25,6 +30,18 @@ const MerchantRegisterForm: React.FC = () => {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Pre-fill form when user is already logged in
+    useEffect(() => {
+        if (session?.user) {
+            setFormData(prev => ({
+                ...prev,
+                name: session.user?.name || "",
+                email: session.user?.email || "",
+                // Password fields left empty intentionally for logged-in users
+            }));
+        }
+    }, [session]);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -40,32 +57,45 @@ const MerchantRegisterForm: React.FC = () => {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/auth/merchant-signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
+            if (isLoggedIn) {
+                // User is already logged in — just upgrade their role to merchant
+                const res = await fetch('/api/auth/merchant-signup/upgrade-to-merchant', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: formData.phoneNumber }),
+                });
 
-            const data = await res.json();
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Something went wrong');
 
-            if (!res.ok) {
-                throw new Error(data.error || 'Something went wrong');
+                router.push('/dashboard');
+                router.refresh();
+            } else {
+                // Fresh signup flow
+                if (formData.password !== formData.confirmPassword) {
+                    throw new Error('Passwords do not match');
+                }
+
+                const res = await fetch('/api/auth/merchant-signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Something went wrong');
+
+                const result = await signIn('credentials', {
+                    redirect: false,
+                    email: formData.email,
+                    password: formData.password,
+                });
+
+                if (result?.error) throw new Error('Registration successful but login failed');
+
+                router.push('/dashboard');
+                router.refresh();
             }
-
-            // Auto-login after registration
-            const result = await signIn('credentials', {
-                redirect: false,
-                email: formData.email,
-                password: formData.password,
-            });
-
-            if (result?.error) {
-                throw new Error('Registration successful but login failed');
-            }
-
-            // Redirect to dashboard
-            router.push('/dashboard');
-            router.refresh();
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -83,7 +113,6 @@ const MerchantRegisterForm: React.FC = () => {
                     my: 6,
                     textAlign: "center",
                 }}>
-
                 <Container>
                     <Typography variant="h3" fontWeight="bold">
                         Create Your Merchant Account
@@ -96,6 +125,19 @@ const MerchantRegisterForm: React.FC = () => {
 
             <Container className="mt-n4 mb-5">
                 <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+
+                    {/* Show a notice banner when user is already logged in */}
+                    {isLoggedIn && (
+                        <Alert
+                            severity="info"
+                            icon={<CheckCircleIcon />}
+                            sx={{ mb: 3 }}
+                        >
+                            You&apos;re already signed in as <strong>{session?.user?.email}</strong>. 
+                            Your account details are pre-filled. Just add your phone number to continue.
+                        </Alert>
+                    )}
+
                     {error && (
                         <Alert severity="error" sx={{ mb: 3 }}>
                             {error}
@@ -113,6 +155,14 @@ const MerchantRegisterForm: React.FC = () => {
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     required
+                                    // Make read-only if logged in — name comes from session
+                                    InputProps={{
+                                        readOnly: isLoggedIn,
+                                        endAdornment: isLoggedIn ? (
+                                            <Chip label="From account" size="small" color="success" variant="outlined" />
+                                        ) : null,
+                                    }}
+                                    sx={isLoggedIn ? { backgroundColor: '#f9f9f9' } : {}}
                                 />
                             </div>
 
@@ -125,6 +175,14 @@ const MerchantRegisterForm: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     required
+                                    // Make read-only if logged in — email comes from session
+                                    InputProps={{
+                                        readOnly: isLoggedIn,
+                                        endAdornment: isLoggedIn ? (
+                                            <Chip label="From account" size="small" color="success" variant="outlined" />
+                                        ) : null,
+                                    }}
+                                    sx={isLoggedIn ? { backgroundColor: '#f9f9f9' } : {}}
                                 />
                             </div>
 
@@ -140,29 +198,34 @@ const MerchantRegisterForm: React.FC = () => {
                                 />
                             </div>
 
-                            <div className="col-6">
-                                <TextField
-                                    fullWidth
-                                    label="Password"
-                                    name="password"
-                                    type="password"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
+                            {/* Hide password fields entirely when the user is already logged in */}
+                            {!isLoggedIn && (
+                                <>
+                                    <div className="col-6">
+                                        <TextField
+                                            fullWidth
+                                            label="Password"
+                                            name="password"
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </div>
 
-                            <div className="col-md-6">
-                                <TextField
-                                    fullWidth
-                                    label="Confirm password"
-                                    name="confirmPassword"
-                                    type="password"
-                                    value={formData.confirmPassword}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
+                                    <div className="col-md-6">
+                                        <TextField
+                                            fullWidth
+                                            label="Confirm password"
+                                            name="confirmPassword"
+                                            type="password"
+                                            value={formData.confirmPassword}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </div>
+                                </>
+                            )}
 
                             <div className="col-12 d-flex justify-content-end gap-2">
                                 <Button
@@ -176,7 +239,12 @@ const MerchantRegisterForm: React.FC = () => {
                                     variant="contained"
                                     className="create-btn"
                                     disabled={loading}>
-                                    {loading ? 'Creating Account...' : 'Create Account & Continue'}
+                                    {loading
+                                        ? 'Processing...'
+                                        : isLoggedIn
+                                            ? 'Upgrade to Merchant & Continue'
+                                            : 'Create Account & Continue'
+                                    }
                                 </Button>
                             </div>
                         </div>
