@@ -27,14 +27,14 @@ interface UserProfile {
 const MyAccount = () => {
     const [gender, setGender] = useState("male")
     const [activeTab, setActiveTab] = useState("profile") // profile, addresses
-    
+
     // Profile State
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [email, setEmail] = useState("")
     const [mobile, setMobile] = useState("")
     const [profileImage, setProfileImage] = useState("")
-    
+
     // Address State
     const [addresses, setAddresses] = useState<DeliveryAddress[]>([])
     const [openAddressDialog, setOpenAddressDialog] = useState(false)
@@ -51,9 +51,17 @@ const MyAccount = () => {
         isDefault: false,
         addressType: 'home' as 'home' | 'work' | 'other'
     })
-    
+
     const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null)
     const [loading, setLoading] = useState(false)
+
+
+    const [profileLoading, setProfileLoading] = useState(true);
+
+    useEffect(() => {
+        fetchUserProfile().finally(() => setProfileLoading(false));
+        if (activeTab === 'addresses') fetchAddresses();
+    }, [activeTab]);
 
     // Fetch user profile
     useEffect(() => {
@@ -65,20 +73,28 @@ const MyAccount = () => {
 
     const fetchUserProfile = async () => {
         try {
-            const response = await fetch('/api/user/profile')
-            const data = await response.json()
-            if (data.success) {
-                const nameParts = data.user.name.split(' ')
-                setFirstName(nameParts[0] || '')
-                setLastName(nameParts.slice(1).join(' ') || '')
-                setEmail(data.user.email)
-                setProfileImage(data.user.profileImage || '')
-                // You might want to add mobile and gender to user model
+            const response = await fetch('/api/user/profile');
+            if (!response.ok) throw new Error('Failed to fetch');
+
+            const data = await response.json();
+
+            if (data.success && data.user) {
+                const nameParts = (data.user.name || '').trim().split(/\s+/);
+
+                setFirstName(nameParts[0] || '');
+                setLastName(nameParts.slice(1).join(' ') || '');
+                setEmail(data.user.email || '');
+                setMobile(data.user.mobile || '');
+                setGender(data.user.gender || 'male');
+                setProfileImage(data.user.profileImage || '');
+            } else {
+                showAlert('error', data.message || 'Failed to load profile');
             }
         } catch (error) {
-            showAlert('error', 'Failed to fetch profile')
+            console.error(error);
+            showAlert('error', 'Failed to fetch profile');
         }
-    }
+    };
 
     const fetchAddresses = async () => {
         try {
@@ -121,17 +137,17 @@ const MyAccount = () => {
     const handleAddressSubmit = async () => {
         setLoading(true)
         try {
-            const url = editingAddress 
+            const url = editingAddress
                 ? `/api/user/addresses/${editingAddress._id}`
                 : '/api/user/addresses'
             const method = editingAddress ? 'PUT' : 'POST'
-            
+
             const response = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(addressForm)
             })
-            
+
             const data = await response.json()
             if (data.success) {
                 showAlert('success', editingAddress ? 'Address updated' : 'Address added')
@@ -150,7 +166,7 @@ const MyAccount = () => {
 
     const handleDeleteAddress = async (id: string) => {
         if (!confirm('Are you sure you want to delete this address?')) return
-        
+
         try {
             const response = await fetch(`/api/user/addresses/${id}`, {
                 method: 'DELETE'
@@ -233,7 +249,7 @@ const MyAccount = () => {
                     {alert.message}
                 </Alert>
             )}
-            
+
             <div className="container">
                 <div className="row justify-content-center">
                     <div className="account-title">My Account</div>
@@ -259,21 +275,21 @@ const MyAccount = () => {
                             <div className="settings-section">
                                 <div className={`settings-item ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
-                                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
                                     </svg>
                                     Profile Information
                                 </div>
                                 <div className={`settings-item ${activeTab === 'addresses' ? 'active' : ''}`} onClick={() => setActiveTab('addresses')}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-geo-alt" viewBox="0 0 16 16">
-                                        <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
-                                        <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                        <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10" />
+                                        <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
                                     </svg>
                                     Delivery Addresses
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className='col-12 col-sm-12 col-md-2 col-lg-8 mb-4'>
                         {/* Main Content */}
                         <div className="main-content">
@@ -379,8 +395,8 @@ const MyAccount = () => {
                                     </div>
 
                                     <div className="section-save">
-                                        <Button 
-                                            className="save-btn" 
+                                        <Button
+                                            className="save-btn"
                                             onClick={handleUpdateProfile}
                                             disabled={loading}
                                         >
@@ -394,8 +410,8 @@ const MyAccount = () => {
                                 <div className="section">
                                     <div className="section-header">
                                         <div className="section-title">Delivery Addresses</div>
-                                        <Button 
-                                            variant="contained" 
+                                        <Button
+                                            variant="contained"
                                             startIcon={<Add />}
                                             onClick={() => {
                                                 resetAddressForm()
@@ -412,8 +428,8 @@ const MyAccount = () => {
                                             <div className="no-addresses">
                                                 <LocationOn style={{ fontSize: 60, color: '#ccc' }} />
                                                 <p>No addresses found</p>
-                                                <Button 
-                                                    variant="outlined" 
+                                                <Button
+                                                    variant="outlined"
                                                     onClick={() => setOpenAddressDialog(true)}
                                                 >
                                                     Add Your First Address
@@ -431,7 +447,7 @@ const MyAccount = () => {
                                                             <span className="default-badge">Default</span>
                                                         )}
                                                     </div>
-                                                    
+
                                                     <div className="address-details">
                                                         <strong>{address.fullName}</strong>
                                                         <p>{address.addressLine1}</p>
@@ -442,23 +458,23 @@ const MyAccount = () => {
                                                     </div>
 
                                                     <div className="address-actions">
-                                                        <IconButton 
-                                                            size="small" 
+                                                        <IconButton
+                                                            size="small"
                                                             onClick={() => openEditDialog(address)}
                                                             title="Edit"
                                                         >
                                                             <Edit fontSize="small" />
                                                         </IconButton>
-                                                        <IconButton 
-                                                            size="small" 
+                                                        <IconButton
+                                                            size="small"
                                                             onClick={() => handleDeleteAddress(address._id)}
                                                             title="Delete"
                                                         >
                                                             <Delete fontSize="small" />
                                                         </IconButton>
                                                         {!address.isDefault && (
-                                                            <Button 
-                                                                size="small" 
+                                                            <Button
+                                                                size="small"
                                                                 onClick={() => handleSetDefaultAddress(address._id)}
                                                             >
                                                                 Set as Default
@@ -580,7 +596,7 @@ const MyAccount = () => {
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenAddressDialog(false)} sx={{color:'#00a651'}}>Cancel</Button>
+                    <Button onClick={() => setOpenAddressDialog(false)} sx={{ color: '#00a651' }}>Cancel</Button>
                     <Button onClick={handleAddressSubmit} className='save-btn' variant="contained" disabled={loading}>
                         {loading ? 'Saving...' : 'Save Address'}
                     </Button>

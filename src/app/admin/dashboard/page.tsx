@@ -348,7 +348,7 @@ const AdminDashboardView = () => {
                           }}
                           className="flex items-center w-full p-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                         >
-                          <Edit className="w-4 h-4 mr-2" />
+                          <Edit className="w-4 h-4 m-2" />
                           Edit Account
                         </button>
                         <button

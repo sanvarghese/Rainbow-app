@@ -9,7 +9,9 @@ const TopHeader = () => {
     const { data: session } = useSession()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const dropdownRef = useRef<HTMLLIElement>(null)
+    const [isFullyOnboarded, setIsFullyOnboarded] = useState(false)
 
+    console.log(isFullyOnboarded, 'is fullyonboard...!')
     const handleLogout = async () => {
         await signOut({ callbackUrl: '/' })
     }
@@ -20,8 +22,33 @@ const TopHeader = () => {
 
     // Check if user has merchant or admin role
     const userRole = session?.user?.role as string || 'user'
-    const showDashboard = userRole === 'Merchant' || userRole === 'admin'
+    console.log(userRole,"userRole from topHeader..!")
+    const showDashboard = userRole === 'merchant' || userRole === 'admin'
 
+    const showBecomeSeller = isFullyOnboarded
+
+      // Check full merchant onboarding status
+    useEffect(() => {
+        if (userRole !== 'merchant') {
+            setIsFullyOnboarded(false)
+            return
+        }
+
+        const checkOnboardingStatus = async () => {
+            try {
+                console.log('checking useRole')
+                const res = await fetch('/api/merchant/onboarding-status')
+                const data = await res.json()
+
+                console.log(data, 'data from onboarding-status..!')
+                setIsFullyOnboarded(data.isFullyOnboarded)
+            } catch {
+                setIsFullyOnboarded(false)
+            }
+        }
+
+        checkOnboardingStatus()
+    }, [userRole])
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -48,11 +75,13 @@ const TopHeader = () => {
 
                         <div className="col-md-6 row-first">
                             <ul className="list-inline m-0">
-                                <li className="list-inline-item border-end px-3">
-                                    <Link href="/become-a-seller" className="text-white text-decoration-none">
-                                        Become A Seller
-                                    </Link>
-                                </li>
+                                {showBecomeSeller && (
+                                    <li className="list-inline-item border-end px-3">
+                                        <Link href="/become-a-seller" className="text-white text-decoration-none">
+                                            Become A Seller 
+                                        </Link>
+                                    </li>
+                                )}
                                 <li className="list-inline-item border-end px-3">Free Delivery</li>
                                 <li className="list-inline-item px-3">Returns Policy</li>
                             </ul>
@@ -166,7 +195,7 @@ const TopHeader = () => {
                                     </li>
                                 ) : (
                                     <li className="list-inline-item px-3">
-                                        <Link href="/login" className="text-white text-decoration-none">
+                                        <Link href="auth/login" className="text-white text-decoration-none">
                                             Login
                                         </Link>
                                     </li>
