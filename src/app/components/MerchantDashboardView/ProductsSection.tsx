@@ -59,11 +59,12 @@ const ProductsSection = () => {
     };
 
     // Get the first product image or fallback
-    const getProductImage = (product: any) => {
-        if (product.productImages && product.productImages.length > 0) {
-            return product.productImages[0];
+    const getProductImage = (product: any): string | null => {
+        if (product?.productImages && Array.isArray(product.productImages) && product.productImages.length > 0) {
+            const firstImage = product.productImages[0];
+            return firstImage?.url || null;           // ← Key Fix
         }
-        return product.productImage || null;
+        return product?.productImage || null;        // Fallback for old structure
     };
 
     const handleAddProduct = () => {
@@ -130,6 +131,8 @@ const ProductsSection = () => {
     const endIndex = startIndex + itemsPerPage;
     const currentProducts = products.slice(startIndex, endIndex);
 
+    console.log(currentProducts, "current products..!")
+
     const goToPage = (page: number) => {
         setCurrentPage(page);
     };
@@ -168,31 +171,26 @@ const ProductsSection = () => {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800">Products</h2>
                     <p className="text-gray-600 mt-1">
-                        {products.length} product{products.length !== 1 ? 's' : ''} total
+                        {products.length} product{products.length !== 1 ? 's' : ''}
                     </p>
                 </div>
                 <button
                     onClick={handleAddProduct}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                     <Plus className="w-4 h-4" />
                     Add Product
                 </button>
             </div>
 
-            {/* Products Grid */}
             {products.length === 0 ? (
                 <div className="text-center py-12 bg-white rounded-xl shadow-sm p-5">
                     <PackageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">No Products Yet</h3>
-                    <p className="text-gray-600 mb-6">Start adding products to your inventory</p>
-                    <button
-                        onClick={handleAddProduct}
-                        className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <button onClick={handleAddProduct} className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
                         Add Your First Product
                     </button>
                 </div>
@@ -200,70 +198,55 @@ const ProductsSection = () => {
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {currentProducts.map((product) => {
-                            const productImage = getProductImage(product);
-                            const imageCount = product.productImages ? product.productImages.length : 0;
-                            const statusInfo = getStatusBadge(product.status || 'inactive');
-                            
+                            const imageUrl = getProductImage(product);
+                            const imageCount = product.productImages?.length || 0;
+                            const statusInfo = getStatusBadge(product.status);
+
                             return (
                                 <div key={product._id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                                    {/* Product Image */}
-                                    {productImage ? (
-                                        <div className="relative h-48 bg-gray-100">
+                                    <div className="relative h-48 bg-gray-100">
+                                        {imageUrl ? (
                                             <img
-                                                src={productImage}
+                                                src={imageUrl}
                                                 alt={product.name}
                                                 className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = '/placeholder-image.jpg'; // Optional fallback
+                                                }}
                                             />
-                                            
-                                            {/* Image Count Badge */}
-                                            {imageCount > 1 && (
-                                                <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs">
-                                                    +{imageCount - 1} more
-                                                </div>
-                                            )}
-                                            
-                                            {/* Badges */}
-                                            {product.badges && (
-                                                <div className="absolute top-2 right-2">
-                                                    <img
-                                                        src={product.badges}
-                                                        alt="Badge"
-                                                        className="w-12 h-12 object-contain"
-                                                    />
-                                                </div>
-                                            )}
-                                            
-                                            {/* Status Badge Overlay */}
-                                            <div className="absolute bottom-2 right-2">
-                                                <span className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusInfo.className}`}>
-                                                    {statusInfo.icon}
-                                                    {statusInfo.text}
-                                                </span>
+                                        ) : (
+                                            <div className="h-full flex items-center justify-center">
+                                                <PackageIcon className="w-16 h-16 text-gray-300" />
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="h-48 bg-gray-100 flex items-center justify-center">
-                                            <PackageIcon className="w-16 h-16 text-gray-300" />
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {/* Product Details */}
+                                        {/* Image count badge */}
+                                        {imageCount > 1 && (
+                                            <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs">
+                                                +{imageCount - 1} more
+                                            </div>
+                                        )}
+
+                                        {/* Status Badge */}
+                                        <div className="absolute bottom-2 right-2">
+                                            <span className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusInfo.className}`}>
+                                                {statusInfo.icon}
+                                                {statusInfo.text}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Rest of your card content remains same */}
                                     <div className="p-4">
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="text-lg font-semibold text-gray-800 line-clamp-1 flex-1">
                                                 {product.name}
                                             </h3>
-                                            <div className="flex gap-1 ml-2">
-                                                <button
-                                                    onClick={() => handleEditProduct(product)}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit Product">
+                                            <div className="flex gap-1">
+                                                <button onClick={() => handleEditProduct(product)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg">
                                                     <Edit className="w-4 h-4" />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(product)}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete Product">
+                                                <button onClick={() => handleDeleteClick(product)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg">
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -273,7 +256,6 @@ const ProductsSection = () => {
                                             {product.descriptionShort}
                                         </p>
 
-                                        {/* Tags */}
                                         <div className="flex flex-wrap gap-2 mb-3">
                                             <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
                                                 {product.category}
@@ -281,29 +263,20 @@ const ProductsSection = () => {
                                             <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
                                                 {product.subCategory}
                                             </span>
-                                            {product.foodType && (
-                                                <span className={`px-2 py-1 text-xs rounded-full ${product.foodType === 'veg'
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : 'bg-red-100 text-red-700'
-                                                    }`}>
-                                                    {product.foodType}
-                                                </span>
-                                            )}
                                         </div>
 
-                                        {/* Footer */}
                                         <div className="flex justify-between items-center pt-3 border-t border-gray-200">
                                             <div>
                                                 <p className="text-xs text-gray-500">Quantity</p>
-                                                <p className="font-semibold text-gray-800">{product.quantity}</p>
+                                                <p className="font-semibold">{product.quantity}</p>
                                             </div>
                                             <div>
                                                 <p className="text-xs text-gray-500">Price</p>
-                                                <p className="font-semibold text-gray-800">₹{product.price}</p>
+                                                <p className="font-semibold">₹{product.price}</p>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-gray-500">Offer Price</p>
-                                                <p className="font-semibold text-gray-800">₹{product.offerPrice}</p>
+                                                <p className="text-xs text-gray-500">Offer</p>
+                                                <p className="font-semibold">₹{product.offerPrice}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -316,7 +289,7 @@ const ProductsSection = () => {
                     {totalPages > 1 && (
                         <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm">
                             <div className="text-sm text-gray-600">
-                               Showing {startIndex + 1} to {Math.min(endIndex, products.length)} of {products.length} 
+                                Showing {startIndex + 1} to {Math.min(endIndex, products.length)} of {products.length}
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -324,8 +297,8 @@ const ProductsSection = () => {
                                     onClick={goToPreviousPage}
                                     disabled={currentPage === 1}
                                     className={`p-2 rounded-lg transition-colors ${currentPage === 1
-                                            ? 'text-gray-400 cursor-not-allowed'
-                                            : 'text-gray-700 hover:bg-gray-100'
+                                        ? 'text-gray-400 cursor-not-allowed'
+                                        : 'text-gray-700 hover:bg-gray-100'
                                         }`}>
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
@@ -342,8 +315,8 @@ const ProductsSection = () => {
                                                     key={page}
                                                     onClick={() => goToPage(page)}
                                                     className={`w-10 h-10 rounded-lg transition-colors ${currentPage === page
-                                                            ? 'bg-green-600 text-white'
-                                                            : 'text-gray-700 hover:bg-gray-100'
+                                                        ? 'bg-green-600 text-white'
+                                                        : 'text-gray-700 hover:bg-gray-100'
                                                         }`}>
                                                     {page}
                                                 </button>
@@ -362,8 +335,8 @@ const ProductsSection = () => {
                                     onClick={goToNextPage}
                                     disabled={currentPage === totalPages}
                                     className={`p-2 rounded-lg transition-colors ${currentPage === totalPages
-                                            ? 'text-gray-400 cursor-not-allowed'
-                                            : 'text-gray-700 hover:bg-gray-100'
+                                        ? 'text-gray-400 cursor-not-allowed'
+                                        : 'text-gray-700 hover:bg-gray-100'
                                         }`}>
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
