@@ -22,7 +22,6 @@ export async function GET(req: NextRequest) {
 
         const user = await User.findOne({ email: session.user.email }).select('-password -resetToken -resetTokenExpiry');
 
-        console.log(user, 'userrr.!')
 
         if (!user) {
             return NextResponse.json(
@@ -58,66 +57,79 @@ export async function PUT(req: NextRequest) {
     try {
         const session = await auth();
 
-        if (!session || !session.user?.email) {
+        if (!session?.user?.id) {
             return NextResponse.json(
-                { success: false, message: 'Unauthorized' },
+                { success: false, message: "Unauthorized" },
                 { status: 401 }
             );
         }
 
-        const body = await req.json();
-        const { name, email, mobile, gender } = body;
-
-        console.log(body, 'req from body..!')
+        const { name, email, mobile, gender } =
+            await req.json();
 
         await connectDB();
 
-        const user = await User.findOne({ email: session.user.email });
+        const user = await User.findById(
+            session.user.id
+        );
 
         if (!user) {
             return NextResponse.json(
-                { success: false, message: 'User not found' },
+                { success: false, message: "User not found" },
                 { status: 404 }
             );
         }
 
-        // Check if email is being changed and if it's already taken
-        if (email && email !== user.email) {
-            const existingUser = await User.findOne({ email });
+        if (
+            email &&
+            email.toLowerCase().trim() !==
+            user.email.toLowerCase()
+        ) {
+            const existingUser =
+                await User.findOne({
+                    email: email.toLowerCase().trim()
+                });
+
             if (existingUser) {
                 return NextResponse.json(
-                    { success: false, message: 'Email already in use' },
+                    {
+                        success: false,
+                        message: "Email already in use"
+                    },
                     { status: 400 }
                 );
             }
-            user.email = email;
+
+            user.email =
+                email.toLowerCase().trim();
         }
 
-        if (name) user.name = name;
-        if (mobile !== undefined) user.mobile = mobile;
-        if (gender !== undefined) user.gender = gender;
+        if (name !== undefined)
+            user.name = name;
 
+        if (mobile !== undefined)
+            user.mobile = mobile;
+
+        if (gender !== undefined)
+            user.gender = gender;
 
         await user.save();
 
         return NextResponse.json({
             success: true,
-            message: 'Profile updated successfully',
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                profileImage: user.profileImage,
-                role: user.role,
-                mobile: user.mobile,
-                gender: user.gender
-            }
+            message: "Profile updated successfully",
+            user
         });
+
     } catch (error) {
-        console.error('Error updating user profile:', error);
+        console.error(error);
+
         return NextResponse.json(
-            { success: false, message: 'Internal server error' },
+            {
+                success: false,
+                message: "Internal server error"
+            },
             { status: 500 }
         );
-    } 6
+    }
 }
