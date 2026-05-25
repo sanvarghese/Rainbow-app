@@ -45,9 +45,7 @@ const ProductApprovalSection = () => {
 
   const fetchAllProducts = async () => {
     try {
-      // Fix: Your API only accepts 'pending', 'approved', 'rejected' (no 'all')
-      // So fetch all by getting each status or modify your API
-      const res = await fetch('/api/admin/approvals/products?status=pending');
+      const res = await fetch('/api/admin/approvals/products?status=all');
       const data = await res.json();
 
       if (data.success) {
@@ -63,30 +61,22 @@ const ProductApprovalSection = () => {
   };
 
   const filterProducts = () => {
-    let result = [...allProducts];
-
     if (filter === 'pending') {
-      result = allProducts.filter(p => p.status === 'pending' || p.status === 'inactive');
+      setFilteredProducts(allProducts.filter(p => p.status === 'pending' || p.status === 'inactive'));
     } else if (filter === 'approved') {
-      result = allProducts.filter(p => p.status === 'approved');
+      setFilteredProducts(allProducts.filter(p => p.status === 'approved'));
     } else if (filter === 'rejected') {
-      result = allProducts.filter(p => p.status === 'rejected');
-    } else if (filter === 'all') {
-      result = allProducts;
+      setFilteredProducts(allProducts.filter(p => p.status === 'rejected'));
+    } else {
+      setFilteredProducts(allProducts); // 'all'
     }
-
-    setFilteredProducts(result);
   };
 
   const getImageUrls = (product: Product): string[] => {
-    if (product.productImages && Array.isArray(product.productImages)) {
-      return product.productImages.map(img => img.url).filter(Boolean);
-    }
-    return [];
+    return product.productImages?.map(img => img.url).filter(Boolean) || [];
   };
 
   const handleApproval = async (productId: string, isApproved: boolean) => {
-    // Prevent duplicate processing
     if (processingIds.has(productId)) return;
 
     setProcessingIds(prev => new Set(prev).add(productId));
@@ -101,11 +91,8 @@ const ProductApprovalSection = () => {
       const data = await res.json();
 
       if (data.success) {
-        // Show success message
         alert(data.message);
-        // Refresh products
-        await fetchAllProducts();
-        // Close modal
+        await fetchAllProducts();        // Refresh all data
         setSelectedProduct(null);
       } else {
         alert(data.error || 'Failed to update product status');
@@ -122,25 +109,19 @@ const ProductApprovalSection = () => {
     }
   };
 
-  const pendingCount = allProducts.filter((p) => p.status === 'inactive' || p.status === 'pending').length;
-  const approvedCount = allProducts.filter((p) => p.status === 'approved').length;
-  const rejectedCount = allProducts.filter((p) => p.status === 'rejected').length;
+  // Counts
+  const pendingCount = allProducts.filter(p => p.status === 'inactive' || p.status === 'pending').length;
+  const approvedCount = allProducts.filter(p => p.status === 'approved').length;
+  const rejectedCount = allProducts.filter(p => p.status === 'rejected').length;
   const totalCount = allProducts.length;
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading products...</p>
-        </div>
-      </div>
-    );
+    return <div className="flex items-center justify-center py-12">Loading...</div>;
   }
 
   return (
     <div className="space-y-6">
-      {/* Header with Tabs */}
+      {/* Tabs - Same as before */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Product Approvals</h2>
@@ -148,40 +129,16 @@ const ProductApprovalSection = () => {
         </div>
 
         <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => setFilter('pending')}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending'
-              ? 'bg-yellow-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-          >
+          <button onClick={() => setFilter('pending')} className={`px-5 py-2 rounded-lg text-sm font-medium ${filter === 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
             Pending ({pendingCount})
           </button>
-          <button
-            onClick={() => setFilter('approved')}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'approved'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-          >
+          <button onClick={() => setFilter('approved')} className={`px-5 py-2 rounded-lg text-sm font-medium ${filter === 'approved' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
             Approved ({approvedCount})
           </button>
-          <button
-            onClick={() => setFilter('rejected')}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'rejected'
-              ? 'bg-red-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-          >
+          <button onClick={() => setFilter('rejected')} className={`px-5 py-2 rounded-lg text-sm font-medium ${filter === 'rejected' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
             Rejected ({rejectedCount})
           </button>
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all'
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-          >
+          <button onClick={() => setFilter('all')} className={`px-5 py-2 rounded-lg text-sm font-medium ${filter === 'all' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
             All ({totalCount})
           </button>
         </div>
@@ -344,7 +301,7 @@ const ProductApprovalSection = () => {
                   //     {selectedProduct.descriptionLong || selectedProduct.descriptionShort}
                   //   </p>
                   // </div>
-                  
+
                   <div
                     className="text-gray-600 prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{

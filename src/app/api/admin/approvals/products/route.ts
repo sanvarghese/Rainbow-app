@@ -8,31 +8,32 @@ import Product from "../../../../../models/Product";
 export async function GET(req: NextRequest) {
   try {
     const admin = await verifyAdminToken(req);
-
     if (!admin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
 
-    // Get filter from query params
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
     let query: any = {};
 
-    if (status === "pending" || !status) {
-      // Default behavior: Show only pending (inactive) products
-      query = { status: "pending" };
-    } else if (status === "approved") {
+    if (status === "all" || !status) {
+      query = {}; // Fetch ALL products
+    } 
+    else if (status === "pending") {
+      query = { status: { $in: ["pending", "inactive"] } };
+    } 
+    else if (status === "approved") {
       query = { status: "approved" };
-    } else if (status === "rejected") {
+    } 
+    else if (status === "rejected") {
       query = { status: "rejected" };
     } 
-    // You can add "removed" later if needed
+    else {
+      query = { status: { $in: ["pending", "inactive"] } }; // default
+    }
 
     const products = await Product.find(query)
       .populate("companyId", "name email companyLogo")
@@ -45,10 +46,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error fetching products:", error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
