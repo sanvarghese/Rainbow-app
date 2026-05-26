@@ -7,9 +7,14 @@ import "./RelatedProducts.css";
 import FilterMenu from '../FilterMenu/FilterMenu';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+interface ProductImage {
+    url: string;
+    publicId?: string;
+}
+
 interface Product {
     _id: string;
-    productImages?: string[]; 
+    productImages?: Array<string | ProductImage>;
     productImage?: string;
     name: string;
     descriptionShort: string;
@@ -111,14 +116,16 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
             }
 
             console.log('Fetching products with params:', params.toString());
-            
+
             const res = await fetch(`/api/products?${params}`);
-            
+
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
-            
+
             const data = await res.json();
+
+            console.log(data, 'data from product list..!')
 
             if (data.success) {
                 setProducts(data.products);
@@ -139,11 +146,29 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
         fetchProducts();
     }, [fetchProducts]);
 
+    // const getProductImage = (product: Product): string => {
+    //     if (product.productImages && product.productImages.length > 0) {
+    //         return product.productImages[0];
+    //     }
+    //     return product.productImage || '/placeholder-product.png';
+    // };
+
+
     const getProductImage = (product: Product): string => {
-        if (product.productImages && product.productImages.length > 0) {
-            return product.productImages[0];
+        if (product.productImages && Array.isArray(product.productImages) && product.productImages.length > 0) {
+            const firstImage = product.productImages[0];
+            const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
+
+            if (imageUrl) {
+                return imageUrl;
+            }
         }
-        return product.productImage || '/placeholder-product.png';
+
+        if (product.productImage) {
+            return product.productImage;
+        }
+
+        return '/placeholder-product.png';
     };
 
     const handleSortChange = (option: string) => {
@@ -159,7 +184,7 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
     //         ) {
     //             return prev;
     //         }
-            
+
     //         return {
     //             ...prev,
     //             categories: newFilters.categories || [],
@@ -190,10 +215,10 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
     // };
 
     const clearAllFilters = () => {
-        setFilters({ 
-            categories: [], 
-            minDiscount: null, 
-            search: '' 
+        setFilters({
+            categories: [],
+            minDiscount: null,
+            search: ''
         });
         setPagination(prev => ({ ...prev, page: 1 }));
         router.push('/shop');   // Clears URL
@@ -220,12 +245,12 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
                             <div className="row justify-content-start">
                                 <div className="youmightheading productlist d-flex justify-content-between align-items-center mb-4">
                                     <h4 className="h4_1">
-                                        {loading ? 'Loading...' : 
+                                        {loading ? 'Loading...' :
                                             products.length > 0 ?
-                                            ` Showing..' ${((pagination.page - 1) * pagination.limit) + 1}-
+                                                ` Showing..' ${((pagination.page - 1) * pagination.limit) + 1}-
                                             ${Math.min(pagination.page * pagination.limit, pagination.total)} 
                                             of ${pagination.total} results`
-                                            : 'No products found'
+                                                : 'No products found'
                                         }
                                     </h4>
 
@@ -258,7 +283,7 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
                                     <div className="col-12 text-center py-5">
                                         <h5>No products found</h5>
                                         <p>Try adjusting your filters or search criteria</p>
-                                        <button 
+                                        <button
                                             className="btn btn-success mt-2"
                                             onClick={clearAllFilters}
                                         >
@@ -280,7 +305,7 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
                                                         title={product.company?.name || 'Unknown Brand'}
                                                         subtitle={product.name}
                                                         rating="4.5"
-                                                        reviews="100" 
+                                                        reviews="100"
                                                         oldPrice={`₹${product.price.toFixed(2)}`}
                                                         newPrice={`₹${product.offerPrice.toFixed(2)}`}
                                                         discount={product.discount}

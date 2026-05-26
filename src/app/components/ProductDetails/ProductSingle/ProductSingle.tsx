@@ -18,7 +18,8 @@ interface Product {
   name: string;
   descriptionShort: string;
   descriptionLong?: string;
-  productImages: string[];
+  // productImages: string[];
+  productImages: { url: string; publicId: string; _id: string }[];
   price: number;
   offerPrice: number;
   quantity: number;
@@ -46,7 +47,13 @@ interface Review {
 }
 
 const ProductSingle = () => {
-  const { productId } = useParams();
+  // const { productId } = useParams();
+
+  const params = useParams();
+  const productId = Array.isArray(params.productId)
+    ? params.productId[0]
+    : params.productId;
+
   const router = useRouter();
   const { data: session } = useSession();
   const [product, setProduct] = useState<Product | null>(null);
@@ -54,6 +61,7 @@ const ProductSingle = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<"description" | "reviews" | "specifications">("description");
+
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
@@ -77,12 +85,28 @@ const ProductSingle = () => {
   const { wishlist, addToWishlist, isInWishlist, fetchWishlist } = useWishlist();
   const { setBuyNowItem } = useBuyNow();
 
+
   // Check if product is in wishlist
   const isWishlisted = !wishlist.loading && productId && isInWishlist(String(productId));
 
   // Check if product is in cart
-  const isInCart = productId && cart.items.some(item => item.productId._id === String(productId));
-  const cartItem = isInCart ? cart.items.find(item => item.productId._id === String(productId)) : null;
+  // const isInCart = productId && cart.items.some(item => item.productId._id === String(productId));
+  // const cartItem = isInCart ? cart.items.find(item => item.productId._id === String(productId)) : null;
+  // const cartQuantity = cartItem?.quantity || 0;
+
+  const isInCart = Boolean(
+    productId &&
+    cart?.items?.some((item: any) =>
+      item?.productId?._id && String(item.productId._id) === String(productId)
+    )
+  );
+
+  const cartItem = isInCart
+    ? cart.items.find((item: any) =>
+      item?.productId?._id && String(item.productId._id) === String(productId)
+    )
+    : null;
+
   const cartQuantity = cartItem?.quantity || 0;
 
   const [authDrawer, setAuthDrawer] = useState<{
@@ -90,10 +114,13 @@ const ProductSingle = () => {
     pendingAction: 'addToCart' | 'buyNow' | null;
   }>({ open: false, pendingAction: null });
 
+  // Early return if no productId
+  if (!productId) {
+    return <div>Invalid Product</div>;
+  }
+
   // Fetch product details
   useEffect(() => {
-    if (!productId) return;
-
     const fetchProduct = async () => {
       try {
         setLoading(true);
@@ -102,8 +129,6 @@ const ProductSingle = () => {
 
         if (res.ok && data.success) {
           setProduct(data.product);
-        } else {
-          console.error("Product fetch failed:", data.error);
         }
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -114,7 +139,8 @@ const ProductSingle = () => {
 
     fetchProduct();
     fetchWishlist();
-  }, [productId]);
+  }, [productId, fetchWishlist]);
+
 
   // Check if user can review this product (similar to ordersPage)
   const checkUserReviewStatus = async () => {
@@ -219,7 +245,8 @@ const ProductSingle = () => {
         quantity,
         price: product.price,
         offerPrice: product.offerPrice,
-        productImage: product.productImages?.[0] || '',
+        // productImage: product.productImages?.[0] || '',
+        productImage: product.productImages?.[0]?.url || '',
         totalAmount: (product.offerPrice || product.price) * quantity,
       };
       setBuyNowItem(buyNowItemData);
@@ -243,8 +270,36 @@ const ProductSingle = () => {
     }
   };
 
+  // const handleAuthSuccess = async () => {
+  //   if (!product) return;
+  //   if (authDrawer.pendingAction === 'addToCart') {
+  //     setIsAddingToCart(true);
+  //     try {
+  //       await addToCart(product._id, quantity);
+  //     } catch (error: any) {
+  //       alert(error.message || 'Failed to add to cart');
+  //     } finally {
+  //       setIsAddingToCart(false);
+  //     }
+  //   } else if (authDrawer.pendingAction === 'buyNow') {
+  //     const buyNowItemData = {
+  //       productId: product._id,
+  //       name: product.name,
+  //       subtitle: product.descriptionShort?.substring(0, 100),
+  //       quantity,
+  //       price: product.price,
+  //       offerPrice: product.offerPrice,
+  //       productImage: product.productImages?.[0] || '',
+  //       totalAmount: (product.offerPrice || product.price) * quantity,
+  //     };
+  //     setBuyNowItem(buyNowItemData);
+  //     router.push('/check-out');
+  //   }
+  // };
+
   const handleAuthSuccess = async () => {
     if (!product) return;
+
     if (authDrawer.pendingAction === 'addToCart') {
       setIsAddingToCart(true);
       try {
@@ -262,7 +317,7 @@ const ProductSingle = () => {
         quantity,
         price: product.price,
         offerPrice: product.offerPrice,
-        productImage: product.productImages?.[0] || '',
+        productImage: product.productImages?.[0]?.url || '',
         totalAmount: (product.offerPrice || product.price) * quantity,
       };
       setBuyNowItem(buyNowItemData);
@@ -359,6 +414,9 @@ const ProductSingle = () => {
       : 0);
 
   const productImages = product.productImages?.length > 0 ? product.productImages : [];
+
+  console.log(productImages, 'product images..!')
+
   const isOutOfStock = product.quantity === 0;
 
   // Calculate rating percentage for distribution
@@ -378,7 +436,7 @@ const ProductSingle = () => {
                 className={`thumbnail ${selectedImageIndex === index ? 'selected' : ''}`}
                 onClick={() => setSelectedImageIndex(index)}
               >
-                <Image src={img} alt={`thumb-${index}`} width={90} height={90} />
+                <Image src={img.url} alt={`thumb-${index}`} width={90} height={90} />
               </div>
             ))}
           </div>
@@ -389,7 +447,8 @@ const ProductSingle = () => {
           <div className="main-image-wrapper">
             {productImages.length > 0 ? (
               <Image
-                src={productImages[selectedImageIndex]}
+                // src={productImages[selectedImageIndex]}
+                src={productImages[selectedImageIndex].url}
                 alt={product.name}
                 fill
                 priority
@@ -811,13 +870,11 @@ const ProductSingle = () => {
       {showReviewModal && productId && (
         <ReviewModal
           isOpen={showReviewModal}
-          onClose={() => {
-            setShowReviewModal(false);
-          }}
-          productId={typeof productId === 'string' ? productId : productId[0]}
+          onClose={() => setShowReviewModal(false)}
+          productId={productId}                    // Now it's string
           orderId={userReview?.orderId || ''}
-          productName={product.name}
-          productImage={product.productImages?.[0] || ''}
+          productName={product?.name || ''}
+          productImage={product?.productImages?.[0]?.url || ''}
           existingReview={userReview}
           onSuccess={handleReviewSuccess}
         />

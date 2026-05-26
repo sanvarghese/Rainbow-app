@@ -284,18 +284,30 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({
 // Small helper components
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <label style={{ display: 'block', fontSize: 12, color: '#6b7280', marginBottom: 4 }}>{label}</label>
+    <label style={{ display: 'block', fontSize: 12, color: '#6b7280', marginBottom: 4 }}>
+      {label}
+    </label>
     <div style={{ width: '100%' }}>
-      {React.cloneElement(children as React.ReactElement, {
-        style: {
-          width: '100%', height: 38, border: '1px solid #d1d5db',
-          borderRadius: 8, padding: '0 10px', fontSize: 14,
-          outline: 'none', boxSizing: 'border-box' as const,
-        },
-      })}
+      {React.isValidElement(children) ? (
+        React.cloneElement(children as React.ReactElement<any>, {
+          style: {
+            width: '100%',
+            height: 38,
+            border: '1px solid #d1d5db',
+            borderRadius: 8,
+            padding: '0 10px',
+            fontSize: 14,
+            outline: 'none',
+            boxSizing: 'border-box' as const,
+          },
+        })
+      ) : (
+        children
+      )}
     </div>
   </div>
 );
+
 
 const SubmitBtn = ({ loading, label }: { loading: boolean; label: string }) => (
   <button
