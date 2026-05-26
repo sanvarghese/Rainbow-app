@@ -53,7 +53,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const hasMounted = useRef(false);
 
   const isWishlisted = !wishlist.loading && isInWishlist(actualProductId);
-  const isInCart = cart.items.some(item => item.productId._id === actualProductId);
+  const isInCart = cart.items.some(item => item.productId?._id === actualProductId);
 
   useEffect(() => {
     if (!hasMounted.current && wishlist.items.length === 0 && !wishlist.loading) {
@@ -147,7 +147,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     <div className="youmightlikecard" onClick={handleCardClick} style={{ cursor: "pointer" }}>
       <div className="card topcard3">
         <div className="cardimgdiv3" style={{ position: "relative" }}>
-          <Image
+          {/* <Image
             className="topimg3"
             src={imageSrc}
             alt={title}
@@ -155,6 +155,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
             height={200}
             style={{ objectFit: "cover", width: "100%", height: "200px" }}
             onError={() => setImageSrc(DefaultProductImage.src)}
+          /> */}
+
+          <Image
+            src={imageSrc}
+            alt={title}
+            width={200}
+            height={200}
+            style={{ objectFit: "cover", width: "100%", height: "200px" }}
+            onError={() => setImageSrc(DefaultProductImage.src)}
+            priority={false}
           />
 
           {calculatedDiscount > 0 && (
