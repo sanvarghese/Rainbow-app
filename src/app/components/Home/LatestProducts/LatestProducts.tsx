@@ -240,7 +240,8 @@ const LatestProducts: React.FC = () => {
             {products.map((product) => {
               const { price, offerPrice } = getProductPrice(product);
               const discount = getDiscountPercentage(price, offerPrice);
-              const productImage = product.productImages?.[0] || fallbackImg;
+              const rawImg = product.productImages?.[0];
+              const productImage = (typeof rawImg === 'string' && rawImg.trim() !== '') ? rawImg : fallbackImg;
               const rating = product.rating || 4.5;
               const reviewCount = product.reviewCount || 0;
 
@@ -260,8 +261,9 @@ const LatestProducts: React.FC = () => {
                           width={200}
                           height={200}
                           onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = fallbackImg.src;
+                            const target = e.currentTarget as HTMLImageElement;
+                            const fallbackSrc = typeof fallbackImg === 'string' ? fallbackImg : fallbackImg.src;
+                            if (target && target.src !== fallbackSrc) target.src = fallbackSrc;
                           }}
                         />
                         {discount > 0 && (
