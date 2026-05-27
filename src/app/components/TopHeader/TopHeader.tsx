@@ -15,12 +15,8 @@ const TopHeader = () => {
     const userRole = (session?.user?.role as string)?.toLowerCase() || 'user'
     const isMerchant = userRole === 'merchant'
 
-    console.log(isMerchant, "ismerchant from top header..!")
-
     const showDashboard = isMerchant || userRole === 'admin'
     const showBecomeSeller = !isFullyOnboarded  // Only show if merchant but not fully onboarded
-
-    console.log(isFullyOnboarded, 'isFullyonboarded.!')
 
     // Check full merchant onboarding status
     useEffect(() => {
