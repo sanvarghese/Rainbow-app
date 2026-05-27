@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -43,6 +44,7 @@ interface CategoryType {
 const Category = () => {
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const colors = [
     "#FCEDED", "#F5FBE3", "#FCF2E7", "#E3FBE9", "#E9E3FB",
@@ -108,11 +110,11 @@ const Category = () => {
             }}
           >
             {categories.map((category, index) => {
-              // Determine image source
-              let imageSrc = fallbackImages[category.name] || vegetablesImg;
+              // Determine image source (ensure we never pass an empty string)
+              let imageSrc: any = fallbackImages[category.name] || vegetablesImg;
 
-              // If category has custom image URL from database, use it
-              if (category.image) {
+              // If category has custom image URL from database, use it when valid
+              if (category.image && typeof category.image === 'string' && category.image.trim() !== '') {
                 imageSrc = category.image;
               }
 
@@ -120,7 +122,11 @@ const Category = () => {
                 <SwiperSlide key={category._id}>
                   <div
                     className="category-box mx-auto d-flex justify-content-center align-items-center"
-                    style={{ backgroundColor: colors[index % colors.length] }}
+                    style={{ backgroundColor: colors[index % colors.length], cursor: 'pointer' }}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => router.push(`/shop?category=${encodeURIComponent(category.name)}`)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/shop?category=${encodeURIComponent(category.name)}`); }}
                   >
                     {typeof imageSrc === 'string' ? (
                       // For URL strings from database
