@@ -172,23 +172,33 @@
 
 .relatedProducts .cardimgdiv3 {
     position: relative;
-    /* background-color: #b3b3b377; */
-    /* border-radius: 10px; */
-
+    overflow: hidden;
+    border-radius: 10px;
 }
 
 .relatedProducts .topimg3 {
     padding: 0;
-    width: 212px;
-    height: 210px;
+    width: 100%;
+    height: 200px;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+    object-fit: cover;
     max-width: 100%;
-    /* height: auto; */
-    margin-top: 0;
-    margin-bottom: 0;
+    margin: 0;
     border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.relatedProducts .topcard3 {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.relatedProducts .topcard3:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.relatedProducts .topcard3:hover .topimg3 {
+    transform: scale(1.05);
 }
 
 @media (max-width: 768px) {

@@ -158,6 +158,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           /> */}
 
           <Image
+            className="topimg3"
             src={imageSrc}
             alt={title}
             width={200}

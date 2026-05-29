@@ -18,11 +18,17 @@ interface Variant {
   offerPrice: number;
 }
 
+interface ProductImageObject {
+  url: string;
+  publicId?: string;
+  _id?: string;
+}
+
 interface Product {
   _id: string;
   name: string;
   descriptionShort: string;
-  productImages: string[];
+  productImages: Array<string | ProductImageObject>;
   price: number;
   offerPrice: number;
   quantity: number;
@@ -142,7 +148,7 @@ const LatestProducts: React.FC = () => {
   };
 
   const handleCardClick = (productId: string) => {
-    router.push(`/singleproduct/${productId}`);
+    router.push(`/shop/${productId}`);
   };
 
   const getProductPrice = (product: Product) => {
@@ -241,7 +247,12 @@ const LatestProducts: React.FC = () => {
               const { price, offerPrice } = getProductPrice(product);
               const discount = getDiscountPercentage(price, offerPrice);
               const rawImg = product.productImages?.[0];
-              const productImage = (typeof rawImg === 'string' && rawImg.trim() !== '') ? rawImg : fallbackImg;
+              const imageUrl =
+                typeof rawImg === 'string'
+                  ? rawImg
+                  : rawImg?.url;
+              const productImage =
+                imageUrl && imageUrl.trim() !== '' ? imageUrl : fallbackImg;
               const rating = product.rating || 4.5;
               const reviewCount = product.reviewCount || 0;
 
