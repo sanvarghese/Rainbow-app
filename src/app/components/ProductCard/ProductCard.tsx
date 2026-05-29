@@ -40,7 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   companyId,
   productImage,
 }) => {
-  const [imageSrc, setImageSrc] = useState(img || productImage || DefaultProductImage.src);
+  const [imageSrc, setImageSrc] = useState<string>(img || productImage || DefaultProductImage.src);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
@@ -65,6 +65,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   useEffect(() => {
     setIsLoading(wishlist.loading);
   }, [wishlist.loading]);
+
+  // Keep imageSrc in sync with incoming props and ensure it's never an empty string
+  useEffect(() => {
+    const src = img || productImage || DefaultProductImage.src;
+    setImageSrc(src || DefaultProductImage.src);
+  }, [img, productImage]);
 
   const toggleWishlist = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -159,7 +165,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           <Image
             className="topimg3"
-            src={imageSrc}
+            src={imageSrc || DefaultProductImage.src}
             alt={title}
             width={200}
             height={200}

@@ -11,7 +11,7 @@ interface Product {
   _id: string;
   name: string;
   descriptionShort: string;
-  productImages?: string[];        // ← Important
+  productImages?: { url: string; publicId?: string; _id?: string }[];        // ← Important: cloudinary objects
   productImage?: string;           // fallback
   price: number;
   offerPrice: number;
@@ -85,9 +85,10 @@ const RelatedProducts = () => {
             </div>
           ) : relatedProducts.length > 0 ? (
             relatedProducts.map((product) => {
-              // ✅ FIXED: Get image from productImages array
+            
+              // ✅ FIXED: Use the image URL from productImages array
               const imageUrl =
-                product.productImages?.[0] ||
+                product.productImages?.[0]?.url ||
                 product.productImage ||
                 "";
 
