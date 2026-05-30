@@ -73,10 +73,13 @@ export async function PATCH(
           note: note || `Order status changed to ${status}`,
           session: dbSession
         });
-      }
-      
-      // Update delivery date if provided and no status change
-      if (deliveryDate && !status) {
+        
+        // Also update delivery date if provided
+        if (deliveryDate) {
+          await Order.findByIdAndUpdate(id, updateData, { session: dbSession });
+        }
+      } else if (deliveryDate) {
+        // Update delivery date only if no status change
         await Order.findByIdAndUpdate(id, updateData, { session: dbSession });
       }
       

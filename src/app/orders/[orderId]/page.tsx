@@ -566,7 +566,7 @@ const OrderSummarySection: React.FC<{ order: Order; formatCurrency: (amount: num
             <span className="text-gray-600">Expected Delivery</span>
             <span className="font-medium flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              {formatDate(order.deliveryDate)}
+              {order.deliveryDate ? formatDate(order.deliveryDate) : 'Not set yet'}
             </span>
           </div>
         </div>
@@ -804,10 +804,16 @@ const OrderDetailPage = () => {
                     <h3 className="text-1xl font-bold text-gray-900">Order #{order.orderId}</h3>
                     <StatusBadge status={order.status} />
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span className="flex items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                    <span className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
-                      {formatDateTime(order.createdAt)}
+                      <span className="font-medium text-gray-700">Order Date:</span>
+                      <span>{formatDateTime(order.createdAt)}</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span className="font-medium text-gray-700">Expected Delivery:</span>
+                      <span>{order.deliveryDate ? formatDate(order.deliveryDate) : 'Not set yet'}</span>
                     </span>
                   </div>
                 </div>

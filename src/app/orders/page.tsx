@@ -44,6 +44,7 @@ interface Order {
   };
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   paymentStatus: 'pending' | 'paid' | 'failed';
+  deliveryDate: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -241,10 +242,16 @@ const OrdersPage = () => {
                             Order #{order.orderId}
                             <ChevronRight className="w-4 h-4" />
                           </Link>
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="flex items-center gap-1 text-sm text-gray-500">
+                          <div className="flex flex-wrap items-center gap-4 mt-1 text-sm text-gray-500">
+                            <span className="flex items-center gap-2">
                               <Calendar className="w-3.5 h-3.5" />
-                              {formatDate(order.createdAt)}
+                              <span className="font-medium text-gray-700">Order Date:</span>
+                              <span>{formatDate(order.createdAt)}</span>
+                            </span>
+                            <span className="flex items-center gap-2">
+                              <Calendar className="w-3.5 h-3.5" />
+                              <span className="font-medium text-gray-700">Expected Delivery:</span>
+                              <span>{order.deliveryDate ? formatDate(order.deliveryDate) : 'Not set'}</span>
                             </span>
                           </div>
                         </div>
