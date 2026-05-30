@@ -9,7 +9,7 @@ import { Trash2, ShoppingBag, Heart, Loader2 } from "lucide-react";
 interface ProductType {
   _id: string;
   name: string;
-  productImages: string[];
+  productImages?: { url: string; publicId?: string; _id?: string }[];
   price: number;
   offerPrice?: number;
 }
@@ -129,7 +129,10 @@ export default function WishlistPage() {
           if (!product) return null;
 
           const productId = getProductId(item);
-          const imageUrl = product.productImages?.[0] || "/placeholder-image.jpg";
+          const imageUrl = product.productImages?.[0]?.url || "/placeholder-image.jpg";
+
+          console.log(imageUrl, "image url..!")
+
           const displayPrice = product.offerPrice || product.price;
           const originalPrice = product.offerPrice ? product.price : null;
           const discount = originalPrice
@@ -141,7 +144,7 @@ export default function WishlistPage() {
               key={item._id || productId}
               className="group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
-              <Link href={`/products/${productId}`} className="block">
+              <Link href={`/shop/${productId}`} className="block">
                 <div className="relative aspect-square bg-gray-100">
                   <Image
                     src={imageUrl}
@@ -159,7 +162,7 @@ export default function WishlistPage() {
               </Link>
 
               <div className="p-4">
-                <Link href={`/products/${productId}`}>
+                <Link href={`/shop/${productId}`}>
                   <h5 className="font-medium text-gray-900 hover:text-gray-600 transition-colors line-clamp-2 min-h-[56px]">
                     {product.name}
                   </h5>

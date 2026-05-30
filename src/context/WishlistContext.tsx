@@ -6,7 +6,7 @@ interface WishlistItem {
     productId: string | {
         _id: string;
         name?: string;
-        productImages?: string[];
+        productImages?: { url: string; publicId?: string; _id?: string }[];
         price?: number;
         offerPrice?: number;
     };
