@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, FolderTree, Image as ImageIcon, X, Eye, EyeOff, Trash, RotateCcw, Save } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface ChildSubCategory {
   name: string;
@@ -153,7 +154,7 @@ const CategorySection = () => {
     if (!editingSubCategoryData || editingSubCategoryIndex === null) return;
     
     if (!editingSubCategoryData.name) {
-      alert('Subcategory name is required');
+      toast.error('Subcategory name is required');
       return;
     }
 
@@ -191,7 +192,7 @@ const CategorySection = () => {
     if (!editingChildSubCategory || !editingChildData) return;
     
     if (!editingChildData.name) {
-      alert('Child subcategory name is required');
+      toast.error('Child subcategory name is required');
       return;
     }
 
@@ -222,7 +223,7 @@ const CategorySection = () => {
 
   const handleSubmit = async () => {
     if (!formData.name) {
-      alert('Category name is required');
+      toast.error('Category name is required');
       return;
     }
 
@@ -320,7 +321,7 @@ const CategorySection = () => {
 
   const addSubCategory = () => {
     if (!newSubCategory.name) {
-      alert('Subcategory name is required');
+      toast.error('Subcategory name is required');
       return;
     }
 
@@ -346,7 +347,7 @@ const CategorySection = () => {
 
   const addChildSubCategory = (subIndex: number) => {
     if (!newChildSubCategory.name) {
-      alert('Child subcategory name is required');
+      toast.error('Child subcategory name is required');
       return;
     }
 
@@ -413,6 +414,9 @@ const CategorySection = () => {
 
   return (
     <div className="space-y-6">
+
+      <Toaster position="top-right"  />
+
       {/* Header with Filters */}
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h2 className="text-2xl font-bold text-gray-800">Category Management</h2>
