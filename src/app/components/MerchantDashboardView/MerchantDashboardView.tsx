@@ -69,42 +69,42 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
     // Stats data
     const statsData = [
         {
-          title: 'Total Products',
-          value: '128',
-          change: '+8%',
-          isPositive: true,
-          icon: Package,
-          iconColor: 'text-green-600',
-          bgColor: 'bg-green-100'
+            title: 'Total Products',
+            value: '128',
+            change: '+8%',
+            isPositive: true,
+            icon: Package,
+            iconColor: 'text-green-600',
+            bgColor: 'bg-green-100'
         },
         {
-          title: 'Total Orders',
-          value: '342',
-          change: '+12%',
-          isPositive: true,
-          icon: ListOrdered,
-          iconColor: 'text-blue-600',
-          bgColor: 'bg-blue-100'
+            title: 'Total Orders',
+            value: '342',
+            change: '+12%',
+            isPositive: true,
+            icon: ListOrdered,
+            iconColor: 'text-blue-600',
+            bgColor: 'bg-blue-100'
         },
         {
-          title: 'Today Sales',
-          value: '₹12,450',
-          change: '+5%',
-          isPositive: true,
-          icon: CreditCard,
-          iconColor: 'text-yellow-600',
-          bgColor: 'bg-yellow-100'
+            title: 'Today Sales',
+            value: '₹12,450',
+            change: '+5%',
+            isPositive: true,
+            icon: CreditCard,
+            iconColor: 'text-yellow-600',
+            bgColor: 'bg-yellow-100'
         },
         {
-          title: 'Low Stock Items',
-          value: '9',
-          change: '-3%',
-          isPositive: false,
-          icon: TrendingDown,
-          iconColor: 'text-red-600',
-          bgColor: 'bg-red-100'
+            title: 'Low Stock Items',
+            value: '9',
+            change: '-3%',
+            isPositive: false,
+            icon: TrendingDown,
+            iconColor: 'text-red-600',
+            bgColor: 'bg-red-100'
         }
-      ];
+    ];
 
     // const ageDistribution = [
     //     { age: '17 - 30 Years old', percentage: '62%', color: 'bg-green-500' },
@@ -189,7 +189,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                 <span>Products</span>
                             </button>
                         </li>
-                        <li>
+                        {/* <li>
                             <button
                                 onClick={() => handleSectionChange('purchase')}
                                 className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'purchase'
@@ -199,7 +199,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                                 <ListOrdered className="w-5 h-5 mr-3" />
                                 <span>Purchase</span>
                             </button>
-                        </li>
+                        </li> */}
                         <li>
                             <button
                                 onClick={() => handleSectionChange('order')}
