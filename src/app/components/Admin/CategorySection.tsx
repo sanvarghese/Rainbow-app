@@ -247,7 +247,7 @@ const CategorySection = () => {
 
       fetchCategories();
       resetForm();
-      alert(data.message);
+      toast.success(data.message);
     } catch (error: any) {
       alert(error.message);
     }
@@ -271,9 +271,9 @@ const CategorySection = () => {
       if (!res.ok) throw new Error(data.error || 'Delete failed');
 
       fetchCategories();
-      alert(data.message);
+      toast.success(data.message);
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -296,7 +296,7 @@ const CategorySection = () => {
       if (!res.ok) throw new Error(data.error || 'Restore failed');
 
       fetchCategories();
-      alert('Category restored successfully');
+      toast.success('Category restored successfully');
     } catch (error: any) {
       alert(error.message);
     }
@@ -726,7 +726,7 @@ const CategorySection = () => {
 
                               <button
                                 onClick={() => addChildSubCategory(subIndex)}
-                                className="px-5 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                                className="px-5 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
                               >
                                 Add Child
                               </button>
