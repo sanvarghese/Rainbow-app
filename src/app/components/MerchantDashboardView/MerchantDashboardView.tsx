@@ -30,10 +30,41 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
     const [userData, setUserData] = useState<any>(null);
     const [loadingUser, setLoadingUser] = useState(true);
 
+    const [stats, setStats] = useState({
+        totalProducts: 0,
+        totalOrders: 0,
+        todaySales: 0,
+        lowStockItems: 0,
+    });
+    const [statsLoading, setStatsLoading] = useState(true);
+
+
     // Fetch user data
     useEffect(() => {
         fetchUserData();
+        fetchDashboardStats();
     }, []);
+
+    const fetchDashboardStats = async () => {
+        try {
+            setStatsLoading(true);
+            const res = await fetch('/api/merchant/stats');
+            const data = await res.json();
+
+            if (data.success) {
+                setStats({
+                    totalProducts: data.totalProducts,
+                    totalOrders: data.totalOrders,
+                    todaySales: data.todaySales,
+                    lowStockItems: data.lowStockItems,
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch dashboard stats:', error);
+        } finally {
+            setStatsLoading(false);
+        }
+    };
 
     const fetchUserData = async () => {
         try {
@@ -66,12 +97,12 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
         setMobileMenuOpen(false);
     };
 
-    // Stats data
+    // ==================== REAL STATS DATA ====================
     const statsData = [
         {
             title: 'Total Products',
-            value: '128',
-            change: '+8%',
+            value: stats.totalProducts.toString(),
+            change: '+12%',
             isPositive: true,
             icon: Package,
             iconColor: 'text-green-600',
@@ -79,8 +110,8 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
         },
         {
             title: 'Total Orders',
-            value: '342',
-            change: '+12%',
+            value: stats.totalOrders.toString(),
+            change: '+8%',
             isPositive: true,
             icon: ListOrdered,
             iconColor: 'text-blue-600',
@@ -88,7 +119,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
         },
         {
             title: 'Today Sales',
-            value: '₹12,450',
+            value: `₹${stats.todaySales.toLocaleString('en-IN')}`,
             change: '+5%',
             isPositive: true,
             icon: CreditCard,
@@ -97,7 +128,7 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
         },
         {
             title: 'Low Stock Items',
-            value: '9',
+            value: stats.lowStockItems.toString(),
             change: '-3%',
             isPositive: false,
             icon: TrendingDown,
@@ -319,8 +350,13 @@ const MerchantDashboardView: React.FC<MerchantDashboardViewProps> = ({
                         <div className="space-y-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800">General Report</h2>
-                                <button className="flex items-center gap-2 text-green-700 hover:text-green-800 transition-colors text-sm sm:text-base mb-4">
-                                    <RefreshCw className="w-4 h-4 " />
+
+                                <button
+                                    onClick={fetchDashboardStats}
+                                    className="flex items-center gap-2 text-green-700 hover:text-green-800 transition-colors"
+                                    disabled={statsLoading}
+                                >
+                                    <RefreshCw className={`w-4 h-4 ${statsLoading ? 'animate-spin' : ''}`} />
                                     <span>Reload Data</span>
                                 </button>
                             </div>
