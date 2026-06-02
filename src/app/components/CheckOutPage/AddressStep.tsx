@@ -139,7 +139,7 @@ const AddressStep: React.FC = () => {
                   {currentProduct.offerPrice < currentProduct.price && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount Saved</span>
-                      <span>-₹{((currentProduct.price - currentProduct.offerPrice) * currentProduct.quantity).toFixed(2)}</span>
+                      <span>₹{((currentProduct.price - currentProduct.offerPrice) * currentProduct.quantity).toFixed(2)}</span>
                     </div>
                   )}
 

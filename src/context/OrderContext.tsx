@@ -223,12 +223,12 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         // Calculate order summary for buy now
         const subtotal = buyNowItem.offerPrice * buyNowItem.quantity;
-        const deliveryFee = 40;
+        const deliveryFee = subtotal > 500 ? 0 : 40;   // Better to use same logic as cart
         const tax = subtotal * 0.05;
         const discount = buyNowItem.price > buyNowItem.offerPrice
           ? (buyNowItem.price - buyNowItem.offerPrice) * buyNowItem.quantity
           : 0;
-        const total = subtotal + deliveryFee + tax - discount;
+const total = subtotal + deliveryFee + tax;
 
         orderSummaryData = {
           subtotal,
@@ -281,7 +281,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           localStorage.removeItem('buyNowItem');
           sessionStorage.removeItem('buyNowItem');
         }
-        
+
         return { success: true, order: data.order };
       } else {
         throw new Error(data.error || 'Failed to place order');

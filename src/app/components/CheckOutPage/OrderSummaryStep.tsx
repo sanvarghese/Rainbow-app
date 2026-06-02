@@ -19,23 +19,21 @@ const OrderSummaryStep: React.FC = () => {
   const currentProduct = isBuyNowMode && buyNowItem ? buyNowItem : null;
 
   // Calculate totals with proper typing
-  const calculateTotals = (): Totals | null => {
-    if (!currentProduct) return null;
-    
-    const subtotal = currentProduct.offerPrice * currentProduct.quantity;
-    const deliveryFee = 40;
-    const discount = currentProduct.price > currentProduct.offerPrice 
-      ? (currentProduct.price - currentProduct.offerPrice) * currentProduct.quantity 
-      : 0;
-    const total = subtotal + deliveryFee - discount;
 
-    return {
-      subtotal,
-      deliveryFee,
-      discount,
-      total
-    };
-  };
+  const calculateTotals = (): Totals | null => {
+  if (!currentProduct) return null;
+
+  const subtotal = currentProduct.offerPrice * currentProduct.quantity;
+  const deliveryFee = 40;
+  
+  const discount = currentProduct.price > currentProduct.offerPrice
+    ? (currentProduct.price - currentProduct.offerPrice) * currentProduct.quantity
+    : 0;
+
+  const total = subtotal + deliveryFee;   // ← Fixed: No double discount
+
+  return { subtotal, deliveryFee, discount, total };
+};
 
   const totals = calculateTotals();
 
