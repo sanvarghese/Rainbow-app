@@ -17,6 +17,7 @@ import {
   ShoppingBag,
   AlertCircle
 } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface OrderItem {
   productId: string;
@@ -80,7 +81,7 @@ const OrderTimeline: React.FC<{ logs: StatusLog[] }> = ({ logs }) => {
 
   const getStatusIcon = (status: string, isCompleted: boolean) => {
     if (!isCompleted) return <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"><Clock className="w-4 h-4 text-gray-400" /></div>;
-    
+
     switch (status) {
       case 'confirmed': return <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"><CheckCircle className="w-4 h-4 text-white" /></div>;
       case 'processing': return <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center"><Clock className="w-4 h-4 text-white" /></div>;
@@ -110,7 +111,7 @@ const OrderTimeline: React.FC<{ logs: StatusLog[] }> = ({ logs }) => {
         {steps.map((step, index) => {
           const isCompleted = currentStep >= index;
           const date = getStatusDate(step.key);
-          
+
           return (
             <React.Fragment key={step.key}>
               <div className="flex flex-col items-center flex-1">
@@ -147,7 +148,7 @@ const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
   };
 
   const { color, icon: Icon, label } = config[status];
-  
+
   return (
     <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${color}`}>
       <Icon className="w-3 h-3" />
@@ -198,11 +199,11 @@ const OrderSection: React.FC = () => {
 
         if (res.ok) {
           const data = await res.json();
-          alert(data.message || 'Order confirmed successfully!');
+          toast.success(data.message || 'Order confirmed successfully!');
           await fetchOrders();
         } else {
           const error = await res.json();
-          alert(error.error || 'Failed to confirm order');
+          toast.error(error.error || 'Failed to confirm order');
         }
         setUpdatingOrder(null);
         return;
@@ -216,14 +217,14 @@ const OrderSection: React.FC = () => {
 
       if (res.ok) {
         await fetchOrders();
-        alert(`Order ${newStatus} successfully!`);
+        toast.success(`Order ${newStatus} successfully!`);
       } else {
         const error = await res.json();
-        alert(error.error || 'Failed to update order status');
+        toast.error(error.error || 'Failed to update order status');
       }
     } catch (error) {
       console.error('Error updating order:', error);
-      alert('Failed to update order status');
+      toast.error('Failed to update order status');
     } finally {
       setUpdatingOrder(null);
     }
@@ -240,14 +241,14 @@ const OrderSection: React.FC = () => {
 
       if (res.ok) {
         await fetchOrders();
-        alert('Delivery date updated successfully!');
+        toast.success('Delivery date updated successfully!');
       } else {
         const error = await res.json();
-        alert(error.error || 'Failed to update delivery date');
+        toast.error(error.error || 'Failed to update delivery date');
       }
     } catch (error) {
       console.error('Error updating delivery date:', error);
-      alert('Failed to update delivery date');
+      toast.error('Failed to update delivery date');
     } finally {
       setUpdatingOrder(null);
     }
@@ -308,6 +309,9 @@ const OrderSection: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      
+      <Toaster position="top-right" />
+
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
@@ -318,16 +322,16 @@ const OrderSection: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            {/* <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" /> */}
             <input
               type="text"
               placeholder="Search by order ID, customer name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
-          
+
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -355,11 +359,11 @@ const OrderSection: React.FC = () => {
         <div className="space-y-4">
           {filteredOrders.map((order) => {
             const orderDates = getOrderDates(order);
-            
+
             return (
-              <div key={order._id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div key={order._id} className="my-3 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                 {/* Order Header */}
-                <div 
+                <div
                   className="p-4 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}
                 >
@@ -380,7 +384,7 @@ const OrderSection: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-sm text-gray-600">Total Amount</p>
@@ -423,7 +427,7 @@ const OrderSection: React.FC = () => {
                 {/* Expanded Details */}
                 {expandedOrder === order._id && (
                   <div className="border-t border-gray-200 p-4 space-y-6 bg-gray-50">
-                    
+
                     {/* Status Timeline */}
                     {order.statusLogs && order.statusLogs.length > 0 && (
                       <div>
@@ -543,7 +547,7 @@ const OrderSection: React.FC = () => {
                             Accept Order
                           </button>
                         )}
-                        
+
                         {order.status === 'confirmed' && (
                           <button
                             onClick={() => updateOrderStatus(order._id, 'processing')}
@@ -553,7 +557,7 @@ const OrderSection: React.FC = () => {
                             Start Processing
                           </button>
                         )}
-                        
+
                         {order.status === 'processing' && (
                           <button
                             onClick={() => updateOrderStatus(order._id, 'shipped')}
@@ -563,7 +567,7 @@ const OrderSection: React.FC = () => {
                             Mark as Shipped
                           </button>
                         )}
-                        
+
                         {order.status === 'shipped' && (
                           <button
                             onClick={() => updateOrderStatus(order._id, 'delivered')}
@@ -573,7 +577,7 @@ const OrderSection: React.FC = () => {
                             Mark as Delivered
                           </button>
                         )}
-                        
+
                         {['pending', 'confirmed', 'processing'].includes(order.status) && (
                           <button
                             onClick={() => updateOrderStatus(order._id, 'cancelled')}
