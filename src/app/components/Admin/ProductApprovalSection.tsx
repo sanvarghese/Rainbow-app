@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Package, Building, Eye, CheckCircle, XCircle, ThumbsUp, ThumbsDown } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Product {
   _id: string;
@@ -91,15 +92,15 @@ const ProductApprovalSection = () => {
       const data = await res.json();
 
       if (data.success) {
-        alert(data.message);
+        toast.success(data.message);
         await fetchAllProducts();        // Refresh all data
         setSelectedProduct(null);
       } else {
-        alert(data.error || 'Failed to update product status');
+        toast.error(data.error || 'Failed to update product status');
       }
     } catch (error) {
       console.error('Failed to update product:', error);
-      alert('Failed to update product status');
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);

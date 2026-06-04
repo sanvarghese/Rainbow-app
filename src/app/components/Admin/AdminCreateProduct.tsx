@@ -2,6 +2,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Plus, Trash2, Image, Eye, Code, AlertCircle, Check, Upload, Bold, Italic, List, Link, Heading, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Variant {
   variantType: string;
@@ -290,14 +291,14 @@ const AdminCreateProduct = ({ initialData, onSuccess }: AdminCreateProductProps)
       const data = await response.json();
 
       if (data.success) {
-        alert(initialData?._id ? 'Product updated successfully!' : 'Product created successfully!');
+        toast.success(initialData?._id ? 'Product updated successfully!' : 'Product created successfully!');
         onSuccess();
       } else {
         throw new Error(data.error || 'Failed to save product');
       }
     } catch (error: any) {
       console.error('Error saving product:', error);
-      alert(error.message || 'Failed to save product');
+      toast.error(error.message || 'Failed to save product');
     } finally {
       setLoading(false);
     }
@@ -305,6 +306,8 @@ const AdminCreateProduct = ({ initialData, onSuccess }: AdminCreateProductProps)
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
+            <Toaster position="top-right" />
+
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
         {initialData?._id ? 'Edit Product' : 'Create New Product'}
       </h2>

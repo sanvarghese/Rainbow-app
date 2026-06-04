@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Building, Mail, Phone, MapPin, User } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Company {
   _id: string;
@@ -77,15 +78,15 @@ const CompanyApprovalSection = () => {
       const data = await res.json();
 
       if (data.success) {
-        alert(data.message);
+        toast.success(data.message);
         // Refresh all data after approval/rejection
         fetchAllCompanies();
       } else {
-        alert(data.error || 'Operation failed');
+        toast.error(data.error || 'Operation failed');
       }
     } catch (error: any) {
       console.error('Approval error:', error);
-      alert('Something went wrong. Please try again.');
+      toast.error('Something went wrong. Please try again.');
     }
   };
 
@@ -105,6 +106,9 @@ const CompanyApprovalSection = () => {
 
   return (
     <div className="space-y-6">
+
+      <Toaster position="top-right" />
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -115,36 +119,32 @@ const CompanyApprovalSection = () => {
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setFilter('pending')}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             Pending ({pendingCount})
           </button>
 
           <button
             onClick={() => setFilter('approved')}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === 'approved' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'approved' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             Approved ({approvedCount})
           </button>
 
           <button
             onClick={() => setFilter('rejected')}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === 'rejected' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'rejected' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             Rejected ({rejectedCount})
           </button>
 
           <button
             onClick={() => setFilter('all')}
-            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === 'all' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             All ({totalCount})
           </button>
@@ -174,16 +174,15 @@ const CompanyApprovalSection = () => {
                   {company.name}
                 </h3>
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                    company.status === 'approved'
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${company.status === 'approved'
                       ? 'bg-green-100 text-green-700'
                       : company.status === 'rejected'
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-yellow-100 text-yellow-700'
-                  }`}
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}
                 >
-                  {company.status === 'approved' ? 'Approved' : 
-                   company.status === 'rejected' ? 'Rejected' : 'Pending Approval'}
+                  {company.status === 'approved' ? 'Approved' :
+                    company.status === 'rejected' ? 'Rejected' : 'Pending Approval'}
                 </span>
               </div>
             </div>
@@ -274,10 +273,10 @@ const CompanyApprovalSection = () => {
             {filter === 'pending'
               ? 'No pending companies for approval'
               : filter === 'approved'
-              ? 'No approved companies yet'
-              : filter === 'rejected'
-              ? 'No rejected companies'
-              : 'No companies registered yet'}
+                ? 'No approved companies yet'
+                : filter === 'rejected'
+                  ? 'No rejected companies'
+                  : 'No companies registered yet'}
           </p>
         </div>
       )}

@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useOrder } from '@/context/OrderContext';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface AddressFormProps {
   address?: any;
@@ -46,7 +47,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSuccess }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       if (address) {
         await updateAddress(address._id, formData);
@@ -56,7 +57,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSuccess }
       onSuccess();
     } catch (error) {
       console.error('Error saving address:', error);
-      alert('Failed to save address. Please try again.');
+      toast.error('Failed to save address. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -64,6 +65,8 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onClose, onSuccess }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <Toaster position="top-right" />
+
       <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">

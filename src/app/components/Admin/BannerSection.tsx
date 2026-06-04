@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, MoveUp, MoveDown, X, Save } from 'lucide-react';
 import Image from 'next/image';
 import ImageUpload from './ImageUpload';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Banner {
   _id: string;
@@ -48,18 +49,18 @@ const BannerSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.image) {
-      alert('Please upload an image');
+      toast.error('Please upload an image');
       return;
     }
-    
-    const url = editingBanner 
+
+    const url = editingBanner
       ? `/api/banner/${editingBanner._id}`
       : '/api/banner';
-    
+
     const method = editingBanner ? 'PUT' : 'POST';
-    
+
     const submitData = {
       title: formData.title,
       image: formData.image,
@@ -67,65 +68,65 @@ const BannerSection = () => {
       isActive: formData.isActive,
       order: editingBanner ? editingBanner.order : banners.length
     };
-    
+
     // Add flag to delete old image if updating
     if (editingBanner && deleteOldImage) {
       Object.assign(submitData, { deleteOldImage: true });
     }
-    
+
     try {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submitData)
       });
-      
+
       const data = await response.json();
       if (data.success) {
         fetchBanners();
         setShowModal(false);
         resetForm();
       } else {
-        alert(data.error || 'Failed to save banner');
+        toast.error(data.error || 'Failed to save banner');
       }
     } catch (error) {
       console.error('Failed to save banner:', error);
-      alert('Failed to save banner');
+      toast.error('Failed to save banner');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this banner?')) return;
-    
+
     try {
       const response = await fetch(`/api/banner/${id}`, { method: 'DELETE' });
       const data = await response.json();
       if (data.success) {
         fetchBanners();
       } else {
-        alert(data.error || 'Failed to delete banner');
+        toast.error(data.error || 'Failed to delete banner');
       }
     } catch (error) {
       console.error('Failed to delete banner:', error);
-      alert('Failed to delete banner');
+      toast.error('Failed to delete banner');
     }
   };
 
   const handleReorder = async (id: string, direction: 'up' | 'down') => {
     const currentIndex = banners.findIndex(b => b._id === id);
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    
+
     if (newIndex < 0 || newIndex >= banners.length) return;
-    
+
     const newBanners = [...banners];
     [newBanners[currentIndex], newBanners[newIndex]] = [newBanners[newIndex], newBanners[currentIndex]];
-    
+
     // Update order numbers
     const updatedBanners = newBanners.map((banner, idx) => ({
       ...banner,
       order: idx
     }));
-    
+
     // Save to database
     try {
       await Promise.all(
@@ -140,7 +141,7 @@ const BannerSection = () => {
       setBanners(updatedBanners);
     } catch (error) {
       console.error('Failed to reorder banners:', error);
-      alert('Failed to reorder banners');
+      toast.error('Failed to reorder banners');
     }
   };
 
@@ -187,6 +188,8 @@ const BannerSection = () => {
 
   return (
     <div className="space-y-6">
+      <Toaster position="top-right" />
+
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Manage Banners</h2>
         <button
@@ -290,7 +293,7 @@ const BannerSection = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -302,7 +305,7 @@ const BannerSection = () => {
                   onRemove={handleRemoveImage}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Title (Optional)
@@ -315,7 +318,7 @@ const BannerSection = () => {
                   placeholder="Enter banner title"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Link (Optional)
@@ -329,7 +332,7 @@ const BannerSection = () => {
                 />
                 <p className="text-xs text-gray-500 mt-1">Leave empty to use default: /shop</p>
               </div>
-              
+
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -342,7 +345,7 @@ const BannerSection = () => {
                   Active
                 </label>
               </div>
-              
+
               <div className="flex gap-3 pt-4 sticky bottom-0 bg-white pt-4 border-t">
                 <button
                   type="button"

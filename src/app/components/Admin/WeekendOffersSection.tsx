@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Plus, Edit2, Trash2, X, Upload } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface WeekendOffer {
   _id: string;
@@ -109,14 +110,14 @@ const uploadImages = async (): Promise<string[]> => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedFiles.length === 0) {
-      alert("Please select at least one image");
+      toast.error("Please select at least one image");
       return;
     }
 
     const uploadedImageUrls = await uploadImages();
 
     if (uploadedImageUrls.length === 0) {
-      alert("Failed to upload images. Please try again.");
+      toast.error("Failed to upload images. Please try again.");
       return;
     }
 
@@ -139,13 +140,14 @@ const uploadImages = async (): Promise<string[]> => {
         setPreviewUrls([]);
         setShowForm(false);
         fetchOffers();
+        toast.success("Offer saved successfully");
       } else {
         const errorData = await res.json();
-        alert(errorData.error || "Failed to save offer");
+        toast.error(errorData.error || "Failed to save offer");
       }
     } catch (error) {
       console.error('Submit error:', error);
-      alert("Something went wrong while saving");
+      toast.error("Something went wrong while saving");
     }
   };
 
@@ -159,10 +161,11 @@ const uploadImages = async (): Promise<string[]> => {
       
       if (res.ok) {
         fetchOffers();
+        toast.success("Offer deleted successfully");
       }
     } catch (error) {
       console.error('Delete error:', error);
-      alert("Failed to delete offer");
+      toast.error("Failed to delete offer");
     }
   };
 

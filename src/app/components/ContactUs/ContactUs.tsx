@@ -2,12 +2,11 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-
 import "../ContactUs/contactus.css";
-
 import contactus_bg from "../../../assets/images/contactus_bg.png";
 import contactphone from "../../../assets/images/contactphone.png";
 import contactmail from "../../../assets/images/contactmail.png";
+import toast, { Toaster } from 'react-hot-toast';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -47,7 +46,7 @@ const ContactUs = () => {
       setErrors(validationErrors);
     } else {
       console.log("Form submitted:", formData);
-      alert("Thank you! Your message has been sent.");
+      toast.error("Thank you! Your message has been sent.");
 
       setFormData({
         name: "",
@@ -61,6 +60,7 @@ const ContactUs = () => {
 
   return (
     <section className="contactsection mt-5">
+      <Toaster position="top-right" />
       <div className="container-fluid contactuscontainer">
         <div className="contactus_bg d-flex justify-content-center">
           <Image className="contactusbg" src={contactus_bg} alt="Contact Us Background" />

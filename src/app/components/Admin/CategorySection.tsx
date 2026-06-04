@@ -113,7 +113,7 @@ const CategorySection = () => {
       const imageUrl = await uploadImage(file);
       setFormData({ ...formData, image: imageUrl });
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -125,7 +125,7 @@ const CategorySection = () => {
       const imageUrl = await uploadImage(file);
       setNewSubCategory({ ...newSubCategory, image: imageUrl });
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -138,7 +138,7 @@ const CategorySection = () => {
       const imageUrl = await uploadImage(file);
       setNewChildSubCategory({ ...newChildSubCategory, image: imageUrl });
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       setUploadingChildForIndex(null);
     }
@@ -178,7 +178,7 @@ const CategorySection = () => {
       const imageUrl = await uploadImage(file);
       setEditingSubCategoryData({ ...editingSubCategoryData, image: imageUrl });
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -217,7 +217,7 @@ const CategorySection = () => {
       const imageUrl = await uploadImage(file);
       setEditingChildData({ ...editingChildData, image: imageUrl });
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -249,7 +249,7 @@ const CategorySection = () => {
       resetForm();
       toast.success(data.message);
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -298,7 +298,7 @@ const CategorySection = () => {
       fetchCategories();
       toast.success('Category restored successfully');
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
