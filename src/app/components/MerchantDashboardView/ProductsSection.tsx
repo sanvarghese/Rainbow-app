@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Plus, Package as PackageIcon, ChevronLeft, ChevronRight, Trash2, Eye, XCircle, CheckCircle } from 'lucide-react';
 import CreateProduct from '../BecomeSeller/CreateProduct';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ProductsSection = () => {
     const [products, setProducts] = useState<any[]>([]);
@@ -108,7 +109,7 @@ const ProductsSection = () => {
             setShowDeleteDialog(false);
             setProductToDelete(null);
         } catch (error: any) {
-            alert(error.message);
+            toast.error(error.message);
         } finally {
             setDeleteLoading(false);
         }
@@ -171,6 +172,8 @@ const ProductsSection = () => {
 
     return (
         <div className="space-y-6">
+            <Toaster position="top-right" />
+
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800">Products</h2>

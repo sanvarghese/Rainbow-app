@@ -6,6 +6,7 @@ import Image from "next/image";
 import DefaultProductImage from "../../../assets/images/defaultProduct.jpg";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import toast, { Toaster } from 'react-hot-toast';
 
 interface ProductCardProps {
   id: string;
@@ -80,7 +81,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     try {
       await addToWishlist(actualProductId);
     } catch (error: any) {
-      alert(error.message || "Failed to update wishlist");
+      toast.error(error.message || "Failed to update wishlist");
     } finally {
       setIsTogglingWishlist(false);
     }
@@ -104,7 +105,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }, 200);
       }
     } catch (error: any) {
-      alert(error.message || "Failed to add to cart");
+      toast.error(error.message || "Failed to add to cart");
     } finally {
       setIsAddingToCart(false);
     }
@@ -119,7 +120,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       await addToCart(actualProductId, 1);
       window.location.href = "/checkout";
     } catch (error: any) {
-      alert("Failed to process. Please try again.");
+      toast.error("Failed to process. Please try again.");
     } finally {
       setIsBuyingNow(false);
     }
@@ -151,6 +152,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div className="youmightlikecard" onClick={handleCardClick} style={{ cursor: "pointer" }}>
+      <Toaster position="top-right" />
+
       <div className="card topcard3">
         <div className="cardimgdiv3" style={{ position: "relative" }}>
           {/* <Image
@@ -235,7 +238,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {rating} ★ ({reviews})
           </h5>
 
-          <div className="row row-2" style={{ alignItems: "center" }}>
+          <div className="row row-2" style={{ alignItems: "center", justifyContent: "space-between" }}>
             <div className="col-6">
               {oldPrice && actualOldPrice > actualNewPrice ? (
                 <>

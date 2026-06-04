@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useWishlist } from "@/context/WishlistContext";
 import { Trash2, ShoppingBag, Heart, Loader2 } from "lucide-react";
+import toast, { Toaster } from 'react-hot-toast';
 
 interface ProductType {
   _id: string;
@@ -17,7 +18,7 @@ interface ProductType {
 interface WishlistItemType {
   _id?: string;
   addedAt?: string;
-  productId: string | Partial<ProductType>; 
+  productId: string | Partial<ProductType>;
 }
 
 export default function WishlistPage() {
@@ -27,7 +28,7 @@ export default function WishlistPage() {
 
   useEffect(() => {
     fetchWishlist();
-  }, [fetchWishlist]);  
+  }, [fetchWishlist]);
 
   const handleRemove = async (productId: string) => {
     setRemovingId(productId);
@@ -44,7 +45,7 @@ export default function WishlistPage() {
     setAddingToCart(productId);
     try {
       console.log("Adding to cart:", productId);
-      alert("Product added to cart!");
+      toast.success("Product added to cart!");
     } catch (error) {
       console.error("Failed to add to cart:", error);
     } finally {
@@ -116,6 +117,7 @@ export default function WishlistPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <Toaster position="top-right" />
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">My Wishlist</h1>
         <p className="text-gray-500 mt-1">

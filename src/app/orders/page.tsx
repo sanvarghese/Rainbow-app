@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Star, Package, Clock, CheckCircle, XCircle, Truck, Calendar, ChevronRight, ShoppingBag } from 'lucide-react';
 import ReviewModal from '../components/Review/ReviewModal';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface OrderItem {
   productId: string;
@@ -191,6 +192,8 @@ const OrdersPage = () => {
     <>
       <Header />
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8">
+        <Toaster position="top-right" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
@@ -299,7 +302,7 @@ const OrdersPage = () => {
                                 <button
                                   onClick={() => handleReviewClick(item.productId, item.name, item.image, order._id)}
                                   className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
-                                  style={{ 
+                                  style={{
                                     backgroundColor: reviewStatus[`${order._id}-${item.productId}`]?.hasReview ? '#dcfce7' : '#eff6ff',
                                     color: reviewStatus[`${order._id}-${item.productId}`]?.hasReview ? '#059669' : '#2563eb'
                                   }}
@@ -357,7 +360,7 @@ const OrdersPage = () => {
           productImage={selectedProduct.image}
           existingReview={selectedProduct.existingReview}
           onSuccess={() => {
-            alert('Review submitted successfully! Thank you for your feedback.');
+            toast.success('Review submitted successfully! Thank you for your feedback.');
             setShowReviewModal(false);
             setSelectedProduct(null);
             // Refresh orders to update review status

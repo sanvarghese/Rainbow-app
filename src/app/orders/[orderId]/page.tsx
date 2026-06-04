@@ -31,6 +31,8 @@ import {
   Star
 } from 'lucide-react';
 import ReviewModal from '@/app/components/Review/ReviewModal';
+import toast, { Toaster } from 'react-hot-toast';
+
 
 interface OrderItem {
   productId: string;
@@ -670,7 +672,7 @@ const OrderDetailPage = () => {
   // Add function to handle review click
   const handleReviewClick = async (productId: string, productName: string, productImage: string) => {
     if (!order) {
-      alert("Order information is not available");
+      toast.error("Order information is not available");
       return;
     }
 
@@ -680,7 +682,8 @@ const OrderDetailPage = () => {
       setSelectedProduct({ id: productId, name: productName, image: productImage });
       setShowReviewModal(true);
     } else {
-      alert('You have already reviewed this product or the order is not delivered yet');
+      toast.error('Review unavailable: already reviewed or order not yet delivered');
+
     }
   };
 
@@ -781,6 +784,8 @@ const OrderDetailPage = () => {
     <>
       <Header />
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8">
+        <Toaster position="top-right" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <div className="mb-6">
@@ -865,7 +870,7 @@ const OrderDetailPage = () => {
               productName={selectedProduct.name}
               productImage={selectedProduct.image}
               onSuccess={() => {
-                alert('Review submitted successfully! Thank you for your feedback.');
+                toast.success('Review submitted successfully! Thank you for your feedback.');
                 // Optionally refresh the page or update UI
               }}
             />

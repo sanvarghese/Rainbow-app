@@ -12,6 +12,7 @@ import { useBuyNow } from "@/context/BuyNowContext";
 import ReviewModal from "@/app/components/Review/ReviewModal";
 import { Star } from "lucide-react";
 import AuthDrawer from "../../AuthDrawer/AuthDrawer";
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Product {
   _id: string;
@@ -220,7 +221,7 @@ const ProductSingle = () => {
     try {
       await addToCart(product._id, quantity);
     } catch (error: any) {
-      alert(error.message || 'Failed to add to cart');
+      toast.error(error.message || 'Failed to add to cart');
     } finally {
       setIsAddingToCart(false);
     }
@@ -252,7 +253,7 @@ const ProductSingle = () => {
       setBuyNowItem(buyNowItemData);
       router.push('/check-out');
     } catch (error: any) {
-      alert(error.message || 'Failed to process. Please try again.');
+      toast.error(error.message || 'Failed to process. Please try again.');
       setIsBuyingNow(false);
     }
   };
@@ -264,7 +265,7 @@ const ProductSingle = () => {
     try {
       await addToWishlist(String(productId));
     } catch (error: any) {
-      alert(error.message || "Failed to update wishlist");
+      toast.error(error.message || "Failed to update wishlist");
     } finally {
       setIsTogglingWishlist(false);
     }
@@ -305,7 +306,7 @@ const ProductSingle = () => {
       try {
         await addToCart(product._id, quantity);
       } catch (error: any) {
-        alert(error.message || 'Failed to add to cart');
+        toast.error(error.message || 'Failed to add to cart');
       } finally {
         setIsAddingToCart(false);
       }
@@ -347,7 +348,7 @@ const ProductSingle = () => {
     }
     // Otherwise, show message or redirect
     else {
-      alert('You can only review products you have purchased and received.');
+      toast.error('You can only review products you have purchased and received.');
     }
   };
 
@@ -426,6 +427,7 @@ const ProductSingle = () => {
 
   return (
     <section className="product-page">
+      <Toaster position="top-right" />
       <div className="product-container">
         {/* Left Thumbnails */}
         {productImages.length > 0 && (

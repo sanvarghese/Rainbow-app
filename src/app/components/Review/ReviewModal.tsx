@@ -3,6 +3,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Star, X, Upload, Trash2 } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   existingReview,
 }) => {
   const isUpdateMode = !!existingReview;
-  
+
   const [rating, setRating] = useState(existingReview?.rating || 0);
   const [hoverRating, setHoverRating] = useState(0);
   const [title, setTitle] = useState(existingReview?.title || '');
@@ -83,7 +84,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const totalImages = existingImages.length + images.length + files.length;
-    
+
     if (totalImages > 5) {
       setError('Maximum 5 images allowed');
       return;
@@ -96,7 +97,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
         hasError = true;
         return;
       }
-      
+
       if (!file.type.startsWith('image/')) {
         setError('Only image files are allowed');
         hasError = true;
@@ -107,7 +108,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     if (hasError) return;
 
     setImages([...images, ...files]);
-    
+
     const newPreviews = files.map(file => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...newPreviews]);
     setError('');
@@ -127,17 +128,17 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
 
   const handleDeleteReview = async () => {
     if (!existingReview) return;
-    
+
     setLoading(true);
     try {
       const response = await fetch(`/api/reviews/${existingReview._id}`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
-        alert('Review deleted successfully');
+        toast.success('Review deleted successfully');
         onSuccess();
         onClose();
       } else {
@@ -153,46 +154,46 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (rating === 0) {
       setError('Please select a rating');
       return;
     }
-    
+
     if (!review.trim()) {
       setError('Please write a review');
       return;
     }
-    
+
     if (!name.trim()) {
       setError('Please enter your name');
       return;
     }
-    
+
     setLoading(true);
     setError('');
-    
+
     const formData = new FormData();
     formData.append('rating', rating.toString());
     formData.append('review', review);
     formData.append('name', name);
     if (title) formData.append('title', title);
-    
+
     if (isUpdateMode && existingReview) {
       // Update mode
       formData.append('imagesToKeep', JSON.stringify(existingImages.map(img => img.publicId)));
       images.forEach(image => {
         formData.append('newImages', image);
       });
-      
+
       try {
         const response = await fetch(`/api/reviews/${existingReview._id}`, {
           method: 'PUT',
           body: formData,
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
           onSuccess();
           onClose();
@@ -219,15 +220,15 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
       images.forEach(image => {
         formData.append('images', image);
       });
-      
+
       try {
         const response = await fetch('/api/reviews', {
           method: 'POST',
           body: formData,
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
           onSuccess();
           onClose();
@@ -252,14 +253,17 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-[9999] overflow-y-auto"
       onClick={handleBackdropClick}
     >
+
+      <Toaster position="top-right" />
+
       <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
-      
+
       <div className="flex min-h-full items-center justify-center p-4">
-        <div 
+        <div
           ref={modalRef}
           className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
@@ -275,22 +279,22 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   {isUpdateMode ? 'Edit your experience with this product' : 'Share your experience with this product'}
                 </p>
               </div>
-              <button 
-                onClick={onClose} 
+              <button
+                onClick={onClose}
                 className="text-white hover:text-green-100 transition-colors p-1 rounded-lg hover:bg-white/10"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="px-6 py-6">
               {/* Product Info */}
               <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <img 
-                  src={productImage} 
-                  alt={productName} 
+                <img
+                  src={productImage}
+                  alt={productName}
                   className="w-16 h-16 object-cover rounded-lg"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
@@ -303,7 +307,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   </p>
                 </div>
               </div>
-              
+
               {/* Rating */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -320,17 +324,16 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                       className="focus:outline-none transition-transform hover:scale-110"
                     >
                       <Star
-                        className={`w-8 h-8 ${
-                          star <= (hoverRating || rating)
+                        className={`w-8 h-8 ${star <= (hoverRating || rating)
                             ? 'fill-yellow-400 text-yellow-400'
                             : 'text-gray-300'
-                        } transition-colors`}
+                          } transition-colors`}
                       />
                     </button>
                   ))}
                 </div>
               </div>
-              
+
               {/* Review Title */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -346,7 +349,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 />
                 <p className="text-xs text-gray-500 mt-1">{title.length}/100 characters</p>
               </div>
-              
+
               {/* Review Content */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -362,7 +365,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 />
                 <p className="text-xs text-gray-500 mt-1">{review.length}/1000 characters</p>
               </div>
-              
+
               {/* Name */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -376,13 +379,13 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
-              
+
               {/* Image Upload */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Add Photos <span className="text-gray-400">(Optional, up to 5)</span>
                 </label>
-                
+
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
                   {/* Existing Images */}
                   {existingImages.map((img, index) => (
@@ -401,7 +404,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                       </button>
                     </div>
                   ))}
-                  
+
                   {/* New Images */}
                   {imagePreviews.map((preview, index) => (
                     <div key={`new-${index}`} className="relative group">
@@ -419,7 +422,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                       </button>
                     </div>
                   ))}
-                  
+
                   {/* Upload Button */}
                   {(existingImages.length + images.length) < 5 && (
                     <button
@@ -432,7 +435,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                     </button>
                   )}
                 </div>
-                
+
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -443,14 +446,14 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                 />
                 <p className="text-xs text-gray-400">You can upload up to 5 images (Max 5MB each)</p>
               </div>
-              
+
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-sm text-red-600">{error}</p>
                 </div>
               )}
             </div>
-            
+
             <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3">
               {isUpdateMode && (
                 <button
