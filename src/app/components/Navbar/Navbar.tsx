@@ -13,7 +13,7 @@ const Navbar = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (value: boo
         { name: "Shop", path: "/shop" },
         // { name: "Pages", path: "/pages" },
         // { name: "Vendors", path: "/vendors" },
-        { name: "Blog", path: "/blog" },
+        { name: "Blog", path: "#" },
         { name: "Contact Us", path: "/contact" },
     ];
 
