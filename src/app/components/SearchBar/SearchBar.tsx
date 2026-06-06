@@ -9,7 +9,21 @@ import { useAutocomplete } from "@/hooks/useAutocomplete";
 import "../../../assets/css/SearchBar.css";
 import mazhavillu_logo from "../../../assets/images/mazhavillu_logo.png";
 
-const SearchBar = () => {
+interface SearchBarProps {
+  onMobileSearchToggle?: (isOpen: boolean) => void; // ← add prop
+}
+interface Suggestion {
+  id: string;
+  name: string;
+  type: 'product' | 'category' | 'subCategory';
+  category: string;
+  image: { url: string; publicId: string; _id: string } | string;
+  price: number | null;
+  // ...other fields
+}
+
+const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
+
   const router = useRouter();
   const {
     query,
@@ -21,6 +35,8 @@ const SearchBar = () => {
     clearSuggestions,
     handleInputChange,
   } = useAutocomplete(300);
+
+  console.log(suggestions, "suggestions from search bar.!")
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -56,7 +72,7 @@ const SearchBar = () => {
     if (query.trim()) {
       clearSuggestions();
       setMobileSearchOpen(false);
-      // Navigate to shop page with search query
+      onMobileSearchToggle?.(false); // ← notify parent
       router.push(`/shop?search=${encodeURIComponent(query)}`);
     }
   };
@@ -89,11 +105,14 @@ const SearchBar = () => {
   };
 
   const toggleMobileSearch = () => {
-    setMobileSearchOpen(!mobileSearchOpen);
-    if (!mobileSearchOpen) {
+    const next = !mobileSearchOpen;
+    setMobileSearchOpen(next);
+    onMobileSearchToggle?.(next); // ← notify parent
+    if (next) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
+
 
   return (
     <nav className="bg-white nav-bar-nav shadow-sm px-3 pt-3 py-2 pb-3">
@@ -285,19 +304,23 @@ const SearchBar = () => {
           <div className="d-flex align-items-center gap-3">
             {isMobile && (
               <button
-                className="btn btn-link p-0"
+                className="btn btn-link  mr-4"
                 onClick={toggleMobileSearch}
                 aria-label="Toggle Search"
               >
                 <Search size={20} className="text-dark" />
               </button>
             )}
-            <Link href="/wishlist" className="text-dark position-relative">
-              <Heart size={20} />
-            </Link>
-            <Link href="/cart" className="text-dark position-relative">
-              <ShoppingCart size={20} />
-            </Link>
+            {!isMobile && (
+              <>
+                <Link href="/wishlist" className="text-dark position-relative">
+                  <Heart size={20} />
+                </Link>
+                <Link href="/cart" className="text-dark position-relative">
+                  <ShoppingCart size={20} />
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -344,34 +367,64 @@ const SearchBar = () => {
               <div style={{ marginTop: "15px", maxHeight: "calc(100vh - 150px)", overflowY: "auto" }}>
                 {loading && <div className="text-center p-3">Loading...</div>}
                 {!loading &&
-                  suggestions.map((suggestion) => (
-                    <div
-                      key={suggestion.id}
-                      onClick={() => {
-                        handleSuggestionClick(suggestion);
-                        toggleMobileSearch();
-                      }}
-                      style={{
-                        padding: "12px",
-                        borderBottom: "1px solid #eee",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <div className="d-flex align-items-center gap-2">
-                        <Image
-                          src={suggestion.image}
-                          alt={suggestion.name}
-                          width={30}
-                          height={30}
-                          style={{ objectFit: "cover" }}
-                        />
-                        <div>
-                          <div>{suggestion.name}</div>
-                          <small className="text-muted">{suggestion.category}</small>
+                  suggestions.map((suggestion) => {
+                    // Normalize image — object or empty string
+                    const imageUrl =
+                      suggestion.image && typeof suggestion.image === "object"
+                        ? (suggestion.image as { url: string }).url
+                        : null;
+
+                    return (
+                      <div
+                        key={suggestion.id}
+                        onClick={() => {
+                          handleSuggestionClick(suggestion);
+                          toggleMobileSearch();
+                        }}
+                        style={{
+                          padding: "12px",
+                          borderBottom: "1px solid #eee",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <div className="d-flex align-items-center gap-2">
+                          {imageUrl ? (
+                            <Image
+                              src={imageUrl}
+                              alt={suggestion.name}
+                              width={30}
+                              height={30}
+                              style={{ objectFit: "cover" }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: 30,
+                                height: 30,
+                                borderRadius: "50%",
+                                background: "#e8f5e9",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "14px",
+                                flexShrink: 0,
+                              }}
+                            >
+                              🗂️
+                            </div>
+                          )}
+                          <div>
+                            <div>{suggestion.name}</div>
+                            <small className="text-muted">
+                              {suggestion.type !== "product"
+                                ? suggestion.type === "category" ? "Category" : "Sub Category"
+                                : suggestion.category}
+                            </small>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             )}
           </div>

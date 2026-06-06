@@ -10,14 +10,20 @@ import '../Navbar/Navbar.css'
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false); // ← add this
+
 
   return (
     <div className="header-wrapper">
       <TopHeader />
-      <SearchBar />
-      <div className="custom-toggle " onClick={toggleMenu}>
-        {isOpen ? <FaTimes /> : <FaBars />}
-      </div>
+      {/* <SearchBar /> */}
+      <SearchBar onMobileSearchToggle={setMobileSearchOpen} /> {/* ← pass callback */}
+
+       {!mobileSearchOpen && (
+        <div className="custom-toggle" onClick={toggleMenu}>
+          {isOpen ? <FaTimes /> : <FaBars />}
+        </div>
+      )}
       <Navbar isOpen={isOpen} setIsOpen={setIsOpen} />
     </div>
   )
