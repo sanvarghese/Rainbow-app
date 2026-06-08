@@ -244,15 +244,17 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
                         <div className="container-fluid">
                             <div className="row justify-content-start">
                                 <div className="youmightheading productlist d-flex justify-content-between align-items-center mb-4">
-                                    <h4 className="h4_1">
-                                        {loading ? 'Loading...' :
-                                            products.length > 0 ?
-                                                ` Showing ${((pagination.page - 1) * pagination.limit) + 1}-
-                                            ${Math.min(pagination.page * pagination.limit, pagination.total)} 
-                                            of ${pagination.total} results`
-                                                : 'No products found'
-                                        }
-                                    </h4>
+                                    <div className="results-info">
+                                        <h4 className="h4_1">
+                                            {loading ? 'Loading...' :
+                                                products.length > 0 ?
+                                                    `Showing ${((pagination.page - 1) * pagination.limit) + 1}-
+                    ${Math.min(pagination.page * pagination.limit, pagination.total)} 
+                    of ${pagination.total} results`
+                                                    : 'No products found'
+                                            }
+                                        </h4>
+                                    </div>
 
                                     {products.length > 0 && (
                                         <div className="sort-section">
