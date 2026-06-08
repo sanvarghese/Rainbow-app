@@ -256,7 +256,7 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
                                         </h4>
                                     </div>
 
-                                    {products.length > 0 && (
+                                    {/* {products.length > 0 && (
                                         <div className="sort-section">
                                             <select
                                                 className="sort-dropdown box-wrapper"
@@ -271,7 +271,55 @@ const ProductList = ({ initialSearch = '', initialCategory = '' }: ProductListPr
                                                 ))}
                                             </select>
                                         </div>
+                                    )} */}
+
+                                    {products.length > 0 && (
+                                        <div className="sort-section-icon">
+                                            <select
+                                                className="sort-dropdown"
+                                                value={sortOption}
+                                                onChange={(e) => handleSortChange(e.target.value)}
+                                                disabled={loading}
+                                                style={{
+                                                    padding: '10px 35px 10px 18px',
+                                                    background: 'linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)',
+                                                    border: '2px solid #e0e0e0',
+                                                    borderRadius: '12px',
+                                                    fontSize: '14px',
+                                                    fontWeight: '500',
+                                                    color: '#333',
+                                                    cursor: 'pointer',
+                                                    appearance: 'none',
+                                                    minWidth: '160px',
+                                                    height: '42px'
+                                                }}
+                                            >
+                                                {sortOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {/* <svg
+                                                width="12"
+                                                height="12"
+                                                viewBox="0 0 12 12"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                style={{
+                                                    position: 'absolute',
+                                                    right: '15px',
+                                                    top: '50%',
+                                                    transform: 'translateY(-50%)',
+                                                    pointerEvents: 'none',
+                                                    transition: 'transform 0.3s ease'
+                                                }}
+                                            >
+                                                <path d="M6 8.5L2 4.5H10L6 8.5Z" fill="#4CAF50" />
+                                            </svg> */}
+                                        </div>
                                     )}
+
                                 </div>
 
                                 {loading ? (

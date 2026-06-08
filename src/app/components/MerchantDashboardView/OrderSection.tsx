@@ -138,16 +138,23 @@ const OrderTimeline: React.FC<{ logs: StatusLog[] }> = ({ logs }) => {
 
 // Status Badge Component
 const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
-  const config = {
-    pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock, label: 'Pending' },
-    confirmed: { color: 'bg-blue-100 text-blue-800', icon: CheckCircle, label: 'Confirmed' },
-    processing: { color: 'bg-purple-100 text-purple-800', icon: Clock, label: 'Processing' },
-    shipped: { color: 'bg-indigo-100 text-indigo-800', icon: Truck, label: 'Shipped' },
-    delivered: { color: 'bg-green-100 text-green-800', icon: Package, label: 'Delivered' },
-    cancelled: { color: 'bg-red-100 text-red-800', icon: XCircle, label: 'Cancelled' }
+ 
+   const config: Record<string, { color: string; icon: React.ElementType; label: string }> = {
+    pending:    { color: 'bg-yellow-100 text-yellow-800', icon: Clock,       label: 'Pending'    },
+    confirmed:  { color: 'bg-blue-100 text-blue-800',    icon: CheckCircle,  label: 'Confirmed'  },
+    processing: { color: 'bg-purple-100 text-purple-800',icon: Clock,        label: 'Processing' },
+    shipped:    { color: 'bg-indigo-100 text-indigo-800',icon: Truck,        label: 'Shipped'    },
+    delivered:  { color: 'bg-green-100 text-green-800',  icon: Package,      label: 'Delivered'  },
+    cancelled:  { color: 'bg-red-100 text-red-800',      icon: XCircle,      label: 'Cancelled'  },
   };
 
-  const { color, icon: Icon, label } = config[status];
+    const { color, icon: Icon, label } = config[status] ?? {
+    color: 'bg-gray-100 text-gray-800',
+    icon: AlertCircle,
+    label: status,
+  };
+
+  // const { color, icon: Icon, label } = config[status];
 
   return (
     <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${color}`}>
