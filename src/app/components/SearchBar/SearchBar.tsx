@@ -10,20 +10,27 @@ import "../../../assets/css/SearchBar.css";
 import mazhavillu_logo from "../../../assets/images/mazhavillu_logo.png";
 
 interface SearchBarProps {
-  onMobileSearchToggle?: (isOpen: boolean) => void; // ← add prop
+  onMobileSearchToggle?: (isOpen: boolean) => void;
 }
+
 interface Suggestion {
   id: string;
   name: string;
-  type: 'product' | 'category' | 'subCategory';
+  type: "product" | "category" | "subCategory";
   category: string;
   image: { url: string; publicId: string; _id: string } | string;
   price: number | null;
-  // ...other fields
 }
 
-const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
+// Helper to safely extract image URL from either shape
+const getImageUrl = (image: Suggestion["image"]): string | null => {
+  if (image && typeof image === "object") {
+    return (image as { url: string }).url || null;
+  }
+  return null;
+};
 
+const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
   const router = useRouter();
   const {
     query,
@@ -36,10 +43,7 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
     handleInputChange,
   } = useAutocomplete(300);
 
-  console.log(suggestions, "suggestions from search bar.!")
-
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
@@ -59,7 +63,10 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
   // Handle click outside to close suggestions
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowSuggestions(false);
       }
     };
@@ -72,23 +79,21 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
     if (query.trim()) {
       clearSuggestions();
       setMobileSearchOpen(false);
-      onMobileSearchToggle?.(false); // ← notify parent
+      onMobileSearchToggle?.(false);
       router.push(`/shop?search=${encodeURIComponent(query)}`);
     }
   };
 
-  const handleSuggestionClick = (suggestion: any) => {
+  const handleSuggestionClick = (suggestion: Suggestion) => {
     clearSuggestions();
     setQuery(suggestion.name);
     setMobileSearchOpen(false);
-    // Navigate to shop page with search query
 
-    if (suggestion.type === 'category') {
+    if (suggestion.type === "category") {
       router.push(`/shop?category=${encodeURIComponent(suggestion.name)}`);
-    } else if (suggestion.type === 'subCategory') {
+    } else if (suggestion.type === "subCategory") {
       router.push(`/shop?search=${encodeURIComponent(suggestion.name)}`);
     } else {
-      // Product — navigate directly to product detail page using its id
       router.push(`/shop/${suggestion.id}`);
     }
   };
@@ -98,21 +103,22 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
     setSelectedCategory(category);
 
     if (category) {
-      router.push(`/shop?category=${encodeURIComponent(category)}`, { scroll: false });
+      router.push(`/shop?category=${encodeURIComponent(category)}`, {
+        scroll: false,
+      });
     } else {
-      router.push('/shop', { scroll: false });
+      router.push("/shop", { scroll: false });
     }
   };
 
   const toggleMobileSearch = () => {
     const next = !mobileSearchOpen;
     setMobileSearchOpen(next);
-    onMobileSearchToggle?.(next); // ← notify parent
+    onMobileSearchToggle?.(next);
     if (next) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
-
 
   return (
     <nav className="bg-white nav-bar-nav shadow-sm px-3 pt-3 py-2 pb-3">
@@ -195,13 +201,21 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
                           }}
                         >
                           {loading && (
-                            <div style={{ padding: "12px", textAlign: "center", color: "#666" }}>
+                            <div
+                              style={{
+                                padding: "12px",
+                                textAlign: "center",
+                                color: "#666",
+                              }}
+                            >
                               Loading suggestions...
                             </div>
                           )}
 
                           {!loading && suggestions.length === 0 && query && (
-                            <div style={{ padding: "12px", textAlign: "center" }}>
+                            <div
+                              style={{ padding: "12px", textAlign: "center" }}
+                            >
                               <small>No products found for "{query}"</small>
                               <button
                                 type="button"
@@ -214,85 +228,124 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
                           )}
 
                           {!loading &&
-                            suggestions.map((suggestion) => (
-                              <div
-                                key={suggestion.id}
-                                onClick={() => handleSuggestionClick(suggestion)}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "12px",
-                                  padding: "10px 15px",
-                                  cursor: "pointer",
-                                  borderBottom: "1px solid #f0f0f0",
-                                  transition: "background 0.2s",
-                                  backgroundColor: suggestion.type !== 'product' ? "#f8fff8" : "white", // subtle bg for categories
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor = "#f0f7f0";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor =
-                                    suggestion.type !== 'product' ? "#f8fff8" : "white";
-                                }}
-                              >
-                                {/* Category/SubCategory suggestion */}
-                                {suggestion.type !== 'product' ? (
-                                  <>
-                                    <div style={{
-                                      width: 40,
-                                      height: 40,
-                                      borderRadius: "50%",
-                                      background: "#e8f5e9",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      flexShrink: 0,
-                                      fontSize: "18px",
-                                    }}>
-                                      🗂️
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                      <div style={{ fontWeight: 600, fontSize: "14px" }}>
-                                        {suggestion.name}
+                            suggestions.map((suggestion) => {
+                              const imageUrl = getImageUrl(suggestion.image);
+
+                              return (
+                                <div
+                                  key={suggestion.id}
+                                  onClick={() =>
+                                    handleSuggestionClick(suggestion)
+                                  }
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "12px",
+                                    padding: "10px 15px",
+                                    cursor: "pointer",
+                                    borderBottom: "1px solid #f0f0f0",
+                                    transition: "background 0.2s",
+                                    backgroundColor:
+                                      suggestion.type !== "product"
+                                        ? "#f8fff8"
+                                        : "white",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "#f0f7f0";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      suggestion.type !== "product"
+                                        ? "#f8fff8"
+                                        : "white";
+                                  }}
+                                >
+                                  {suggestion.type !== "product" ? (
+                                    /* Category / SubCategory */
+                                    <>
+                                      <div
+                                        style={{
+                                          width: 40,
+                                          height: 40,
+                                          borderRadius: "50%",
+                                          background: "#e8f5e9",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          flexShrink: 0,
+                                          fontSize: "18px",
+                                        }}
+                                      >
+                                        🗂️
                                       </div>
-                                      {/* <div style={{ fontSize: "12px", color: "#6c757d" }}>
-                                        {suggestion.type === 'category' ? 'Category' : 'Sub Category'}
-                                      </div> */}
-                                    </div>
-                                  </>
-                                ) : (
-                                  /* Product suggestion */
-                                  <>
-                                    <div style={{ flexShrink: 0 }}>
-                                      <Image
-                                        src={suggestion.image}
-                                        alt={suggestion.name}
-                                        width={40}
-                                        height={40}
-                                        style={{ objectFit: "cover", borderRadius: "4px" }}
-                                      />
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                      <div style={{ fontWeight: 500, fontSize: "14px" }}>
-                                        {suggestion.name}
+                                      <div style={{ flex: 1 }}>
+                                        <div
+                                          style={{
+                                            fontWeight: 600,
+                                            fontSize: "14px",
+                                          }}
+                                        >
+                                          {suggestion.name}
+                                        </div>
                                       </div>
-                                      {/* <div style={{ fontSize: "12px", color: "#6c757d" }}>
-                                        {suggestion.companyName} • {suggestion.category}
+                                    </>
+                                  ) : (
+                                    /* Product */
+                                    <>
+                                      <div style={{ flexShrink: 0 }}>
+                                        {imageUrl ? (
+                                          <Image
+                                            src={imageUrl}
+                                            alt={suggestion.name}
+                                            width={40}
+                                            height={40}
+                                            style={{
+                                              objectFit: "cover",
+                                              borderRadius: "4px",
+                                            }}
+                                          />
+                                        ) : (
+                                          <div
+                                            style={{
+                                              width: 40,
+                                              height: 40,
+                                              borderRadius: "4px",
+                                              background: "#f0f0f0",
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "center",
+                                              fontSize: "18px",
+                                            }}
+                                          >
+                                            🛒
+                                          </div>
+                                        )}
                                       </div>
-                                      <div style={{ fontSize: "13px", color: "#28a745", fontWeight: 500 }}>
-                                        ₹{suggestion.price?.toFixed(2)}
-                                      </div> */}
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            ))}
+                                      <div style={{ flex: 1 }}>
+                                        <div
+                                          style={{
+                                            fontWeight: 500,
+                                            fontSize: "14px",
+                                          }}
+                                        >
+                                          {suggestion.name}
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                              );
+                            })}
                         </div>
                       )}
                     </div>
 
-                    <button className="btn btn-success" type="submit" style={{ width: "40px" }}>
+                    <button
+                      className="btn btn-success"
+                      type="submit"
+                      style={{ width: "40px" }}
+                    >
                       <Search size={14} />
                     </button>
                   </div>
@@ -304,7 +357,7 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
           <div className="d-flex align-items-center gap-3">
             {isMobile && (
               <button
-                className="btn btn-link  mr-4"
+                className="btn btn-link mr-4"
                 onClick={toggleMobileSearch}
                 aria-label="Toggle Search"
               >
@@ -364,15 +417,17 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
 
             {/* Mobile Suggestions */}
             {(query || loading) && (
-              <div style={{ marginTop: "15px", maxHeight: "calc(100vh - 150px)", overflowY: "auto" }}>
+              <div
+                style={{
+                  marginTop: "15px",
+                  maxHeight: "calc(100vh - 150px)",
+                  overflowY: "auto",
+                }}
+              >
                 {loading && <div className="text-center p-3">Loading...</div>}
                 {!loading &&
                   suggestions.map((suggestion) => {
-                    // Normalize image — object or empty string
-                    const imageUrl =
-                      suggestion.image && typeof suggestion.image === "object"
-                        ? (suggestion.image as { url: string }).url
-                        : null;
+                    const imageUrl = getImageUrl(suggestion.image);
 
                     return (
                       <div
@@ -417,7 +472,9 @@ const SearchBar = ({ onMobileSearchToggle }: SearchBarProps) => {
                             <div>{suggestion.name}</div>
                             <small className="text-muted">
                               {suggestion.type !== "product"
-                                ? suggestion.type === "category" ? "Category" : "Sub Category"
+                                ? suggestion.type === "category"
+                                  ? "Category"
+                                  : "Sub Category"
                                 : suggestion.category}
                             </small>
                           </div>

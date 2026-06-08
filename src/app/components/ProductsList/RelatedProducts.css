@@ -54,20 +54,21 @@
         align-items: flex-start !important;
         gap: 15px;
     }
-    
+
     .relatedProducts.product-list .h4_1 {
         font-size: 14px;
         width: 100%;
     }
-    
+
     .sort-section {
         width: 100%;
     }
-    
+
     .sort-dropdown.box-wrapper {
         width: 100%;
         max-width: 200px;
         margin-left: 0;
+        padding: 10px 35px 10px 18px;
     }
 }
 
@@ -79,24 +80,30 @@
         gap: 12px;
         padding: 0 10px;
     }
-    
+
     .relatedProducts.product-list .h4_1 {
         font-size: 13px;
         line-height: 1.4;
         text-align: left;
         width: 100%;
     }
-    
+
     .sort-section {
         width: 100%;
     }
-    
+
     .sort-dropdown.box-wrapper {
         width: 100%;
         max-width: 180px;
-        padding: 10px 28px 10px 14px;
+        padding: 8px 32px 8px 14px;
         font-size: 12px;
         margin-left: 0;
+        height: 38px;
+    }
+
+    .sort-section::after {
+        right: 12px;
+        font-size: 9px;
     }
 }
 
@@ -106,7 +113,7 @@
         padding-top: 20px;
         margin-top: 15px;
     }
-    
+
     .youmightheading.productlist {
         flex-direction: column;
         align-items: flex-start !important;
@@ -114,7 +121,7 @@
         margin-bottom: 20px !important;
         padding: 0 5px;
     }
-    
+
     .relatedProducts.product-list .h4_1 {
         font-size: 12px;
         position: static;
@@ -124,24 +131,24 @@
         width: 100%;
         word-break: break-word;
     }
-    
+
     .sort-section {
         width: 100%;
-        display: block;
+        display: inline-block;
     }
-    
+
     .sort-dropdown.box-wrapper {
         width: 100%;
         max-width: 160px;
-        padding: 8px 25px 8px 12px;
+        padding: 8px 30px 8px 12px;
         font-size: 11px;
         margin-left: 0;
-        background-color: #CFCFCF;
+        background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+        height: 36px;
     }
-    
-    /* Fix for the custom arrow position */
+
     .sort-section::after {
-        right: 12px;
+        right: 10px;
         font-size: 8px;
     }
 }
@@ -152,13 +159,14 @@
         font-size: 11px;
         line-height: 1.3;
     }
-    
+
     .sort-dropdown.box-wrapper {
         max-width: 150px;
-        padding: 7px 22px 7px 10px;
+        padding: 7px 28px 7px 10px;
         font-size: 10px;
+        height: 34px;
     }
-    
+
     .sort-section::after {
         right: 10px;
         font-size: 7px;
@@ -171,7 +179,7 @@
         gap: 8px;
         padding: 0;
     }
-    
+
     .relatedProducts.product-list .h4_1 {
         font-size: 10px;
         left: auto;
@@ -179,13 +187,14 @@
         position: static;
         text-align: left;
     }
-    
+
     .sort-dropdown.box-wrapper {
         max-width: 130px;
-        padding: 6px 20px 6px 8px;
+        padding: 6px 25px 6px 8px;
         font-size: 9px;
+        height: 32px;
     }
-    
+
     .sort-section::after {
         right: 8px;
         font-size: 6px;
@@ -199,11 +208,17 @@
 /* Modern Sort Dropdown Styles */
 .sort-section {
     position: relative;
-    
+    display: inline-block;
+
 }
 
 .sort-dropdown.box-wrapper {
-    padding: 10px 32px 10px 18px;
+    padding: 10px 35px 10px 18px !important; /* Ensure right padding for icon */
+    height: 42px;
+}
+
+/* .sort-dropdown.box-wrapper {
+    padding: 10px 35px 10px 18px !important; 
     background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
     border: 2px solid #e0e0e0;
     border-radius: 12px;
@@ -217,7 +232,7 @@
     font-family: inherit;
     min-width: 160px;
     letter-spacing: 0.3px;
-}
+} */
 
 .sort-dropdown.box-wrapper:hover {
     border-color: #4CAF50;
@@ -238,7 +253,7 @@
 }
 
 /* Custom dropdown arrow */
-.sort-section::after {
+/* .sort-section::after {
     content: "▼";
     font-size: 10px;
     color: #4CAF50;
@@ -248,6 +263,19 @@
     transform: translateY(-50%);
     pointer-events: none;
     transition: transform 0.3s ease;
+} */
+
+.sort-section::after {
+    right: 15px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 10px !important;
+}
+
+@media (max-width: 768px) {
+    .sort-dropdown.box-wrapper {
+        margin-left: 0 !important;
+    }
 }
 
 .sort-section:hover::after {
@@ -338,7 +366,7 @@
         padding: 8px 28px 8px 14px;
         font-size: 12px;
     }
-    
+
     .sort-section::after {
         font-size: 8px;
         right: 10px;
