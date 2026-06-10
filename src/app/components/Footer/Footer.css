@@ -1,3 +1,4 @@
+/* Base footer styles with responsive font sizes */
 .footersection .container-fluid {
     width: 90%;
     display: flex;
@@ -14,78 +15,43 @@
 .footersection {
     background-size: cover;
     background-color: #007F27;
-    ;
     background-image: url("../../../assets/images/footerbg.png");
-        /* background-image: url("../../../assets/images/footerbg.png"); */
-
 }
 
-.footersection .footerbrandlogo {
-    max-width: 200px;
-    margin-bottom: 20px;
-    display: block;
-    margin-left: 0;
-}
-
-@media (max-width: 320px) {
-    .footersection .footerbrandlogo {
-        max-width: 250px;
-        margin-bottom: 16px;
-    }
-
-    .footersection {
-        overflow: hidden;
-        background-size: cover;
-        background-color: rgb(32, 235, 32);
-        background-image: url("../../../assets/images/footerbg.png");
-    }
-}
-
-.footersection .col-one {
-    color: white;
-    text-align: start;
-}
-
-.footersection .col-two {
-    color: white;
-    text-align: start;
-
-}
-
-.footersection .col-three {
-    color: white;
-    text-align: start;
-}
-
-.footersection .col-four {
-    color: white;
-    text-align: start;
-}
-
-.footersection .col-five {
-    color: white;
-    text-align: start;
-}
-
-.footersection .CUSTOMER {
-    color: white;
-    text-align: start;
-}
-
-.footersection .COMPANY {
-    color: white;
-    text-align: start;
-    margin-top: 14px;
-}
-
+/* Responsive font sizes using clamp() and relative units */
+.footersection .col-one,
+.footersection .col-two,
+.footersection .col-three,
+.footersection .col-four,
+.footersection .col-five,
+.footersection .CUSTOMER,
+.footersection .COMPANY,
 .footersection .CATEGORIES {
     color: white;
     text-align: start;
+    font-size: clamp(12px, 4vw, 16px); /* Scales from 12px to 16px */
+}
+
+/* Heading styles */
+.footersection .CUSTOMER,
+.footersection .COMPANY,
+.footersection .CATEGORIES {
+    margin-top: 14px;
+    font-weight: 600;
+    font-size: clamp(14px, 5vw, 18px); /* Slightly larger for headings */
+}
+
+/* Link styles */
+.footersection .footer-links {
     margin-top: 14px;
 }
 
-.footersection .footer-links {
-    margin-top: 14px;
+.footersection .footer-links a,
+.footersection .footer-links p {
+    font-size: clamp(11px, 3.5vw, 14px);
+    line-height: 1.6;
+    margin-bottom: 8px;
+    display: block;
 }
 
 .footersection .footer-row {
@@ -102,9 +68,10 @@
     text-align: left;
 }
 
-
 .footersection .shoponthego {
     width: 300px;
+    margin-top: 20px;
+    font-size: clamp(13px, 4vw, 16px);
 }
 
 .footersection .footerbtn1 img {
@@ -114,17 +81,12 @@
 
 .footersection .playstorerow {
     text-align: left;
-    line-height: 1.2px;
+    line-height: 1.2;
     color: white;
 }
 
 .footersection .playstore {
     text-align: start;
-}
-
-.footersection .shoponthego {
-    margin-top: 20px;
-    font-size: 16px;
 }
 
 .footersection .footerbtn1 {
@@ -139,12 +101,14 @@
 }
 
 .getiton {
-    font-size: 10px;
+    font-size: clamp(8px, 3vw, 10px);
     margin: 0;
 }
 
 .footersection .store-buttons {
     margin-top: 20px;
+    display: flex;
+    gap: 10px;
 }
 
 .footersection .footerbtn2 {
@@ -153,18 +117,14 @@
     border: 1px solid white;
 }
 
-.footersection .store-buttons {
-    display: flex;
-    gap: 10px;
-}
-
 .googleplaytext {
-    font-size: 12px;
+    font-size: clamp(9px, 3vw, 12px);
     margin: 0px;
 }
 
 .footersection .weareaccepting {
     margin-top: 50px;
+    font-size: clamp(13px, 4vw, 16px);
 }
 
 .footersection .footerpaybtn {
@@ -196,7 +156,7 @@
 
 .footersection .connectto {
     margin-top: 30px;
-
+    font-size: clamp(13px, 4vw, 16px);
 }
 
 .footersection .socialmedialogo {
@@ -210,12 +170,31 @@
     background-color: rgb(2, 75, 2);
 }
 
+.copyrighttext {
+    font-size: clamp(10px, 3vw, 14px);
+    line-height: 40px;
+    text-align: center;
+    color: white;
+}
+
+/* Mobile Small (320px) */
 @media (max-width: 320px) {
-    .footerbtn1 {
+    .footersection .footerbrandlogo {
+        max-width: 250px;
+        margin-bottom: 16px;
+    }
+
+    .footersection {
+        overflow: hidden;
+        background-size: cover;
+        background-color: rgb(32, 235, 32);
+        background-image: url("../../../assets/images/footerbg.png");
+    }
+
+    .footerbtn1,
+    .footerbtn2 {
         width: 120px;
         height: 38px;
-        font-size: 12px;
-        padding: 4px 8px;
     }
 
     .weareaccepting {
@@ -224,30 +203,48 @@
 
     .footerpaybtn {
         margin-top: 20px;
-
     }
 
     .paybtn {
         padding: 0;
     }
-
-    .copyrighttext {
-        font-size: 11px;
+    
+    /* Smaller font for extremely small devices */
+    .footersection .footer-links a {
+        font-size: 10px;
     }
 }
 
+/* Mobile (375px) */
 @media (max-width: 375px) {
     .copyrighttext {
         font-size: 10px;
     }
+    
+    .footersection .CUSTOMER,
+    .footersection .COMPANY,
+    .footersection .CATEGORIES {
+        font-size: 15px;
+    }
 }
 
+/* Mobile (425px) */
 @media (max-width: 425px) {
     .copyrighttext {
         font-size: 10px;
     }
+    
+    /* Adjust column text for mobile */
+    .footersection .col-one,
+    .footersection .col-two,
+    .footersection .col-three,
+    .footersection .col-four,
+    .footersection .col-five {
+        font-size: 13px;
+    }
 }
 
+/* Tablet (769px - 1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
     .col-four {
         margin-left: 150px;
@@ -275,9 +272,18 @@
     .footerpaybtn {
         margin-top: 5px;
     }
-
+    
+    /* Tablet font adjustments */
+    .footersection .col-one,
+    .footersection .col-two,
+    .footersection .col-three,
+    .footersection .col-four,
+    .footersection .col-five {
+        font-size: 14px;
+    }
 }
 
+/* Desktop (1025px - 1440px) */
 @media (min-width: 1025px) and (max-width: 1440px) {
     .paybtn {
         background-color: #fff;
@@ -289,5 +295,29 @@
         transition: box-shadow 0.3s;
         width: 80px;
         height: 30px;
+    }
+    
+    /* Desktop font sizes */
+    .footersection .col-one,
+    .footersection .col-two,
+    .footersection .col-three,
+    .footersection .col-four,
+    .footersection .col-five {
+        font-size: 16px;
+    }
+}
+
+/* Large Desktop (1441px and above) */
+@media (min-width: 1441px) {
+    .footersection .col-one,
+    .footersection .col-two,
+    .footersection .col-three,
+    .footersection .col-four,
+    .footersection .col-five {
+        font-size: 18px;
+    }
+    
+    .footersection .footer-links a {
+        font-size: 16px;
     }
 }

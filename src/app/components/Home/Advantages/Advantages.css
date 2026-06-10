@@ -45,7 +45,7 @@
 
 /* Text */
 .adv-container .adv-text {
-    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    font-size: clamp(0.65rem, 1.2vw, 1rem);
     font-weight: 500;
     white-space: nowrap;
 }

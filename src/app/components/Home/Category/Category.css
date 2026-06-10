@@ -32,15 +32,16 @@
 }
 
 .cat-list-scroll .container-fluid {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .cat-list-scroll .swiper {
-  width: 100%;
-  max-width: 1400px; /* Adjust as needed */
-  margin: 0 auto;
+    width: 100%;
+    max-width: 1400px;
+    /* Adjust as needed */
+    margin: 0 auto;
 }
 
 @media (max-width: 1700px) and (min-width: 1200px) {
@@ -59,10 +60,15 @@
     }
 
     p.fw-bold {
-        font-size: 0.9rem; 
+        font-size: 0.9rem;
     }
 }
 
+@media screen and (max-width:360px) {
+    p {
+        font-size: 13px;
+    }
+}
 
 @media (max-width: 320px) {
     .category-box {
@@ -82,4 +88,6 @@
     .text-center.px-2 {
         padding: 5px;
     }
+
+
 }

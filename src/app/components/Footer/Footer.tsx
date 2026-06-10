@@ -108,7 +108,7 @@ const Footer = () => {
                         <div className="footer-links">
                             Privacy policy <br />
                             Shipping policy <br />
-                            FAQs <br />
+                            FAQS <br />
                             Ordering Tracking <br />
                             Vendor Connect <br />
                             Return/Refund Policy

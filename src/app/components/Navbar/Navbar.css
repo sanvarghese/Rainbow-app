@@ -106,6 +106,7 @@
     width: 100%;
     display: block;
     color: #000000ab;
+    font-size: 13px;
   }
 
   .nav-bar .nav-link:hover {

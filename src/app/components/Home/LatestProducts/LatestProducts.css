@@ -406,9 +406,18 @@
   .product-item {
     width: 200px;
   }
-  
+
+  .offer-title{
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
   .section-title {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
+  }
+  
+  .section-subtitle{
+    font-size: 0.9rem;
   }
   
   .product-brand {

@@ -20,7 +20,7 @@
 
 .product-list .card-bg-1 {
     /* background-image: url('../images/cardbg1.png'); */
-        background-image: url('../../../../assets/images/cardbg1.png');
+    background-image: url('../../../../assets/images/cardbg1.png');
     border-radius: 14%;
     background-color: #F3F6E5;
     text-align: left;
@@ -155,6 +155,13 @@
         margin-top: -30px;
         margin-left: 85px;
         width: 160px;
+    }
+}
+
+@media screen and (max-width:360px) {
+    .product-list .order-btn {
+        height: 22px;
+        font-size: 12px;
     }
 }
 
