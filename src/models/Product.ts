@@ -1,39 +1,48 @@
 import mongoose, { Schema, models, Document } from "mongoose";
 import "./Company";
 
-// Product Image Interface
 export interface IProductImage {
   url: string;
   publicId: string;
 }
 
-// Variant Interface
-export interface IVariant {
-  variantType: "weight" | "volume" | "size" | "piece" | "pack" | "custom";
-  variantUnit?: string;
-  variantValue: string;
-  displayValue: string;
+// ── Child option inside a variant (e.g. color/size sub-options of a weight variant)
+export interface IVariantOption {
+  optionType: "color" | "size" | "custom";
+  optionLabel: string;          // e.g. "Red", "Small", "Matte"
+  colorHex?: string;            // only when optionType === "color"
+  images: IProductImage[];      // up to 5 per-option images (Cloudinary)
   quantity: number;
   price: number;
   offerPrice: number;
 }
 
+export interface IVariant {
+  variantType: "weight" | "volume" | "size" | "piece" | "pack" | "color" | "custom";
+  variantUnit?: string;
+  variantValue: string;
+  displayValue: string;
+  colorHex?: string;            // only when variantType === "color"
+  images: IProductImage[];      // up to 5 per-variant images (Cloudinary)
+  quantity: number;
+  price: number;
+  offerPrice: number;
+  options: IVariantOption[];    // child options
+}
+
 export interface IProduct extends Document {
   userId: mongoose.Types.ObjectId;
   companyId: mongoose.Types.ObjectId;
-  productImages: IProductImage[]; // Changed to array of objects
+  productImages: IProductImage[];
   badges?: string;
   name: string;
   descriptionShort: string;
   descriptionLong?: string;
-
   quantity: number;
   price: number;
   offerPrice: number;
-
   hasVariants: boolean;
   variants?: IVariant[];
-
   category: string;
   subCategory: string;
   childSubCategory?: string;
@@ -43,16 +52,20 @@ export interface IProduct extends Document {
   updatedAt: Date;
 }
 
-const VariantSchema = new Schema<IVariant>(
+// ── Child option schema ───────────────────────────────────────────────────────
+const VariantOptionSchema = new Schema<IVariantOption>(
   {
-    variantType: {
+    optionType: {
       type: String,
       required: true,
-      enum: ["weight", "volume", "size", "piece", "pack", "custom"],
+      enum: ["color", "size", "custom"],
     },
-    variantUnit: { type: String },
-    variantValue: { type: String, required: true },
-    displayValue: { type: String, required: true },
+    optionLabel: { type: String, required: true, trim: true },
+    colorHex: { type: String },
+    images: {
+      type: [{ url: String, publicId: String }],
+      default: [],
+    },
     quantity: { type: Number, required: true, min: 0 },
     price: { type: Number, required: true, min: 0 },
     offerPrice: { type: Number, required: true, min: 0 },
@@ -60,6 +73,31 @@ const VariantSchema = new Schema<IVariant>(
   { _id: true },
 );
 
+// ── Variant schema ────────────────────────────────────────────────────────────
+const VariantSchema = new Schema<IVariant>(
+  {
+    variantType: {
+      type: String,
+      required: true,
+      enum: ["weight", "volume", "size", "piece", "pack", "color", "custom"],
+    },
+    variantUnit: { type: String },
+    variantValue: { type: String, required: true },
+    displayValue: { type: String, required: true },
+    colorHex: { type: String },
+    images: {
+      type: [{ url: String, publicId: String }],
+      default: [],
+    },
+    quantity: { type: Number, required: true, min: 0 },
+    price: { type: Number, required: true, min: 0 },
+    offerPrice: { type: Number, required: true, min: 0 },
+    options: { type: [VariantOptionSchema], default: [] },
+  },
+  { _id: true },
+);
+
+// ── Product schema ────────────────────────────────────────────────────────────
 const ProductSchema = new Schema<IProduct>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -74,7 +112,6 @@ const ProductSchema = new Schema<IProduct>(
     },
 
     badges: { type: String },
-
     name: { type: String, required: true, trim: true },
     descriptionShort: {
       type: String,
@@ -83,27 +120,12 @@ const ProductSchema = new Schema<IProduct>(
     },
     descriptionLong: { type: String, default: "" },
 
-    quantity: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    price: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    offerPrice: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+    quantity: { type: Number, default: 0, min: 0 },
+    price:    { type: Number, default: 0, min: 0 },
+    offerPrice: { type: Number, default: 0, min: 0 },
 
     hasVariants: { type: Boolean, default: false },
-    variants: {
-      type: [VariantSchema],
-      default: [],
-    },
+    variants: { type: [VariantSchema], default: [] },
 
     category: { type: String, required: true, trim: true },
     subCategory: { type: String, required: true, trim: true },
@@ -119,16 +141,12 @@ const ProductSchema = new Schema<IProduct>(
   { timestamps: true },
 );
 
-// Indexes
 ProductSchema.index({ userId: 1, status: 1 });
 ProductSchema.index({ companyId: 1 });
 ProductSchema.index({ category: 1, subCategory: 1 });
 ProductSchema.index({ createdAt: -1 });
 
-if (models.Product) {
-  delete models.Product;
-}
+if (models.Product) delete models.Product;
 
 const Product = mongoose.model<IProduct>("Product", ProductSchema);
-
 export default Product;

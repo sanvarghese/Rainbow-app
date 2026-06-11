@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '../../../../lib/mongodb';
 import Product from '../../../../models/Product';
+import connectDB from '../../../../lib/mongodb';
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,22 +10,18 @@ export async function GET(req: NextRequest) {
     const pathSegments = url.pathname.split('/');
     const id = pathSegments[pathSegments.length - 1];
 
-    console.log('Fetching product with ID:', id);
-
     if (!id) {
       return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
     }
 
-    // Fetch product with company details
     const product = await Product.findById(id)
       .populate('companyId', 'name companyLogo description')
-      .lean();
+      .lean() as any;
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // IMPORTANT: Check status instead of isApproved
     if (product.status !== 'approved') {
       return NextResponse.json(
         { error: 'Product is not approved or not available' },
@@ -33,76 +29,83 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Quantity validation (non-variant + variant products)
+    // ── Availability & stock ──────────────────────────────────────────────
     let isAvailable = false;
     let availableQuantity = 0;
 
     if (!product.hasVariants) {
-      // Non-variant product
       availableQuantity = product.quantity || 0;
       isAvailable = availableQuantity > 0;
-    } else {
-      // Variant product - check if at least one variant has quantity > 0
-      if (product.variants && product.variants.length > 0) {
-        const totalStock = product.variants.reduce((sum: number, v: any) => 
-          sum + (v.quantity || 0), 0);
-        availableQuantity = totalStock;
-        isAvailable = totalStock > 0;
+    } else if (product.variants?.length > 0) {
+      // Sum quantity across variants and their options
+      for (const v of product.variants) {
+        if (v.options?.length > 0) {
+          availableQuantity += v.options.reduce((s: number, o: any) => s + (o.quantity || 0), 0);
+        } else {
+          availableQuantity += v.quantity || 0;
+        }
       }
+      isAvailable = availableQuantity > 0;
     }
 
     if (!isAvailable) {
-      return NextResponse.json(
-        { error: 'Product is out of stock' },
-        { status: 404 }
+      return NextResponse.json({ error: 'Product is out of stock' }, { status: 404 });
+    }
+
+    // ── Discount (for display — variants handle their own) ────────────────
+    let discount = 0;
+    if (!product.hasVariants) {
+      discount =
+        product.price > product.offerPrice
+          ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
+          : 0;
+    } else if (product.variants?.length > 0) {
+      discount = Math.max(
+        ...product.variants.map((v: any) => {
+          const candidates = v.options?.length > 0 ? v.options : [v];
+          return Math.max(
+            ...candidates.map((c: any) => {
+              const p = c.price || 0;
+              const op = c.offerPrice || p;
+              return p > 0 && p > op ? Math.round(((p - op) / p) * 100) : 0;
+            })
+          );
+        })
       );
     }
 
-    // Calculate discount (for non-variant products)
-    let discount = 0;
-    if (!product.hasVariants) {
-      discount = product.price > product.offerPrice
-        ? Math.round(((product.price - product.offerPrice) / product.price) * 100)
-        : 0;
-    } else {
-      // For variant products - find best discount
-      if (product.variants && product.variants.length > 0) {
-        discount = Math.max(...product.variants.map((v: any) => {
-          const p = v.price || 0;
-          const op = v.offerPrice || p;
-          return p > 0 && p > op ? Math.round(((p - op) / p) * 100) : 0;
-        }));
+    // ── Base price/offerPrice for display before variant selection ─────────
+    // Use the first available variant/option so the UI has something to show
+    let basePrice = product.price || 0;
+    let baseOfferPrice = product.offerPrice || 0;
+
+    if (product.hasVariants && product.variants?.length > 0) {
+      const firstVariant = product.variants[0];
+      if (firstVariant.options?.length > 0) {
+        basePrice = firstVariant.options[0].price;
+        baseOfferPrice = firstVariant.options[0].offerPrice;
+      } else {
+        basePrice = firstVariant.price;
+        baseOfferPrice = firstVariant.offerPrice;
       }
     }
 
-    // Prepare response for frontend (make it compatible with your Product interface)
-    const productWithDiscount = {
+    const productResponse = {
       ...product,
       discount,
       company: product.companyId || { name: 'Unknown Brand' },
-      // For backward compatibility with your frontend
-      quantity: availableQuantity,   // Total available quantity
-      price: product.price || (product.variants?.[0]?.price || 0),
-      offerPrice: product.offerPrice || (product.variants?.[0]?.offerPrice || 0),
+      quantity: availableQuantity,
+      price: basePrice,
+      offerPrice: baseOfferPrice,
+      // variants is already included from ...product (full array with options)
     };
 
-    console.log('Product successfully fetched and returned');
-
-    return NextResponse.json({
-      success: true,
-      product: productWithDiscount,
-    });
-
+    return NextResponse.json({ success: true, product: productResponse });
   } catch (error: any) {
     console.error('Get single product error:', error);
-
     if (error.name === 'CastError') {
       return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 });
     }
-
-    return NextResponse.json(
-      { error: 'Failed to fetch product' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
   }
 }
