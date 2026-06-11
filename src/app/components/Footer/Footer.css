@@ -177,6 +177,16 @@
     color: white;
 }
 
+/* .footer-links{
+    font-size: 15px;
+    line-height: 32px;             
+} */
+
+.footersection .footer-links{
+    font-size: 15px;
+    line-height: 32px;    
+}
+
 /* Mobile Small (320px) */
 @media (max-width: 320px) {
     .footersection .footerbrandlogo {

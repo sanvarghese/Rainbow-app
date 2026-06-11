@@ -83,9 +83,9 @@ const Footer = () => {
                     <div className="col col-two">
                         <u>CUSTOMER CARE</u>
                         <div className="footer-links">
-                            Privacy policy <br />
-                            Shipping policy <br />
-                            FAQs <br />
+                            Privacy Policy <br />
+                            Shipping Policy <br />
+                            FAQS <br />
                             Ordering Tracking <br />
                             Vendor Connect <br />
                             Return/Refund Policy
@@ -97,8 +97,8 @@ const Footer = () => {
                         <u>COMPANY</u>
                         <div className="footer-links">
                             Careers at Mazhavillu <br />
-                            Terms and conditions <br />
-                            Company policies
+                            Terms and Conditions <br />
+                            Company Policies
                         </div>
                     </div>
 
@@ -106,8 +106,8 @@ const Footer = () => {
                     <div className="col col-four">
                         <u>CATEGORIES</u>
                         <div className="footer-links">
-                            Privacy policy <br />
-                            Shipping policy <br />
+                            Privacy Policy <br />
+                            Shipping Policy <br />
                             FAQS <br />
                             Ordering Tracking <br />
                             Vendor Connect <br />
@@ -120,7 +120,7 @@ const Footer = () => {
                         <u className="shoponthegohead">SHOP ON THE GO</u>
                         <br />
                         <div className="shoponthego">
-                            Mazhavillu App is available. Get it now <br />
+                            Mazhavillu App is Available. Get it Now <br />
                             <div className="store-buttons">
                                 <div className="d-flex gap-2">
                                     <button className="footerbtn1 btn btn-outline w-60 justify-content-center">
