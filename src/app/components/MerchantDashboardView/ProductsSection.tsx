@@ -106,6 +106,8 @@ const ProductsSection = () => {
                 setCurrentPage(newTotalPages);
             }
 
+            toast.success('Product deleted successfully');
+
             setShowDeleteDialog(false);
             setProductToDelete(null);
         } catch (error: any) {
