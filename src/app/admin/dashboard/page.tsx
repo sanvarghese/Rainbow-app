@@ -19,10 +19,12 @@ import BannerSection from '@/app/components/Admin/BannerSection';
 // Import signOut from your auth configuration
 // import { signOut } from '@/auth';
 import { signOut } from "next-auth/react";
+import AdminOrdersSection from '@/app/components/Admin/AdminOrdersSection';
 
-type SectionType = 'dashboard' | 'companies' | 'products' | 'approvals-companies' | 'approvals-products' | 'categories' | 'weekend-offers' | 'banners';
+type SectionType = 'dashboard' | 'companies' | 'products' | 'approvals-companies' | 'approvals-products' | 'categories' | 'weekend-offers' | 'banners' | 'orders';
 
 const AdminDashboardView = () => {
+
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -278,6 +280,40 @@ const AdminDashboardView = () => {
                 )}
               </button>
             </li>
+
+
+            {/* check check..! */}
+
+            {/* <li>
+              <button
+                onClick={() => handleSectionChange('orders')}
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'orders'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+              >
+                <CheckSquare className="w-5 h-5 mr-3" />
+                <span className="flex-1 text-left">Orders</span>
+              </button>
+            </li> */}
+          </ul>
+
+          <div className="pt-4 pb-2">
+            <p className="text-xs font-semibold text-gray-500 px-3">ORDERS</p>
+          </div>
+          <ul>
+            <li>
+              <button
+                onClick={() => handleSectionChange('orders')}
+                className={`flex items-center w-full p-3 rounded-lg transition-colors ${activeSection === 'orders'
+                  ? 'bg-green-50 text-green-700 font-medium'
+                  : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+              >
+                <CheckSquare className="w-5 h-5 mr-3" />
+                <span className="flex-1 text-left">Orders</span>
+              </button>
+            </li>
           </ul>
         </div>
 
@@ -471,6 +507,7 @@ const AdminDashboardView = () => {
           {activeSection === 'approvals-products' && <ProductApprovalSection />}
           {activeSection === 'weekend-offers' && <WeekendOffersSection />}
           {activeSection === 'banners' && <BannerSection />}
+          {activeSection === 'orders' && <AdminOrdersSection />}
 
         </div>
       </div>
